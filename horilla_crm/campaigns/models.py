@@ -4,8 +4,10 @@ Includes campaign details, ownership, and member (lead/contact) associations.
 Provides URL helpers and validation for campaign-related operations.
 """
 
+# Standard library imports
 import logging
 
+# Third-party imports (Django)
 from django.apps import apps
 from django.conf import settings
 from django.db import models
@@ -13,7 +15,8 @@ from django.forms import ValidationError
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from horilla_core.models import HorillaCoreModel, MultipleCurrency
+# First-party / Horilla imports
+from horilla_core.models import HorillaCoreModel
 from horilla_utils.middlewares import _thread_local
 
 logger = logging.getLogger(__name__)
@@ -110,6 +113,7 @@ class CampaignMember(HorillaCoreModel):
         model_instance = self.campaign
         if model_instance and hasattr(model_instance, "get_detail_view_url"):
             return model_instance.get_detail_view_url()
+        return None
 
     def get_edit_url(self):
         """

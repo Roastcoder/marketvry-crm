@@ -1,8 +1,12 @@
 """Views for Lead model."""
 
+# Standard library imports
 from urllib.parse import urlencode
 
+# Third-party imports
 from dateutil.relativedelta import relativedelta
+
+# Third-party imports (Django)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -15,6 +19,7 @@ from django.utils.functional import cached_property  # type: ignore
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
+# First-party / Horilla imports
 from horilla_activity.views import HorillaActivitySectionView
 from horilla_core.decorators import (
     htmx_required,
@@ -23,14 +28,10 @@ from horilla_core.decorators import (
 )
 from horilla_core.utils import is_owner
 from horilla_crm.accounts.models import Account
-from horilla_crm.campaigns.models import CampaignMember
 from horilla_crm.contacts.models import Contact, ContactAccountRelationship
 from horilla_crm.leads.filters import LeadFilter
-from horilla_crm.leads.forms import (  # type: ignore
-    LeadConversionForm,
-    LeadFormClass,
-    LeadSingleForm,
-)
+from horilla_crm.leads.forms import LeadSingleForm  # type: ignore
+from horilla_crm.leads.forms import LeadConversionForm, LeadFormClass
 from horilla_crm.leads.models import Lead, LeadStatus
 from horilla_crm.opportunities.models import (
     Opportunity,
@@ -115,6 +116,7 @@ class LeadNavbar(LoginRequiredMixin, HorillaNavView):
                 "url": f"""{ reverse_lazy('leads:leads_create')}?new=true""",
                 "attrs": {"id": "lead-create"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -184,6 +186,7 @@ class LeadListView(LoginRequiredMixin, HorillaListView):
                 "url": f"""{ reverse_lazy('leads:leads_create')}?new=true""",
                 "attrs": 'id="lead-create"',
             }
+        return None
 
     lead_permission = {
         "permission": "leads.change_lead",
@@ -220,8 +223,8 @@ class LeadListView(LoginRequiredMixin, HorillaListView):
             "action": "Convert",
             "src": "assets/icons/a3.svg",
             "img_class": "w-4 h-4",
-            "attrs": f"""
-                        hx-get="{{get_lead_convert_url}}"
+            "attrs": """
+                        hx-get="{get_lead_convert_url}"
                         hx-target="#contentModalBox"
                         hx-swap="innerHTML"
                         onclick="openContentModal()"
@@ -719,6 +722,7 @@ class LeadChangeOwnerForm(LoginRequiredMixin, HorillaSingleFormView):
         pk = self.kwargs.get("pk") or self.request.GET.get("id")
         if pk:
             return reverse_lazy("leads:lead_change_owner", kwargs={"pk": pk})
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -800,9 +804,9 @@ class LeadConversionView(LoginRequiredMixin, FormView):
                 context[f"{hx_target}_action"] = action
                 if hx_target == "account-field":
                     return render(request, "lead_convert_account.html", context)
-                elif hx_target == "contact-field":
+                if hx_target == "contact-field":
                     return render(request, "lead_convert_contact.html", context)
-                elif hx_target == "opportunity-field":
+                if hx_target == "opportunity-field":
                     return render(request, "lead_convert_opportunity.html", context)
 
         return super().get(request, *args, **kwargs)

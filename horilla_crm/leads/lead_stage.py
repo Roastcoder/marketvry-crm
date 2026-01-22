@@ -1,5 +1,6 @@
 """Lead Stage Views"""
 
+# Third party imports (Django)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
+# First party / Horilla imports
 from horilla.auth.models import User
 from horilla.exceptions import HorillaHttp404
 from horilla_core.decorators import (
@@ -36,6 +38,7 @@ from horilla_generics.views import (
 )
 from horilla_utils.middlewares import _thread_local
 
+# Local imports
 from .signals import lead_stage_created
 
 
@@ -77,6 +80,7 @@ class LeadStageNavbar(LoginRequiredMixin, HorillaNavView):
                 "url": f"""{ reverse_lazy('leads:create_lead_stage')}?new=true""",
                 "attrs": {"id": "lead-stage-create"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -125,6 +129,7 @@ class LeadStageListView(LoginRequiredMixin, HorillaListView):
                 "url": f"""{ reverse_lazy('leads:create_lead_stage')}?new=true""",
                 "attrs": 'id="lead-stage-create"',
             }
+        return None
 
     columns = ["order", "name", (_("Is Final Stage"), "is_final_col"), "probability"]
     actions = [
@@ -386,13 +391,11 @@ class LoadLeadStagesView(LoginRequiredMixin, View):
         # Group companies by their stage signatures
         signature_groups = {}
         default_signature = create_stage_signature(default_stages)
-        has_default_match = False
 
         for _comp_id, comp_data in raw_company_stages.items():
             signature = create_stage_signature(comp_data["stages"])
 
             if signature == default_signature:
-                has_default_match = True
                 continue
 
             if signature not in signature_groups:
@@ -406,7 +409,7 @@ class LoadLeadStagesView(LoginRequiredMixin, View):
             representative = companies[0]
 
             if len(companies) > 1:
-                company_names = [comp["company_name"] for comp in companies]
+                _company_names = [comp["company_name"] for comp in companies]
                 representative["company_name"] = (
                     f"{representative['company_name']} (+{len(companies)-1} others)"
                 )
@@ -552,9 +555,9 @@ class SaveCustomStagesView(LoginRequiredMixin, View, ProgressStepsMixin):
         LeadStatus.all_objects.filter(company=company).delete()
 
         try:
-            for i in range(len(stage_names)):
+            for i, name in enumerate(stage_names):
                 is_final = str(i) in stage_is_finals
-                name = stage_names[i].strip()
+                name = name.strip()
                 if not name:
                     return HttpResponse(
                         f'<div class="alert alert-danger">Stage name cannot be empty for stage {i+1}.</div>',
@@ -595,7 +598,7 @@ class SaveCustomStagesView(LoginRequiredMixin, View, ProgressStepsMixin):
 
             return None
 
-        except:
+        except Exception:
             return HttpResponse()
 
 
@@ -659,17 +662,16 @@ class RemoveStageView(LoginRequiredMixin, View):
             )
 
         stages = []
-        for i in range(len(stage_names)):
+        for i, name in enumerate(stage_names):
             if i != remove_index:
                 stages.append(
                     {
-                        "name": stage_names[i].strip(),
+                        "name": name.strip(),
                         "order": int(stage_orders[i]),
                         "probability": float(stage_probabilities[i]),
                         "is_final": str(i) in stage_is_finals,
                     }
                 )
-
         return HttpResponse(
             render_to_string(
                 "lead_status/custom_stages_form.html",

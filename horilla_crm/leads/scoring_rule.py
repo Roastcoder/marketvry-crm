@@ -2,21 +2,22 @@
 This view handles the methods for team role view
 """
 
+# Standard library imports
 import logging
 from urllib.parse import urlencode
 
+# Third-party imports (Django)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import transaction
 from django.http import HttpResponse
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import DetailView
 
+# First-party / Horilla imports
 from horilla.exceptions import HorillaHttp404
 from horilla_core.decorators import (
     htmx_required,
@@ -33,7 +34,6 @@ from horilla_generics.views import (
     HorillaSingleFormView,
     HorillaView,
 )
-from horilla_utils.middlewares import _thread_local
 
 logger = logging.getLogger(__name__)
 
@@ -71,13 +71,16 @@ class ScoringRuleNavbar(LoginRequiredMixin, HorillaNavView):
 
     @cached_property
     def new_button(self):
+        """Return new button configuration for scoring rules."""
         if self.request.user.has_perm("leads.add_scoringrule"):
             return {
                 "url": f"""{ reverse_lazy('leads:scoring_rule_create_form')}?new=true""",
             }
+        return None
 
     @cached_property
     def actions(self):
+        """Return actions configuration for scoring rules."""
         if self.request.user.has_perm("leads.view_scoringrule"):
             return [
                 {
@@ -91,6 +94,7 @@ class ScoringRuleNavbar(LoginRequiredMixin, HorillaNavView):
                             """,
                 }
             ]
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -124,6 +128,7 @@ class ScoringRuleListView(LoginRequiredMixin, HorillaListView):
 
     @cached_property
     def col_attrs(self):
+        """Return column attributes for scoring rule list view."""
         attrs = {}
         if self.request.user.has_perm("leads.view_scoringrule"):
             attrs = {
@@ -189,6 +194,7 @@ class ScoringRuleFormView(LoginRequiredMixin, HorillaSingleFormView):
 
     @cached_property
     def form_url(self):
+        """Return form URL for create or update view."""
         pk = self.kwargs.get("pk") or self.request.GET.get("id")
         if pk:
             return reverse_lazy("leads:scoring_rule_update_form", kwargs={"pk": pk})
@@ -212,6 +218,8 @@ class ScoringRuleFormView(LoginRequiredMixin, HorillaSingleFormView):
     name="dispatch",
 )
 class ScoringRuleDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """View for deleting scoring rules."""
+
     model = ScoringRule
 
     def get_post_delete_response(self):
@@ -245,7 +253,7 @@ class ScoringRuleDetailView(LoginRequiredMixin, DetailView):
             if request.headers.get("HX-Request") == "true":
                 messages.error(self.request, e)
                 return HttpResponse(headers={"HX-Refresh": "true"})
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -290,11 +298,12 @@ class ScoringRuleDetailNavbar(LoginRequiredMixin, HorillaNavView):
                     self.nav_title = obj.name
                     context["nav_title"] = self.nav_title
             except ValueError:
-                logger.error(f"Invalid obj_id parameter: {obj_id}")
+                logger.error("Invalid obj_id parameter: %s", obj_id)
         return context
 
     @cached_property
     def new_button(self):
+        """Return new button configuration for scoring criteria."""
         model_name = self.request.GET.get("model_name")
         obj = self.request.GET.get("obj")
         if self.request.user.has_perm("leads.add_scoringcriterion"):
@@ -302,6 +311,7 @@ class ScoringRuleDetailNavbar(LoginRequiredMixin, HorillaNavView):
                 "url": f"""{ reverse_lazy('leads:scoring_rule_criteria_create_form')}?model_name={model_name}&obj={obj}""",
                 "attrs": {"id": "scroring-criteria-create-form"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -309,6 +319,8 @@ class ScoringRuleDetailNavbar(LoginRequiredMixin, HorillaNavView):
     permission_required_or_denied("leads.add_scoringcriterion"), name="dispatch"
 )
 class ScoringCriterionCreateUpdateView(LoginRequiredMixin, HorillaSingleFormView):
+    """View for creating and updating scoring criteria."""
+
     model = ScoringCriterion
     form_class = ScoringCriterionForm
     fields = ["rule", "points", "operation_type"]
@@ -347,12 +359,12 @@ class ScoringCriterionCreateUpdateView(LoginRequiredMixin, HorillaSingleFormView
                     obj_id = int(obj_clean)
                     initial["rule"] = ScoringRule.objects.get(pk=obj_id)
                 except (ValueError, ScoringRule.DoesNotExist) as e:
-                    logger.error(f"Invalid obj parameter: {obj}, error: {e}")
-                    pass
+                    logger.error("Invalid obj parameter: %s, error: %s", obj, e)
         return initial
 
     @cached_property
     def form_url(self):
+        """Return form URL for create or update view with model parameters."""
         model_name = self.request.GET.get("model_name")
         obj = self.request.GET.get("obj")
         pk = self.kwargs.get("pk")
@@ -375,17 +387,21 @@ class ScoringCriterionCreateUpdateView(LoginRequiredMixin, HorillaSingleFormView
     name="dispatch",
 )
 class ScoringCriteriaDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """View for deleting scoring criteria."""
+
     model = ScoringCriterion
 
     def get_post_delete_response(self):
+        """Return response after successful deletion."""
         return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")
 
 
 @method_decorator(htmx_required, name="dispatch")
 class ScroringActiveToggleView(LoginRequiredMixin, View):
-    """Toggle default dashboard for the current user via HTMX"""
+    """Toggle active status for scoring rules via HTMX."""
 
     def post(self, request, *args, **kwargs):
+        """Handle POST request to toggle scoring rule active status."""
         try:
             rule = ScoringRule.objects.get(pk=kwargs["pk"])
             user = request.user
@@ -398,6 +414,7 @@ class ScroringActiveToggleView(LoginRequiredMixin, View):
                     messages.success(request, f"{rule.name} deactivated successfully")
                 rule.save()
                 return HttpResponse("<script>$('#reloadButton').click();</script>")
+            return None
 
         except Exception as e:
             messages.error(request, e)

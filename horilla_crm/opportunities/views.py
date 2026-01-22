@@ -1,5 +1,9 @@
+"""Views for opportunities module."""
+
+# Standard library imports
 from urllib.parse import urlencode
 
+# Third-party imports (Django)
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
@@ -9,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property  # type: ignore
 from django.utils.translation import gettext_lazy as _
 
+# First-party / Horilla imports
 from horilla_activity.views import HorillaActivitySectionView
 from horilla_core.decorators import (
     htmx_required,
@@ -45,9 +50,7 @@ from horilla_utils.middlewares import _thread_local
 
 
 class OpportunityView(LoginRequiredMixin, HorillaView):
-    """
-    Render the lead page.
-    """
+    """Render the opportunities page."""
 
     nav_url = reverse_lazy("opportunities:opportunities_nav")
     list_url = reverse_lazy("opportunities:opportunities_list")
@@ -62,6 +65,7 @@ class OpportunityView(LoginRequiredMixin, HorillaView):
     name="dispatch",
 )
 class OpportunityNavbar(LoginRequiredMixin, HorillaNavView):
+    """Navigation bar view for opportunities."""
 
     nav_title = Opportunity._meta.verbose_name_plural
     search_url = reverse_lazy("opportunities:opportunities_list")
@@ -75,6 +79,7 @@ class OpportunityNavbar(LoginRequiredMixin, HorillaNavView):
 
     @cached_property
     def new_button(self):
+        """Return new button configuration for opportunities."""
         if self.request.user.has_perm(
             "opportunities.add_opportunity"
         ) or self.request.user.has_perm("opportunities.add_own_opportunity"):
@@ -82,6 +87,7 @@ class OpportunityNavbar(LoginRequiredMixin, HorillaNavView):
                 "url": f"""{reverse_lazy("opportunities:opportunity_create")}?new=true""",
                 "attrs": {"id": "opportunity-create"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -108,6 +114,7 @@ class OpportunityListView(LoginRequiredMixin, HorillaListView):
 
     @cached_property
     def col_attrs(self):
+        """Return column attributes for opportunity list view."""
         query_params = {}
         if "section" in self.request.GET:
             query_params["section"] = self.request.GET.get("section")
@@ -131,6 +138,7 @@ class OpportunityListView(LoginRequiredMixin, HorillaListView):
         ]
 
     def no_record_add_button(self):
+        """Return add button configuration when no records exist."""
         if self.request.user.has_perm(
             "opportunities.add_opportunity"
         ) or self.request.user.has_perm("opportunities.add_own_opportunity"):
@@ -138,6 +146,7 @@ class OpportunityListView(LoginRequiredMixin, HorillaListView):
                 "url": f"""{ reverse_lazy('opportunities:opportunity_create')}?new=true""",
                 "attrs": 'id="opportunity-create"',
             }
+        return None
 
     columns = [
         "name",
@@ -218,9 +227,12 @@ class OpportunityListView(LoginRequiredMixin, HorillaListView):
     name="dispatch",
 )
 class OpportunityDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """View for deleting opportunities."""
+
     model = Opportunity
 
     def get_post_delete_response(self):
+        """Return response after deleting opportunity."""
         return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")
 
 
@@ -277,6 +289,8 @@ class OpportunityKanbanView(LoginRequiredMixin, HorillaKanbanView):
 
 @method_decorator(htmx_required, name="dispatch")
 class OpportunityMultiStepFormView(LoginRequiredMixin, HorillaMultiStepFormView):
+    """Multi-step form view for creating and editing opportunities."""
+
     form_class = OpportunityFormClass
     model = Opportunity
     total_steps = 3
@@ -294,6 +308,7 @@ class OpportunityMultiStepFormView(LoginRequiredMixin, HorillaMultiStepFormView)
 
     @cached_property
     def form_url(self):
+        """Return form URL for create or update view."""
         pk = self.kwargs.get("pk")
         if pk:
             return reverse_lazy("opportunities:opportunity_edit", kwargs={"pk": pk})
@@ -306,6 +321,7 @@ class OpportunityMultiStepFormView(LoginRequiredMixin, HorillaMultiStepFormView)
     }
 
     def get_initial(self):
+        """Get initial form data with account ID if provided."""
         initial = super().get_initial()
         account_id = self.request.GET.get("id")
         initial["account"] = account_id
@@ -341,6 +357,7 @@ class OpportunitySingleFormView(LoginRequiredMixin, HorillaSingleFormView):
         return reverse_lazy("opportunities:opportunity_single_create")
 
     def get_initial(self):
+        """Get initial form data with account ID from query parameters."""
         initial = super().get_initial()
         account_id = self.request.GET.get("id")
         initial["account"] = account_id
@@ -352,6 +369,8 @@ class OpportunitySingleFormView(LoginRequiredMixin, HorillaSingleFormView):
     permission_required_or_denied("opportunities.add_opportunity"), name="dispatch"
 )
 class RelatedOpportunityFormView(LoginRequiredMixin, HorillaMultiStepFormView):
+    """Multi-step form view for creating opportunities related to contacts."""
+
     form_class = OpportunityFormClass
     model = Opportunity
     total_steps = 3
@@ -364,6 +383,7 @@ class RelatedOpportunityFormView(LoginRequiredMixin, HorillaMultiStepFormView):
 
     @cached_property
     def form_url(self):
+        """Return form URL for create or update view."""
         pk = self.kwargs.get("pk")
         if pk:
             return reverse_lazy("opportunities:opportunity_edit", kwargs={"pk": pk})
@@ -376,6 +396,7 @@ class RelatedOpportunityFormView(LoginRequiredMixin, HorillaMultiStepFormView):
     }
 
     def get_initial(self):
+        """Get initial form data with contact ID if provided."""
         initial = super().get_initial()
         contact_id = self.request.GET.get("id")
 
@@ -397,7 +418,7 @@ class RelatedOpportunityFormView(LoginRequiredMixin, HorillaMultiStepFormView):
                 set_opportunity_contact_id(
                     contact_id=contact_id, company=self.request.active_company
                 )
-            response = super().form_valid(form)
+            super().form_valid(form)
             return HttpResponse(
                 "<script>htmx.trigger('#tab-opportunities-btn','click');closeModal();</script>"
             )
@@ -421,9 +442,7 @@ class RelatedOpportunityFormView(LoginRequiredMixin, HorillaMultiStepFormView):
 
 @method_decorator(htmx_required, name="dispatch")
 class OpportunityChangeOwnerForm(LoginRequiredMixin, HorillaSingleFormView):
-    """
-    Change owner form
-    """
+    """Form view for changing opportunity owner."""
 
     model = Opportunity
     fields = ["owner"]
@@ -433,11 +452,13 @@ class OpportunityChangeOwnerForm(LoginRequiredMixin, HorillaSingleFormView):
 
     @cached_property
     def form_url(self):
+        """Return form URL for change owner view."""
         pk = self.kwargs.get("pk") or self.request.GET.get("id")
         if pk:
             return reverse_lazy(
                 "opportunities:opportunity_change_owner", kwargs={"pk": pk}
             )
+        return None
 
     def get(self, request, *args, **kwargs):
         opportunity_id = self.kwargs.get("pk")
@@ -461,6 +482,7 @@ class OpportunityChangeOwnerForm(LoginRequiredMixin, HorillaSingleFormView):
     name="dispatch",
 )
 class OpportunityDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDetailView):
+    """Detail view for opportunities."""
 
     model = Opportunity
     pipeline_field = "stage"
@@ -489,6 +511,7 @@ class OpportunityDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDeta
     name="dispatch",
 )
 class OpportunityDetailViewTabView(LoginRequiredMixin, HorillaDetailTabView):
+    """Detail view tab view for opportunities."""
 
     def __init__(self, **kwargs):
         request = getattr(_thread_local, "request", None)
@@ -512,6 +535,7 @@ class OpportunityDetailViewTabView(LoginRequiredMixin, HorillaDetailTabView):
     name="dispatch",
 )
 class OpportunityDetailTab(LoginRequiredMixin, HorillaDetailSectionView):
+    """Detail tab view for opportunities."""
 
     model = Opportunity
     non_editable_fields = ["expected_revenue"]
@@ -552,6 +576,7 @@ class OpportunityActivityTabView(LoginRequiredMixin, HorillaActivitySectionView)
 class OpportunitiesNotesAndAttachments(
     LoginRequiredMixin, HorillaNotesAttachementSectionView
 ):
+    """Notes and attachments section view for opportunities."""
 
     model = Opportunity
 
@@ -577,11 +602,13 @@ class OpportunityHistoryTabView(LoginRequiredMixin, HorillaHistorySectionView):
     name="dispatch",
 )
 class OpportunityRelatedLists(LoginRequiredMixin, HorillaRelatedListSectionView):
+    """Related lists section view for opportunities."""
 
     model = Opportunity
 
     @cached_property
     def related_list_config(self):
+        """Return related list configuration for opportunities."""
         query_params = {}
         if "section" in self.request.GET:
             query_params["section"] = self.request.GET.get("section")
@@ -854,18 +881,13 @@ class OpportunityRelatedLists(LoginRequiredMixin, HorillaRelatedListSectionView)
 
     @property
     def excluded_related_lists(self):
-        """Property wrapper for excluded_related_lists"""
+        """Property wrapper for excluded_related_lists."""
         return self.get_excluded_related_lists()
-
-    @excluded_related_lists.setter
-    def excluded_related_lists(self, value):
-        """Setter to allow parent view to set the value (but we ignore it)"""
-        # We ignore the setter since we calculate dynamically
-        pass
 
 
 @method_decorator(htmx_required, name="dispatch")
 class OpportunityContactRoleFormview(LoginRequiredMixin, HorillaSingleFormView):
+    """Form view for creating and editing opportunity contact roles."""
 
     model = OpportunityContactRole
     fields = ["is_primary", "role", "contact", "opportunity"]
@@ -876,8 +898,8 @@ class OpportunityContactRoleFormview(LoginRequiredMixin, HorillaSingleFormView):
     save_and_new = False
 
     def form_valid(self, form):
+        """Handle form validation and create contact-account relationship."""
         super().form_valid(form)
-
         opportunity_contact_role = form.instance
         contact = opportunity_contact_role.contact
         opportunity = opportunity_contact_role.opportunity
@@ -897,14 +919,16 @@ class OpportunityContactRoleFormview(LoginRequiredMixin, HorillaSingleFormView):
         )
 
     def get_initial(self):
+        """Get initial form data with opportunity ID if provided."""
         initial = super().get_initial()
-        id = self.request.GET.get("id")
-        if id:
-            initial["opportunity"] = id
+        obj_id = self.request.GET.get("id")
+        if obj_id:
+            initial["opportunity"] = obj_id
         return initial
 
     @cached_property
     def form_url(self):
+        """Return form URL for create or update view."""
         if self.kwargs.get("pk"):
             return reverse_lazy(
                 "opportunities:edit_opportunity_contact_role",

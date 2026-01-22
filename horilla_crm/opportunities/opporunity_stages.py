@@ -1,6 +1,15 @@
+"""
+Views for managing opportunity stages in the CRM system.
+
+This module provides views for creating, updating, deleting, and managing
+the order of opportunity stages for different companies.
+"""
+
+# Standard library imports
 import logging
 from functools import cached_property
 
+# Third-party imports (Django)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,6 +24,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
+# First-party / Horilla imports
 from horilla.auth.models import User
 from horilla.exceptions import HorillaHttp404
 from horilla_core.decorators import (
@@ -55,6 +65,7 @@ class OpportunityStageView(LoginRequiredMixin, HorillaView):
     permission_required("opportunities.view_opportunitystage"), name="dispatch"
 )
 class OpportunityStageNavbar(LoginRequiredMixin, HorillaNavView):
+    """Navbar view for opportunity stages."""
 
     nav_title = OpportunityStage._meta.verbose_name_plural
     search_url = reverse_lazy("opportunities:opportunity_stage_list_view")
@@ -73,11 +84,13 @@ class OpportunityStageNavbar(LoginRequiredMixin, HorillaNavView):
 
     @cached_property
     def new_button(self):
+        """Return new button configuration if user has create permission."""
         if self.request.user.has_perm("opportunities:create_opportunitystage"):
             return {
                 "url": f"""{ reverse_lazy('opportunities:create_opportunity_stage')}?new=true""",
                 "attrs": {"id": "opportunity-stage-create"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -104,12 +117,14 @@ class OpportunityStageListView(LoginRequiredMixin, HorillaListView):
     table_height_as_class = "h-[calc(_100vh_-_260px_)]"
 
     def get_queryset(self):
+        """Return queryset ordered by stage order."""
         queryset = super().get_queryset()
         queryset = queryset.order_by("order")
         return queryset
 
     @cached_property
     def col_attrs(self):
+        """Return column attributes for draggable order column."""
         return [
             {
                 "order": {
@@ -122,11 +137,13 @@ class OpportunityStageListView(LoginRequiredMixin, HorillaListView):
         ]
 
     def no_record_add_button(self):
+        """Return add button configuration when no records exist."""
         if self.request.user.has_perm("opportunities:create_opportunitystage"):
             return {
                 "url": f"""{ reverse_lazy('opportunities:create_opportunity_stage')}?new=true""",
                 "attrs": 'id="opportunity-stage-create"',
             }
+        return None
 
     columns = [
         "order",
@@ -177,6 +194,7 @@ class ChangeFinalStage(LoginRequiredMixin, View):
     """
 
     def post(self, request, *args, **kwargs):
+        """Handle POST request to change final stage."""
         stage_id = kwargs.get("pk")
 
         try:
@@ -221,12 +239,14 @@ class ChangeFinalStage(LoginRequiredMixin, View):
     permission_required_or_denied("opportunities.add_opportunitystage"), name="dispatch"
 )
 class CreateOpportunityStage(LoginRequiredMixin, HorillaSingleFormView):
+    """View for creating and editing opportunity stages."""
 
     model = OpportunityStage
     modal_height = False
     form_class = OpportunityStageForm
 
     def get_initial(self):
+        """Set initial order for new opportunity stages."""
         initial = super().get_initial()
         if not self.kwargs.get("pk"):  # Only set initial order for new stages
             company = (
@@ -240,6 +260,7 @@ class CreateOpportunityStage(LoginRequiredMixin, HorillaSingleFormView):
 
     @cached_property
     def form_url(self):
+        """Return form URL based on whether editing or creating."""
         pk = self.kwargs.get("pk") or self.request.GET.get("id")
         if pk:
             return reverse_lazy(
@@ -261,6 +282,7 @@ class OpportynityToggleOrderFieldView(LoginRequiredMixin, TemplateView):
     template_name = "opportunity_stage/order_field.html"
 
     def get_context_data(self, **kwargs):
+        """Get context data for order field toggle."""
         context = super().get_context_data(**kwargs)
         is_final = self.request.POST.get("is_final") or self.request.GET.get("is_final")
         current_order_value = self.request.POST.get(
@@ -284,6 +306,7 @@ class OpportynityToggleOrderFieldView(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """Handle POST request for order field toggle."""
         return self.get(request, *args, **kwargs)
 
 
@@ -293,9 +316,12 @@ class OpportynityToggleOrderFieldView(LoginRequiredMixin, TemplateView):
     name="dispatch",
 )
 class OpportunityStatusDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """View for deleting opportunity stages."""
+
     model = OpportunityStage
 
     def get_post_delete_response(self):
+        """Return response after successful deletion."""
         return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")
 
 
@@ -308,6 +334,7 @@ class UpdateOpportunityStageOrderView(LoginRequiredMixin, View):
     """
 
     def post(self, request, *args, **kwargs):
+        """Handle POST request to update opportunity stage order."""
         try:
             ids = request.POST.getlist("ids[]") or request.POST.getlist("ids")
             if not ids:
@@ -356,7 +383,7 @@ class UpdateOpportunityStageOrderView(LoginRequiredMixin, View):
             return JsonResponse({"status": "success"})
 
         except Exception as e:
-            logger.error(f"Error updating opportunity stage order: {e}")
+            logger.error("Error updating opportunity stage order: %s", e)
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
     def _ensure_final_stages_last(self, company):
@@ -396,11 +423,14 @@ class UpdateOpportunityStageOrderView(LoginRequiredMixin, View):
 
 @method_decorator(htmx_required(), name="dispatch")
 class LoadOpportunityStagesView(LoginRequiredMixin, View):
+    """View to load opportunity stages modal for a company."""
+
     def get(self, request, company_id):
+        """Load and display opportunity stages modal for a company."""
         try:
             company = get_object_or_404(Company, id=company_id)
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
         initialization = request.GET.get("initialization") == "true"
         default_stages = [
             {
@@ -483,7 +513,7 @@ class LoadOpportunityStagesView(LoginRequiredMixin, View):
 
         # Create signature for stage comparison
         def create_stage_signature(stages):
-            """Create a hashable signature for a set of stages"""
+            """Create a hashable signature for a set of stages."""
             return tuple(
                 (s["name"], s["order"], s["probability"], s["is_final"])
                 for s in sorted(stages, key=lambda x: x["order"])
@@ -492,13 +522,11 @@ class LoadOpportunityStagesView(LoginRequiredMixin, View):
         # Group companies by their stage signatures
         signature_groups = {}
         default_signature = create_stage_signature(default_stages)
-        has_default_match = False
 
         for comp_id, comp_data in raw_company_stages.items():
             signature = create_stage_signature(comp_data["stages"])
 
             if signature == default_signature:
-                has_default_match = True
                 continue
 
             if signature not in signature_groups:
@@ -512,7 +540,7 @@ class LoadOpportunityStagesView(LoginRequiredMixin, View):
             representative = companies[0]
 
             if len(companies) > 1:
-                company_names = [comp["company_name"] for comp in companies]
+                _company_names = [comp["company_name"] for comp in companies]
                 representative["company_name"] = (
                     f"{representative['company_name']} (+{len(companies)-1} others)"
                 )
@@ -549,11 +577,14 @@ class LoadOpportunityStagesView(LoginRequiredMixin, View):
 
 @method_decorator(htmx_required(), name="dispatch")
 class CustomOppStagesFormView(LoginRequiredMixin, View):
+    """View to display custom opportunity stages form."""
+
     def get(self, request, company_id):
+        """Display custom opportunity stages form for a company."""
         try:
             company = get_object_or_404(Company, id=company_id)
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
         initialization = request.GET.get("initialization") == "True"
         all_stages_from_db = OpportunityStage.all_objects.values(
             "name", "order", "probability", "is_final", "company__name", "company_id"
@@ -633,7 +664,7 @@ class CustomOppStagesFormView(LoginRequiredMixin, View):
                 }
 
         combined_stages = []
-        for i, (name, stage) in enumerate(unique_stages.items(), 1):
+        for i, (_name, stage) in enumerate(unique_stages.items(), 1):
             stage_copy = stage.copy()
             stage_copy["order"] = i
             combined_stages.append(stage_copy)
@@ -668,6 +699,7 @@ class CustomOppStagesFormView(LoginRequiredMixin, View):
 @method_decorator(csrf_exempt, name="dispatch")
 @method_decorator(htmx_required(), name="dispatch")
 class SaveCustomOppStagesView(LoginRequiredMixin, View):
+    """View to save custom opportunity stages for a company."""
 
     def get_signal_kwargs(self, company, request, initialization):
         """
@@ -682,10 +714,11 @@ class SaveCustomOppStagesView(LoginRequiredMixin, View):
         }
 
     def post(self, request, company_id):
+        """Handle POST request to save custom opportunity stages."""
         try:
             company = get_object_or_404(Company, id=company_id)
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
         stage_names = request.POST.getlist("stage_name_custom[]")
         stage_orders = request.POST.getlist("stage_order_custom[]")
         stage_probabilities = request.POST.getlist("stage_probability_custom[]")
@@ -695,9 +728,9 @@ class SaveCustomOppStagesView(LoginRequiredMixin, View):
         OpportunityStage.all_objects.filter(company=company).delete()
 
         try:
-            for i in range(len(stage_names)):
+            for i, stage_name in enumerate(stage_names):
                 is_final = str(i) in stage_is_finals
-                name = stage_names[i].strip()
+                name = stage_name.strip()
                 if not name:
                     return HttpResponse(
                         f'<div class="alert alert-danger">Stage name cannot be empty for stage {i+1}.</div>',
@@ -767,13 +800,14 @@ class SaveCustomOppStagesView(LoginRequiredMixin, View):
             )
             return HttpResponse(mark_safe(response_html))
 
-        except ValueError as e:
+        except ValueError:
             return HttpResponse()
 
 
 @method_decorator(htmx_required(), name="dispatch")
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateOppStageGroupView(LoginRequiredMixin, View):
+    """View to create opportunity stage group for a company."""
 
     def get_signal_kwargs(self, company, request, initialization):
         """
@@ -788,10 +822,11 @@ class CreateOppStageGroupView(LoginRequiredMixin, View):
         }
 
     def post(self, request, pk):
+        """Handle POST request to create opportunity stage group."""
         try:
             company = get_object_or_404(Company, pk=pk)
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
         stage_names = request.POST.getlist("stage_name")
         stage_orders = request.POST.getlist("stage_order")
         stage_probabilities = request.POST.getlist("stage_probability")
@@ -800,7 +835,7 @@ class CreateOppStageGroupView(LoginRequiredMixin, View):
 
         try:
             created_stages = []
-            for i in range(len(stage_names)):
+            for i, _stage_name in enumerate(stage_names):
                 is_final_value = (
                     stage_is_finals[i] if i < len(stage_is_finals) else "false"
                 )
@@ -887,13 +922,19 @@ class CreateOppStageGroupView(LoginRequiredMixin, View):
 
         except Exception as e:
             print(f"Error:{e}")
+            return HttpResponse(
+                f'<div class="alert alert-danger">Error creating stages: {str(e)}</div>',
+                status=500,
+            )
 
 
 class InitializeDatabaseOpportunityStages(View, ProgressStepsMixin):
+    """View for initializing opportunity stages during database setup."""
 
     current_step = 6
 
     def get(self, request, *args, **kwargs):
+        """Display opportunity stages initialization page."""
         company_id = request.POST.get("company_id") or request.session.get("company_id")
         if request.session.get("db_password") == settings.DB_INIT_PASSWORD:
             context = {

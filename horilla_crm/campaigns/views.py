@@ -2,10 +2,12 @@
 Handles campaign-related views, including list, create, update, and delete operations.
 """
 
+# Standard library imports
 import logging
 from functools import cached_property
 from urllib.parse import urlencode
 
+# Third-party imports (Django)
 from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,6 +19,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, View
 
+# First-party / Horilla imports
 from horilla_activity.views import HorillaActivitySectionView
 from horilla_core.decorators import (
     htmx_required,
@@ -95,6 +98,7 @@ class CampaignNavbar(LoginRequiredMixin, HorillaNavView):
                 "url": f"""{ reverse_lazy('campaigns:campaign_create')}?new=true""",
                 "attrs": {"id": "campaign-create"},
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -231,6 +235,7 @@ class CampaignListView(LoginRequiredMixin, HorillaListView):
                 "url": f"""{ reverse_lazy('campaigns:campaign_create')}?new=true""",
                 "attrs": 'id="campaign-create"',
             }
+        return None
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -377,6 +382,7 @@ class CampaignChangeOwnerForm(LoginRequiredMixin, HorillaSingleFormView):
         pk = self.kwargs.get("pk") or self.request.GET.get("id")
         if pk:
             return reverse_lazy("campaigns:campaign_change_owner", kwargs={"pk": pk})
+        return None
 
 
 @method_decorator(
