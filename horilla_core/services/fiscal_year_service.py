@@ -442,3 +442,152 @@ class FiscalYearService:
             errors.append("Start date day must be between 1 and 31")
 
         return errors
+
+    @staticmethod
+    def check_and_update_fiscal_years(company=None):
+        """
+        Check and update fiscal years automatically.
+        This method:
+        1. Checks if current fiscal year has ended
+        2. Updates is_current flag if needed
+        3. Creates next fiscal year if it doesn't exist
+        4. Generates quarters and periods for new fiscal years
+
+        Args:
+            company: Optional company instance. If None, checks all companies.
+
+        Returns:
+            dict with update results
+        """
+        FiscalYearInstance = apps.get_model("horilla_core", "FiscalYearInstance")
+        FiscalYear = apps.get_model("horilla_core", "FiscalYear")
+
+        results = {"updated": [], "created": []}
+
+        # Get fiscal year configs to check
+        if company:
+            configs = FiscalYear.objects.filter(company=company)
+        else:
+            configs = FiscalYear.objects.all()
+
+        current_date = timezone.now().date()
+
+        for config in configs:
+            current_fy = FiscalYearInstance.objects.filter(
+                fiscal_year_config=config, is_current=True
+            ).first()
+
+            if not current_fy:
+                continue
+
+            # Check if current fiscal year has ended
+            if current_date > current_fy.end_date:
+                # Mark current fiscal year as not current
+                current_fy.is_current = False
+                current_fy.save()
+
+                # Find next fiscal year
+                next_fy = (
+                    FiscalYearInstance.objects.filter(
+                        fiscal_year_config=config, start_date__gt=current_fy.end_date
+                    )
+                    .order_by("start_date")
+                    .first()
+                )
+
+                if next_fy:
+                    # Ensure no other fiscal years are marked as current for this config
+                    FiscalYearInstance.objects.filter(
+                        fiscal_year_config=config
+                    ).exclude(id=next_fy.id).update(is_current=False)
+                    # Mark next fiscal year as current
+                    next_fy.is_current = True
+                    next_fy.save()
+                    results["updated"].append(next_fy)
+                else:
+                    # Create next fiscal year if it doesn't exist (year has changed)
+                    new_fy = FiscalYearService.create_next_fiscal_year_instance(
+                        config, current_fy.end_date
+                    )
+                    if new_fy:
+                        # Ensure no other fiscal years are marked as current for this config
+                        FiscalYearInstance.objects.filter(
+                            fiscal_year_config=config
+                        ).exclude(id=new_fy.id).update(is_current=False)
+                        new_fy.is_current = True
+                        new_fy.save()
+                        results["created"].append(new_fy)
+                        results["updated"].append(new_fy)
+
+            # Always ensure next fiscal year exists (create in advance for planning)
+            # This allows users to view and plan for the next fiscal year at any time
+            next_fy_exists = FiscalYearInstance.objects.filter(
+                fiscal_year_config=config, start_date__gt=current_fy.end_date
+            ).exists()
+
+            if not next_fy_exists:
+                # Create next fiscal year in advance
+                new_fy = FiscalYearService.create_next_fiscal_year_instance(
+                    config, current_fy.end_date
+                )
+                if new_fy:
+                    results["created"].append(new_fy)
+
+        return results
+
+    @staticmethod
+    def create_next_fiscal_year_instance(config, current_end_date):
+        """
+        Create a new fiscal year instance with quarters and periods.
+        This is a complete implementation that generates all required data.
+
+        Args:
+            config: FiscalYear configuration
+            current_end_date: End date of the current fiscal year
+
+        Returns:
+            Created FiscalYearInstance or None
+        """
+        FiscalYearInstance = apps.get_model("horilla_core", "FiscalYearInstance")
+
+        new_start_date = current_end_date + timedelta(days=1)
+
+        if config.fiscal_year_type == "standard":
+            new_end_date = new_start_date + relativedelta(years=1) - timedelta(days=1)
+        else:
+            new_end_date = new_start_date + relativedelta(years=1) - timedelta(days=2)
+
+        if config.display_year_based_on == "starting_year":
+            year_name = new_start_date.year
+        else:
+            year_name = new_end_date.year
+
+        if config.display_year_based_on == "starting_year":
+            name = f"FY {year_name}"
+        else:
+            name = f"FY {year_name + 1}"
+
+        # Check if fiscal year already exists
+        existing_fy = FiscalYearInstance.objects.filter(
+            fiscal_year_config=config, start_date=new_start_date
+        ).first()
+
+        if existing_fy:
+            return existing_fy
+
+        # Create new fiscal year instance
+        fiscal_year = FiscalYearInstance.objects.create(
+            fiscal_year_config=config,
+            company=config.company,
+            start_date=new_start_date,
+            end_date=new_end_date,
+            name=name,
+            is_current=False,
+            is_active=True,
+        )
+
+        # Generate quarters and periods for the new fiscal year
+        periods_info = config.get_periods_by_format()
+        FiscalYearService._generate_quarters(config, fiscal_year, periods_info)
+
+        return fiscal_year

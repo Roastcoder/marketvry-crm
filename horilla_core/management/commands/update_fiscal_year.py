@@ -1,96 +1,37 @@
-# Standard library imports
-from datetime import timedelta
-
-# Third-party imports (Others)
-from dateutil.relativedelta import relativedelta
-
 # Third-party imports (Django)
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
 # First-party / Horilla imports
-from horilla_core.models import FiscalYear, FiscalYearInstance
+from horilla_core.services.fiscal_year_service import FiscalYearService
 
 
 class Command(BaseCommand):
+    """
+    Django management command to update fiscal year instances.
+
+    This command checks the current status of fiscal years and automatically
+    updates them (e.g., marking expired ones as inactive) and creates the
+    next fiscal year if needed.
+    """
+
     help = "Updates fiscal year instances by checking current status and creating next fiscal year"
 
     def handle(self, *args, **kwargs):
-        fiscal_configs = FiscalYear.objects.all()
+        # Use the service method to check and update all fiscal years
+        results = FiscalYearService.check_and_update_fiscal_years()
 
-        for config in fiscal_configs:
-            current_fy = FiscalYearInstance.objects.filter(
-                fiscal_year_config=config, is_current=True
-            ).first()
-
-            if not current_fy:
+        # Report results
+        if results["updated"]:
+            for fy in results["updated"]:
                 self.stdout.write(
-                    self.style.WARNING(
-                        f"No current fiscal year found for config {config}"
-                    )
-                )
-                continue
-
-            current_date = timezone.now().date()
-
-            if current_date > current_fy.end_date:
-                current_fy.is_current = False
-                current_fy.save()
-
-                next_fy = (
-                    FiscalYearInstance.objects.filter(
-                        fiscal_year_config=config, start_date__gt=current_fy.end_date
-                    )
-                    .order_by("start_date")
-                    .first()
+                    self.style.SUCCESS(f"Updated current fiscal year to {fy}")
                 )
 
-                if next_fy:
-                    next_fy.is_current = True
-                    next_fy.save()
-                    self.stdout.write(
-                        self.style.SUCCESS(f"Updated current fiscal year to {next_fy}")
-                    )
-                else:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"No next fiscal year found for config {config}"
-                        )
-                    )
-
-                self.create_next_fiscal_year(config, current_fy.end_date)
-
-            next_fy_exists = FiscalYearInstance.objects.filter(
-                fiscal_year_config=config, start_date__gt=current_fy.end_date
-            ).exists()
-
-            if not next_fy_exists:
-                self.create_next_fiscal_year(config, current_fy.end_date)
+        if results["created"]:
+            for fy in results["created"]:
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"Created new next fiscal year for config {config}"
-                    )
+                    self.style.SUCCESS(f"Created new fiscal year: {fy.name}")
                 )
 
-    def create_next_fiscal_year(self, config, current_end_date):
-        """Create a new fiscal year instance based on the configuration"""
-        new_start_date = current_end_date + timedelta(days=1)
-        new_end_date = new_start_date + relativedelta(years=1) - timedelta(days=1)
-
-        if config.display_year_based_on == "starting_year":
-            year_name = new_start_date.year
-        else:
-            year_name = new_end_date.year
-
-        fiscal_year_name = f"{config.get_start_date_month_display()} {config.start_date_day} {year_name}"
-
-        FiscalYearInstance.objects.create(
-            fiscal_year_config=config,
-            start_date=new_start_date,
-            end_date=new_end_date,
-            name=fiscal_year_name,
-            is_current=False,
-        )
-        self.stdout.write(
-            self.style.SUCCESS(f"Created fiscal year instance: {fiscal_year_name}")
-        )
+        if not results["updated"] and not results["created"]:
+            self.stdout.write(self.style.SUCCESS("All fiscal years are up to date"))

@@ -5,8 +5,10 @@ Django class-based views for managing and displaying sales forecast data in Hori
 Features: Period-based forecasts, trend analysis, user/aggregated views, optimized queries.
 """
 
+# Standard library imports
 from urllib.parse import urlencode
 
+# Third-party imports (Django)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -20,10 +22,12 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
 
+# First-party / Horilla imports
 from horilla.auth.models import User
 from horilla.exceptions import HorillaHttp404
 from horilla_core.decorators import htmx_required, permission_required_or_denied
 from horilla_core.models import Company, FiscalYearInstance, Period
+from horilla_core.services.fiscal_year_service import FiscalYearService
 from horilla_crm.forecast.models import Forecast, ForecastTarget, ForecastType
 from horilla_crm.forecast.utils import ForecastCalculator
 from horilla_crm.opportunities.models import Opportunity
@@ -99,6 +103,19 @@ class ForecastNavbarView(LoginRequiredMixin, HorillaView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Automatically check and update fiscal years before displaying
+        company = (
+            self.request.active_company
+            if hasattr(self.request, "active_company") and self.request.active_company
+            else (
+                self.request.user.company
+                if hasattr(self.request.user, "company")
+                else None
+            )
+        )
+        if company:
+            FiscalYearService.check_and_update_fiscal_years(company=company)
 
         forcast_types = ForecastType.objects.all()
         type_count = forcast_types.count()
@@ -254,6 +271,19 @@ class ForecastTypeView(TemplateView):
             messages.error(self.request, str(e))
             context["error"] = True
             return context
+
+        # Automatically check and update fiscal years before displaying
+        company = (
+            self.request.active_company
+            if hasattr(self.request, "active_company") and self.request.active_company
+            else (
+                self.request.user.company
+                if hasattr(self.request.user, "company")
+                else None
+            )
+        )
+        if company:
+            FiscalYearService.check_and_update_fiscal_years(company=company)
 
         fiscal_year_id = self.request.GET.get("fiscal_year_id")
         fiscal_year = (
@@ -1500,6 +1530,7 @@ class ForecastOpportunitiesView(LoginRequiredMixin, View):
     """HTMX-enabled modal view for displaying opportunities categorized by forecast type."""
 
     def col_attrs(self):
+        """Return column attributes for forecast opportunities view."""
         query_params = {}
         if "section" in self.request.GET:
             query_params["section"] = self.request.GET.get("section")
@@ -1676,7 +1707,7 @@ class ForecastOpportunitiesView(LoginRequiredMixin, View):
             return render(request, "forecast_opportunities_modal_content.html", context)
 
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
 
     def get_forecast_object(self, forecast_id):
         """
@@ -1718,7 +1749,7 @@ class ForecastOpportunitiesView(LoginRequiredMixin, View):
                 Forecast, id=forecast_id, fiscal_year=fiscal_year
             )
         except Exception as e:
-            raise HorillaHttp404(e)
+            raise HorillaHttp404(e) from e
 
         return forecast
 
