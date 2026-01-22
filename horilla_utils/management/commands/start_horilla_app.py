@@ -6,15 +6,25 @@ Usage:
     python manage.py build_app app_name
 """
 
+# Standard library imports
 import os
 import re
 import shutil
 
+# Third-party imports (Django)
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
+    """
+    Django management command to create a Horilla app with extended structure.
+
+    This command creates a Django app with additional files and directories
+    (templates, static files, locale folders, etc.) and automatically configures
+    URLs and settings for the Horilla framework.
+    """
+
     help = "Creates a Django app with additional files and directories and auto-configures it"
 
     def add_arguments(self, parser):
