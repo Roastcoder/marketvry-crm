@@ -1,3 +1,5 @@
+"""URL configuration for opportunities module."""
+
 from django.urls import path
 
 from . import big_deal_alert as big_deal_alert_views

@@ -1,3 +1,5 @@
+"""CRM module initialization."""
+
 from django.conf import settings
 
 

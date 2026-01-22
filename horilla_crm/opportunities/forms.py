@@ -1,12 +1,15 @@
 """Forms for managing Opportunity-related models in the CRM application."""
 
+# Standard library imports
 import logging
 
+# Django imports
 from django import forms
 from django.db import models
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
+# Horilla / first-party imports
 from horilla.auth.models import User
 from horilla_core.mixins import OwnerQuerysetMixin
 from horilla_crm.opportunities.models import (
