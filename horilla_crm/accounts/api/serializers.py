@@ -17,6 +17,8 @@ class AccountSerializer(serializers.ModelSerializer):
     parent_account_details = serializers.SerializerMethodField()
 
     class Meta:
+        """Meta options for AccountSerializer."""
+
         model = Account
         fields = "__all__"
 
@@ -38,5 +40,7 @@ class PartnerAccountRelationshipSerializer(serializers.ModelSerializer):
     partner_details = AccountSerializer(source="partner", read_only=True)
 
     class Meta:
+        """Meta options for PartnerAccountRelationshipSerializer."""
+
         model = PartnerAccountRelationship
         fields = "__all__"

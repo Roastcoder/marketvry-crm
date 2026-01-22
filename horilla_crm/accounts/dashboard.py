@@ -1,11 +1,18 @@
+"""Dashboard utilities for accounts module."""
+
+# Standard library imports
 import logging
 
+# Third-party imports (Django)
 from django.db.models import Count
 from django.utils.http import urlencode
 
+# First-party / Horilla imports
+from horilla.utils.choices import TABLE_FALLBACK_FIELD_TYPES
 from horilla_dashboard.utils import DefaultDashboardGenerator
 from horilla_utils.methods import get_section_info_for_model
 
+# Local application imports
 from .models import Account
 
 logger = logging.getLogger(__name__)
@@ -31,11 +38,10 @@ def account_table_fields(model_class):
         for f in model_class._meta.fields:
             if len(fields) >= 4:
                 break
-            if f.name not in [x["name"] for x in fields] and f.get_internal_type() in [
-                "CharField",
-                "TextField",
-                "EmailField",
-            ]:
+            if (
+                f.name not in [x["name"] for x in fields]
+                and f.get_internal_type() in TABLE_FALLBACK_FIELD_TYPES
+            ):
                 fields.append(
                     {
                         "name": f.name,

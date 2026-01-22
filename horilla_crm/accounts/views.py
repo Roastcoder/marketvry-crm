@@ -14,10 +14,12 @@ Dependencies:
 - Horilla generic views
 """
 
+# Standard library imports
 import logging
 from functools import cached_property
 from urllib.parse import urlencode
 
+# Third-party imports (Django)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse
@@ -28,6 +30,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, View
 
+# First-party / Horilla imports
 from horilla_activity.views import HorillaActivitySectionView
 from horilla_core.decorators import (
     htmx_required,
@@ -1198,7 +1201,7 @@ class ChildAccountDeleteView(LoginRequiredMixin, View):
                 "<script>htmx.trigger('#tab-child_accounts-btn', 'click');</script>"
             )
 
-        except Exception as e:
+        except Exception:
             messages.error(
                 request, _("An error occurred while removing the child account.")
             )
