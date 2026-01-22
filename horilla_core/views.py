@@ -13,15 +13,13 @@ from urllib.parse import urlencode, urlparse
 import pycountry
 
 # Third-party imports (Django)
-from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property  # type: ignore
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -1248,6 +1246,17 @@ class GetCountrySubdivisionsView(LoginRequiredMixin, View):
     """
 
     def get(self, request, *args, **kwargs):
+        """
+        Get HTML options for country subdivisions based on country code.
+
+        Args:
+            request: The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            HttpResponse: HTML string containing option elements for subdivisions.
+        """
         country_code = request.GET.get("country")
         options = '<option value="">Select State</option>'
 

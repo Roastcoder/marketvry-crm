@@ -2,9 +2,6 @@
 This view handles the methods for user login history view
 """
 
-# Standard library imports
-from functools import cached_property
-
 # Third-party imports (Django)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -76,12 +73,12 @@ class UserloginHistoryListView(LoginRequiredMixin, HorillaListView):
 
         queryset = self.model.objects.all()
 
-        if user.has_perm(f"{app_label}.view_{model_name}"):
-            pass
-        elif user.has_perm(f"{app_label}.view_own_{model_name}"):
-            queryset = queryset.filter(user_id=user)
-        else:
-            queryset = queryset.none()
+        # if user.has_perm(f"{app_label}.view_{model_name}"):
+        #     pass
+        # elif user.has_perm(f"{app_label}.view_own_{model_name}"):
+        #     queryset = queryset.filter(user_id=user)
+        # else:
+        #     queryset = queryset.none()
 
         return queryset
 

@@ -192,7 +192,7 @@ class RecycleDeleteView(LoginRequiredMixin, View):
 
         try:
             recycle_obj = get_object_or_404(RecycleBin, pk=pk)
-        except:
+        except Exception:
             messages.error(request, _("The requested data does not exist."))
             return HttpResponse("<script>$('#reloadButton').click();</script>")
         deleted_count, failed_records = delete_recycle_bin_records(request, recycle_obj)
@@ -264,7 +264,7 @@ class RecycleRestoreView(LoginRequiredMixin, View):
         """
         try:
             recycle_obj = get_object_or_404(RecycleBin, pk=pk)
-        except:
+        except Exception:
             messages.error(request, _("The requested data does not exist."))
             return HttpResponse("<script>$('#reloadButton').click();</script>")
         restored_count, failed_records = restore_recycle_bin_records(

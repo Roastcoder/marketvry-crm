@@ -14,6 +14,7 @@ from django.db import models, transaction
 from django.db.models import QuerySet
 
 # First-party / Horilla imports
+from horilla.utils.choices import TABLE_FALLBACK_FIELD_TYPES
 from horilla_core.models import FieldPermission, MultipleCurrency, RecycleBin
 from horilla_utils.middlewares import _thread_local
 
@@ -93,7 +94,7 @@ def restore_recycle_bin_records(request, recycle_objs):
                                         if parsed_list
                                         else ""
                                     )
-                                except:
+                                except Exception:
                                     # If parsing fails, treat as comma-separated string
                                     processed_data[field_name] = field_value
                             else:
@@ -119,11 +120,7 @@ def restore_recycle_bin_records(request, recycle_objs):
                                 else:
                                     if hasattr(field, "get_internal_type"):
                                         field_type = field.get_internal_type()
-                                        if field_type in [
-                                            "CharField",
-                                            "TextField",
-                                            "EmailField",
-                                        ]:
+                                        if field_type in TABLE_FALLBACK_FIELD_TYPES:
                                             processed_data[field_name] = ""
                                         else:
                                             continue
@@ -214,7 +211,9 @@ def restore_recycle_bin_records(request, recycle_objs):
                                                     )
                                     else:
                                         field_value = None
-                                elif field_type in ["CharField", "TextField"]:
+                                elif (
+                                    field_type in TABLE_FALLBACK_FIELD_TYPES[:2]
+                                ):  # [CharField, TextField]
                                     if field_value == "null":
                                         field_value = None if field.null else ""
                                     else:

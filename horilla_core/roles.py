@@ -281,7 +281,7 @@ class DeleteUserFromRole(LoginRequiredMixin, View):
         user_id = kwargs.get("pk")
         try:
             user = get_object_or_404(User, pk=user_id)
-        except:
+        except Exception:
             messages.error(request, _("The requested user does not exist."))
             return HttpResponse(
                 "<script>$('#reloadButton').click();closeDeleteModeModal();closeContentModal();</script>"

@@ -34,7 +34,6 @@ from horilla_core.models import (
 )
 from horilla_core.services.fiscal_year_service import FiscalYearService
 from horilla_core.utils import get_user_field_permission
-from horilla_utils.middlewares import _thread_local
 
 logger = logging.getLogger(__name__)
 

@@ -753,7 +753,7 @@ class UserFormClass(HorillaMultiStepForm):
                 pycountry.subdivisions.get(country_code=country_code.upper())
             )
             return [(sub.code, sub.name) for sub in subdivisions]
-        except:
+        except Exception:
             return []
 
 
@@ -824,7 +824,7 @@ class UserFormSingle(HorillaModelForm):
                 pycountry.subdivisions.get(country_code=country_code.upper())
             )
             return [(sub.code, sub.name) for sub in subdivisions]
-        except:
+        except Exception:
             return []
 
 
@@ -1018,7 +1018,7 @@ class CompanyMultistepFormClass(OwnerQuerysetMixin, HorillaMultiStepForm):
                 pycountry.subdivisions.get(country_code=country_code.upper())
             )
             return [(sub.code, sub.name) for sub in subdivisions]
-        except:
+        except Exception:
             return []
 
 
@@ -1106,7 +1106,7 @@ class CompanyFormClassSingle(HorillaModelForm):
                 pycountry.subdivisions.get(country_code=country_code.upper())
             )
             return [(sub.code, sub.name) for sub in subdivisions]
-        except:
+        except Exception:
             return []
 
 
