@@ -11,6 +11,8 @@ class ShortcutKeySerializer(serializers.ModelSerializer):
     """Serializer for ShortcutKey model"""
 
     class Meta:
+        """Meta class for ShortcutKeySerializer"""
+
         model = ShortcutKey
         fields = "__all__"
 

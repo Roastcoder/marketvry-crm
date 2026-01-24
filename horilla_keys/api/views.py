@@ -11,7 +11,7 @@ from rest_framework import permissions, viewsets
 
 from horilla_core.api.docs import BULK_DELETE_DOCS, BULK_UPDATE_DOCS, SEARCH_FILTER_DOCS
 from horilla_core.api.mixins import BulkOperationsMixin, SearchFilterMixin
-from horilla_core.api.permissions import IsCompanyMember, IsOwnerOrAdmin
+from horilla_core.api.permissions import IsOwnerOrAdmin
 from horilla_keys.api.serializers import ShortcutKeySerializer
 from horilla_keys.models import ShortcutKey
 
