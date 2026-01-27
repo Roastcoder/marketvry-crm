@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse_lazy
+from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import View
@@ -578,7 +579,16 @@ class DatedCurrencyListView(LoginRequiredMixin, HorillaListView):
         """
         queryset = super().get_queryset()
         start_date = self.request.GET.get("start_date", None)
-        return queryset.filter(start_date=start_date) if start_date else queryset
+        if start_date:
+            try:
+                parsed_date = parse_date(start_date)
+                if parsed_date:
+                    return queryset.filter(start_date=parsed_date)
+                return queryset.none()
+            except Exception:
+                return queryset.none()
+
+        return queryset
 
 
 @method_decorator(htmx_required, name="dispatch")
