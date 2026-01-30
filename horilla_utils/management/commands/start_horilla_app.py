@@ -117,7 +117,7 @@ class Command(BaseCommand):
         """Create the basic Django app structure"""
 
         # __init__.py
-        with open(os.path.join(target_dir, "__init__.py"), "w") as f:
+        with open(os.path.join(target_dir, "__init__.py"), "w", encoding="utf-8") as f:
             f.write(f'"""\nPackage initialization for the {app_name} app\n"""\n')
 
         # apps.py
@@ -129,7 +129,7 @@ class Command(BaseCommand):
         # Convert app_name to verbose name with spaces (e.g., 'my_app' -> 'My App')
         verbose_name = " ".join(word.capitalize() for word in app_name.split("_"))
 
-        with open(os.path.join(target_dir, "apps.py"), "w") as f:
+        with open(os.path.join(target_dir, "apps.py"), "w", encoding="utf-8") as f:
             f.write(
                 f'"""\nAppConfig for the {app_name} app\n"""\n\n'
                 "from django.apps import AppConfig\n"
@@ -158,25 +158,25 @@ class Command(BaseCommand):
             )
 
         # models.py
-        with open(os.path.join(target_dir, "models.py"), "w") as f:
+        with open(os.path.join(target_dir, "models.py"), "w", encoding="utf-8") as f:
             f.write(
                 f'"""\nModels for the {app_name} app\n"""\n\n'
                 f"# Create your {app_name} models here.\n"
             )
 
         # views.py
-        with open(os.path.join(target_dir, "views.py"), "w") as f:
+        with open(os.path.join(target_dir, "views.py"), "w", encoding="utf-8") as f:
             f.write(f'"""\nViews for the {app_name} app\n"""\n')
 
         # admin.py
-        with open(os.path.join(target_dir, "admin.py"), "w") as f:
+        with open(os.path.join(target_dir, "admin.py"), "w", encoding="utf-8") as f:
             f.write(
                 f'"""\nAdmin registration for the {app_name} app\n"""\n\n'
                 f"# Register your {app_name} models here.\n"
             )
 
         # tests.py
-        with open(os.path.join(target_dir, "tests.py"), "w") as f:
+        with open(os.path.join(target_dir, "tests.py"), "w", encoding="utf-8") as f:
             f.write(
                 f'"""\nTests for the {app_name} app\n"""\n\n'
                 f"# Create your {app_name} tests here.\n"
@@ -185,7 +185,9 @@ class Command(BaseCommand):
         # migrations directory
         migrations_dir = os.path.join(target_dir, "migrations")
         os.makedirs(migrations_dir, exist_ok=True)
-        with open(os.path.join(migrations_dir, "__init__.py"), "w") as f:
+        with open(
+            os.path.join(migrations_dir, "__init__.py"), "w", encoding="utf-8"
+        ) as f:
             f.write(f'"""\nMigration package for the {app_name} app\n"""\n')
 
     def _create_additional_files(self, app_name, target_dir):
@@ -245,7 +247,7 @@ class Command(BaseCommand):
 
         for file_name, content in additional_files.items():
             file_path = os.path.join(target_dir, file_name)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             self.stdout.write(f"  Created {file_name}")
 
@@ -282,7 +284,9 @@ class Command(BaseCommand):
         os.makedirs(templatetags_dir, exist_ok=True)
 
         # Create __init__.py
-        with open(os.path.join(templatetags_dir, "__init__.py"), "w") as f:
+        with open(
+            os.path.join(templatetags_dir, "__init__.py"), "w", encoding="utf-8"
+        ) as f:
             f.write("")
 
         self.stdout.write(
