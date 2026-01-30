@@ -7,6 +7,7 @@ such as field editing, list management, pinning views, and select2 helpers.
 
 # Standard library
 import importlib
+import inspect
 import logging
 import re
 from datetime import datetime
@@ -1555,7 +1556,13 @@ class HorillaSelect2DataView(LoginRequiredMixin, View):
         )
 
     def _get_filter_class_from_request(self, request, app_label, model_name):
-        """Get the filter class for the model (NEW METHOD)"""
+        """
+        Get the filter class for the model.
+
+        Discovery order:
+        1. Explicit filter_class parameter from request
+        2. Search all FilterSet classes in filters module and match by Meta.model
+        """
         filter_path = request.GET.get("filter_class")
         if filter_path:
             try:
@@ -1567,20 +1574,26 @@ class HorillaSelect2DataView(LoginRequiredMixin, View):
                     "[Select2] Could not import filter_class %s: %s", filter_path, e
                 )
 
-        # Try to auto-discover filter class by convention
+        # Search all FilterSet classes in the module and match by Meta.model
         try:
             filters_module = importlib.import_module(f"{app_label}.filters")
-            # Try common naming conventions
-            model_class_name = model_name.replace("_", " ").title().replace(" ", "")
-            for class_name in [
-                f"{model_class_name}Filter",
-                f"{model_class_name}FilterSet",
-            ]:
-                if hasattr(filters_module, class_name):
-                    logger.info(
-                        "[Select2] Auto-discovered filter class: %s", class_name
-                    )
-                    return getattr(filters_module, class_name)
+            import django_filters
+
+            model = apps.get_model(app_label=app_label, model_name=model_name)
+
+            for name, obj in inspect.getmembers(filters_module, inspect.isclass):
+                # Check if it's a FilterSet subclass (but not FilterSet itself)
+                if (
+                    issubclass(obj, django_filters.FilterSet)
+                    and obj is not django_filters.FilterSet
+                ):
+                    # Check if Meta.model matches the requested model
+                    if hasattr(obj, "Meta") and hasattr(obj.Meta, "model"):
+                        if obj.Meta.model == model:
+                            logger.info(
+                                "[Select2] Found filter class by model match: %s", name
+                            )
+                            return obj
         except Exception as e:
             logger.debug("[Select2] Could not auto-discover filter class: %s", e)
 
