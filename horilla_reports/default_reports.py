@@ -42,7 +42,7 @@ class LoadDefaultReportsModalView(LoginRequiredMixin, TemplateView):
 
                     if json_path.exists():
                         try:
-                            with open(json_path, "r") as f:
+                            with open(json_path, "r", encoding="utf-8") as f:
                                 data = json.load(f)
 
                                 reports = [
@@ -86,7 +86,7 @@ class CreateSelectedDefaultReportsView(LoginRequiredMixin, View):
 
                     if json_path.exists():
                         try:
-                            with open(json_path, "r") as f:
+                            with open(json_path, "r", encoding="utf-8") as f:
                                 data = json.load(f)
                                 all_data.extend(data)
                         except Exception as e:
