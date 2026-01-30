@@ -33,6 +33,7 @@
                                     hx-get="{% url 'horilla_core:role_permissions_view' role.id %}"
                                     hx-target="#tab-contents"
                                     hx-swap="innerHTML"
+                                    hx-indicator="#roleTabLoader"
                                     class="role-tab items-center px-5 py-2 rounded-md w-full flex gap-3 transition
                                     {% if forloop.first %}
                                         bg-primary-600 text-white
