@@ -9,10 +9,11 @@ from urllib.parse import urlencode
 # Third-party imports (Django)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 # First-party / Horilla imports
 from horilla.auth.models import User
@@ -22,7 +23,8 @@ from horilla_core.decorators import (
     permission_required_or_denied,
 )
 from horilla_core.filters import UserFilter
-from horilla_core.forms import UserFormClass, UserFormSingle
+from horilla_core.forms import ChangeUserCompanyForm, UserFormClass, UserFormSingle
+from horilla_core.models import Company, Department, MultipleCurrency, Role
 from horilla_generics.mixins import RecentlyViewedMixin
 from horilla_generics.views import (
     HorillaDetailView,
@@ -63,7 +65,7 @@ class UserNavbar(LoginRequiredMixin, HorillaNavView):
     filterset_class = UserFilter
     kanban_url = reverse_lazy("horilla_core:user_kanban_view")
     model_name = str(User.__name__)
-    model_app_label = "horilla_core"
+    model_app_label = str(User._meta.app_label)
     nav_width = False
     gap_enabled = False
     exclude_kanban_fields = "country"
@@ -152,6 +154,18 @@ class UserListView(LoginRequiredMixin, HorillaListView):
             "permission": f"{User._meta.app_label}.change_{User._meta.model_name}",
             "attrs": """
                         hx-get="{get_edit_url}?new=true"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        onclick="openModal()"
+                        """,
+        },
+        {
+            "action": "Change Company",
+            "src": "assets/icons/change.svg",
+            "img_class": "w-4 h-4",
+            "permission": f"{User._meta.app_label}.change_{User._meta.model_name}",
+            "attrs": """
+                        hx-get="{get_change_company_url}?new=true"
                         hx-target="#modalBox"
                         hx-swap="innerHTML"
                         onclick="openModal()"
@@ -288,6 +302,96 @@ class UserFormView(LoginRequiredMixin, HorillaMultiStepFormView):
             )
 
         return user.has_perm(f"{User._meta.app_label}.add_{User._meta.model_name}")
+
+
+class GetCompanyRelatedFieldsView(LoginRequiredMixin, View):
+    """HTMX endpoint to get role, department, and currency fields based on selected company"""
+
+    def get(self, request):
+        company_list = request.GET.getlist("company")
+        company_id = company_list[-1] if company_list else request.GET.get("company")
+        user_pk = request.GET.get("user_pk")
+
+        context = {
+            "roles": [],
+            "departments": [],
+            "currencies": [],
+            "selected_role": None,
+            "selected_department": None,
+            "selected_currency": None,
+        }
+
+        if company_id:
+            try:
+                company_id = (
+                    int(company_id) if isinstance(company_id, str) else company_id
+                )
+                company = Company.objects.get(pk=company_id)
+                context["roles"] = list(
+                    Role.all_objects.filter(company=company, is_active=True)
+                )
+                context["departments"] = list(
+                    Department.all_objects.filter(company=company, is_active=True)
+                )
+                context["currencies"] = list(
+                    MultipleCurrency.all_objects.filter(company=company, is_active=True)
+                )
+
+                # If editing existing user, try to maintain selections if they're valid
+                if user_pk:
+                    try:
+                        user_pk = int(user_pk) if isinstance(user_pk, str) else user_pk
+                        user = User.objects.get(pk=user_pk)
+                        if user.role and user.role.company == company:
+                            context["selected_role"] = user.role.pk
+                        if user.department and user.department.company == company:
+                            context["selected_department"] = user.department.pk
+                        if user.currency and user.currency.company == company:
+                            context["selected_currency"] = user.currency.pk
+                    except (User.DoesNotExist, ValueError, TypeError):
+                        pass
+
+            except (Company.DoesNotExist, ValueError, TypeError):
+                pass
+
+        html = render_to_string("settings/users/company_related_fields.html", context)
+        return HttpResponse(html)
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied(
+        f"{User._meta.app_label}.change_{User._meta.model_name}"
+    ),
+    name="dispatch",
+)
+class ChangeUserCompanyView(LoginRequiredMixin, HorillaSingleFormView):
+    """View for changing user's company with custom template for chained form fields"""
+
+    model = User
+    form_title = _("Change Company")
+    form_class = ChangeUserCompanyForm
+    template_name = "settings/users/change_company_form.html"
+    view_id = "change-company-form"
+
+    @cached_property
+    def form_url(self):
+        """
+        Get the URL for form submission based on whether it's a create or update action.
+        """
+        pk = self.kwargs.get("pk") or self.request.GET.get("id")
+        if pk:
+            return reverse_lazy(
+                "horilla_core:user_change_company_form", kwargs={"pk": pk}
+            )
+        return None
+
+    def get_context_data(self, **kwargs):
+        """Add user_pk to context for HTMX requests"""
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get("pk") or self.request.GET.get("id")
+        context["user_pk"] = pk
+        return context
 
 
 @method_decorator(htmx_required, name="dispatch")
