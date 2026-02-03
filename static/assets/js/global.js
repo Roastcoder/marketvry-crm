@@ -885,6 +885,16 @@ function hxConfirmForm(element, messageText) {
     });
 }
 
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
 // Track processed messages to prevent duplicates
 var processedMessages = new Set();
 
@@ -917,7 +927,7 @@ function showMessages() {
                 toast: true,
                 position: "top-end",
                 icon: msg.level,
-                title: msg.text,
+                title: escapeHtml(msg.text),
                 showConfirmButton: false,
                 timer: 4000,
                 timerProgressBar: true,
