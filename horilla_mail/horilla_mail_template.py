@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
@@ -20,6 +20,7 @@ from django.views import View
 from django.views.generic import DetailView, FormView, TemplateView
 
 from horilla.exceptions import HorillaHttp404
+from horilla.utils.shortcuts import get_object_or_404
 from horilla_core.decorators import htmx_required, permission_required_or_denied
 from horilla_generics.views import (
     HorillaListView,
@@ -261,10 +262,6 @@ class MailTemplateCreateUpdateView(LoginRequiredMixin, FormView):
         except ValidationError as e:
             messages.error(self.request, str(e))
             return self.form_invalid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, _("Please correct the errors below."))
-        return super().form_invalid(form)
 
 
 @method_decorator(htmx_required, name="dispatch")
