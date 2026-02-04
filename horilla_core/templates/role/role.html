@@ -32,9 +32,15 @@
             <div class="genealogy-body genealogy-scroll">
               <div class="genealogy-tree">
                 <ul>
-                  {% for role in roles_data %}
-                    {% include "role/role_node.html" with role=role level=1 %}
-                  {% endfor %}
+                  {% if show_all_companies %}
+                    {% for company_data in companies_data %}
+                      {% include "role/company_node.html" with company_data=company_data %}
+                    {% endfor %}
+                  {% else %}
+                    {% for role in roles_data %}
+                      {% include "role/role_node.html" with role=role level=1 %}
+                    {% endfor %}
+                  {% endif %}
                 </ul>
               </div>
             </div>
