@@ -21,6 +21,8 @@ import calendar
 from datetime import datetime
 from functools import cached_property
 
+from django.contrib import messages
+
 # Third-party imports (Django)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
@@ -491,6 +493,17 @@ class FiscalYearCalendarView(LoginRequiredMixin, DetailView, FiscalYearCalendarM
     model = FiscalYear
     template_name = "settings/fiscal_calendar.html"
     context_object_name = "fiscal_year"
+
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get("pk")
+        try:
+            FiscalYear.objects.get(pk=pk)
+        except Exception as e:
+            messages.error(self.request, str(e))
+            return HttpResponse(
+                "<script>$('#tab-fiscal-year-view').click();closeCalendarPreviewModal()</script>"
+            )
+        return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         pk = self.kwargs.get(self.pk_url_kwarg)
