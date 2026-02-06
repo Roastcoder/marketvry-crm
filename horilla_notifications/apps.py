@@ -52,7 +52,9 @@ class HorillaNotificationsConfig(AppConfig):
                 path("notifications/", include("horilla_notifications.urls")),
             )
 
+            __import__("horilla_notifications.registration")
             __import__("horilla_notifications.signals")
+            __import__("horilla_notifications.menu")
 
         except Exception as e:
             import logging

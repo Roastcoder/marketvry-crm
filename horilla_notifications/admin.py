@@ -11,8 +11,9 @@ allowing administrators to manage notifications through the admin panel.
 from django.contrib import admin
 
 # Local application imports
-from .models import Notification
+from .models import Notification, NotificationTemplate
 
 admin.site.register(Notification)
+admin.site.register(NotificationTemplate)
 
 # Register your notifications models here.
