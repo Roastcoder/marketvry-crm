@@ -99,6 +99,19 @@ class OutlookLoginView(View):
             messages.info(request, "Not configured outlook")
             return redirect("/")  # redirect somewhere safe if no config
 
+        # Validate required fields before proceeding
+        if not api.outlook_client_id:
+            messages.error(request, "Outlook Client ID is not configured")
+            return redirect("/")
+
+        if not api.outlook_redirect_uri:
+            messages.error(request, "Outlook Redirect URI is not configured")
+            return redirect("/")
+
+        if not api.outlook_authorization_url:
+            messages.error(request, "Outlook Authorization URL is not configured")
+            return redirect("/")
+
         oauth = OAuth2Session(
             api.outlook_client_id,
             redirect_uri=api.outlook_redirect_uri,
@@ -141,8 +154,26 @@ class OutlookCallbackView(View):
                 company=selected_company
             ).first()
 
-        if not api:
+        if not api or api.type != "outlook":
             messages.error(request, "Invalid Outlook configuration")
+            return redirect("/")
+
+        # Validate required fields before proceeding
+        if not api.outlook_client_id:
+            messages.error(request, "Outlook Client ID is not configured")
+            return redirect("/")
+
+        if not api.outlook_redirect_uri:
+            messages.error(request, "Outlook Redirect URI is not configured")
+            return redirect("/")
+
+        if not api.outlook_token_url:
+            messages.error(request, "Outlook Token URL is not configured")
+            return redirect("/")
+
+        client_secret = api.get_decrypted_client_secret()
+        if not client_secret:
+            messages.error(request, "Outlook Client Secret is not configured")
             return redirect("/")
 
         state = api.oauth_state
@@ -154,6 +185,10 @@ class OutlookCallbackView(View):
         )
 
         authorization_response_uri = request.build_absolute_uri()
+        if not authorization_response_uri:
+            messages.error(request, "Unable to build authorization response URI")
+            return redirect("/")
+
         authorization_response_uri = authorization_response_uri.replace(
             "http://", "https://"
         )
@@ -161,7 +196,7 @@ class OutlookCallbackView(View):
         api.last_refreshed = datetime.now()
         token = oauth.fetch_token(
             api.outlook_token_url,
-            client_secret=api.get_decrypted_client_secret(),
+            client_secret=client_secret,
             authorization_response=authorization_response_uri,
         )
         api.token = token
