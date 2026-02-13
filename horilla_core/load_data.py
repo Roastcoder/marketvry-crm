@@ -13,6 +13,7 @@ from django.core.management import call_command
 from django.db import connection, transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
@@ -25,6 +26,25 @@ def set_sqlite_foreign_keys(enabled: bool):
     if connection.vendor == "sqlite":
         with connection.cursor() as cursor:
             cursor.execute(f"PRAGMA foreign_keys = {'ON' if enabled else 'OFF'};")
+
+
+def inject_timestamps_into_fixture_data(data):
+    """
+    Inject current created_at and updated_at into fixture data so that
+    every loaded record gets current timestamps (loaddata does not run
+    model save(), so auto_now/auto_now_add are not applied).
+    """
+    if not isinstance(data, list):
+        return data
+    now = timezone.now().isoformat()
+    for item in data:
+        if isinstance(item, dict) and "fields" in item:
+            fields = item["fields"]
+            if "created_at" in fields:
+                fields["created_at"] = now
+            if "updated_at" in fields:
+                fields["updated_at"] = now
+    return data
 
 
 class LoadDatabaseConditionView(View):
@@ -211,11 +231,9 @@ class LoadDemoDatabase(View):
     def load_limited_data(self, filename, limit=None):
         """
         Load data from JSON file with optional limit on number of records.
+        Injects current created_at and updated_at into all fixture objects
+        so that loaded records have up-to-date timestamps.
         """
-        if limit is None:
-            call_command("loaddata", str(filename))
-            return
-
         with open(filename, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -223,12 +241,13 @@ class LoadDemoDatabase(View):
             call_command("loaddata", str(filename))
             return
 
-        limited_data = data[:limit]
+        data_to_load = data[:limit] if limit is not None else data
+        inject_timestamps_into_fixture_data(data_to_load)
 
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", delete=False, encoding="utf-8"
         ) as tmp_file:
-            json.dump(limited_data, tmp_file, ensure_ascii=False, indent=2)
+            json.dump(data_to_load, tmp_file, ensure_ascii=False, indent=2)
             tmp_filename = tmp_file.name
 
         try:
