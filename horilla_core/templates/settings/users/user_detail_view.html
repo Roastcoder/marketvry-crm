@@ -11,27 +11,27 @@
             <div class="flex flex-wrap gap-y-3 justify-between items-center mb-2">
                 <div class="flex gap-4 items-center relative">
                     <button class=""
-                        hx-get="{% url 'horilla_core:user_view' %}"
-                        hx-target="#users-view"
-                        hx-swap="innerHTML"
-                        hx-select="#users-view"
+                        hx-get="{{ previous_url }}"
+                        hx-target="#mainContent"
+                        hx-swap="outerHTML"
+                        hx-select="#mainContent"
                         hx-push-url="true" >
                         <i class="fas fa-arrow-left mr-2"></i>
                     </button>
                     <div class="relative flex items-center">
-                        {% if current_obj.profile %}
-                            <img src="{{ current_obj.profile.url }}" alt="{% trans 'Profile Image' %}" class="w-[35px] h-[35px] rounded-full object-cover" />
+                        {% if obj.profile %}
+                            <img src="{{ obj.profile.url }}" alt="{% trans 'Profile Image' %}" class="w-[35px] h-[35px] rounded-full object-cover" />
                         {% else %}
-                            <img src="{{ current_obj.get_avatar }}" alt="{% trans 'Avatar' %}" class="w-[35px] h-[35px] rounded-full object-cover" />
+                            <img src="{{ obj.get_avatar }}" alt="{% trans 'Avatar' %}" class="w-[35px] h-[35px] rounded-full object-cover" />
                         {% endif %}
                     </div>
-                    <div class="font-semibold transition duration-300">{{current_obj.get_full_name}}</div>
+                    <div class="font-semibold transition duration-300">{{obj.get_full_name}}</div>
                 </div>
                 <div class="flex gap-2 mb-2">
                     {% has_perm user_meta.app_label|add:".change_"|add:user_meta.model_name as can_change_user %}
                     {% if can_change_user %}
                         <button class="border rounded-md p-3 border-dark-50"
-                            hx-get="{% url 'horilla_core:user_edit_form' current_obj.pk %}"
+                            hx-get="{% url 'horilla_core:user_edit_form' obj.pk %}"
                             hx-target="#modalBox"
                             hx-swap="innerHTML"
                             onclick="openModal()">
@@ -40,7 +40,7 @@
                     {% endif %}
                     {% if can_view_user %}
                         <button class="text-sm px-4 py-1.5 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]"
-                            hx-get="{% url 'horilla_core:login_history_view' %}?pk={{current_obj.pk}}"
+                            hx-get="{% url 'horilla_core:login_history_view' %}?pk={{obj.pk}}"
                             hx-target= "#users-view",
                             hx-swap ="innerHTML",
                             hx-push-url="true",
@@ -61,26 +61,26 @@
                     <span class="text-dark-200 font-semibold w-40"> {% trans 'First Name' %} </span>
                     <span class="flex-1 text-dark-200">
                     <span class="pe-2">:</span>
-                    {{current_obj.first_name}}
+                    {{obj.first_name}}
                     </span>
                 </div>
                 <div class="text-sm flex flex-col sm:flex-row">
                     <span class="text-dark-200 font-semibold w-40">{% trans 'Last Name' %} </span>
                     <span class="flex-1 text-dark-200">
                     <span class="pe-2">:</span>
-                    {{current_obj.last_name}}
+                    {{obj.last_name}}
                     </span>
                 </div>
                 <div class="text-sm flex flex-col sm:flex-row">
-                    <span class="text-dark-200 font-semibold w-40"> {{ current_obj|verbose_name:"email"}} </span>
+                    <span class="text-dark-200 font-semibold w-40"> {{ obj|verbose_name:"email"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{current_obj.email}}</span
+                    <span class="pe-2">:</span>{{obj.email}}</span
                     >
                 </div>
                 <div class="text-sm flex flex-col sm:flex-row">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"contact_number"}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"contact_number"}}</span>
                     <span class="flex-1 text-dark-200"
-                    ><span class="pe-2">:</span>{{current_obj.contact_number}}</span
+                    ><span class="pe-2">:</span>{{obj.contact_number}}</span
                     >
                 </div>
             </div>
@@ -89,24 +89,24 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"city"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"city"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.city}}</span>
+                    <span class="pe-2">:</span>{{ obj.city}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"state"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"state"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.state}}</span>
+                    <span class="pe-2">:</span>{{ obj.state}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"country"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"country"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.get_country_display}}</span>
+                    <span class="pe-2">:</span>{{ obj.get_country_display}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"zip_code"}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"zip_code"}}</span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.zip_code}}</span>
+                    <span class="pe-2">:</span>{{ obj.zip_code}}</span>
                 </div>
             </div>
             <h3 class="text-sm font-semibold bg-primary-300 text-primary-600 rounded-md p-3 mb-4">
@@ -114,19 +114,19 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"company"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"company"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.company}}</span>
+                    <span class="pe-2">:</span>{{ obj.company}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"department"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"department"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.department}}</span>
+                    <span class="pe-2">:</span>{{ obj.department}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"role"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"role"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.role}}</span>
+                    <span class="pe-2">:</span>{{ obj.role}}</span>
                 </div>
             </div>
             <h3 class="text-sm font-semibold bg-primary-300 text-primary-600 rounded-md p-3 mb-4">
@@ -134,33 +134,33 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"language"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"language"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.get_language_display}}</span>
+                    <span class="pe-2">:</span>{{ obj.get_language_display}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"time_zone"}} </span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"time_zone"}} </span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.time_zone}}</span>
+                    <span class="pe-2">:</span>{{ obj.time_zone}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"currency"}} </span>
-                    <span class="flex-1 text-dark-200"><span class="pe-2">:</span>{{ current_obj.currency}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"currency"}} </span>
+                    <span class="flex-1 text-dark-200"><span class="pe-2">:</span>{{ obj.currency}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"date_time_format"}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"date_time_format"}}</span>
                     <span class="flex-1 text-dark-200"
-                    ><span class="pe-2">:</span>{{ current_obj.get_date_time_format_display}}</span>
+                    ><span class="pe-2">:</span>{{ obj.get_date_time_format_display}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"date_format"}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"date_format"}}</span>
                     <span class="flex-1 text-dark-200"
-                    ><span class="pe-2">:</span>{{ current_obj.get_date_format_display}}</span>
+                    ><span class="pe-2">:</span>{{ obj.get_date_format_display}}</span>
                 </div>
                 <div class="text-sm flex">
-                    <span class="text-dark-200 font-semibold w-40">{{ current_obj|verbose_name:"time_format"}}</span>
+                    <span class="text-dark-200 font-semibold w-40">{{ obj|verbose_name:"time_format"}}</span>
                     <span class="flex-1 text-dark-200">
-                    <span class="pe-2">:</span>{{ current_obj.get_time_format_display}}</span>
+                    <span class="pe-2">:</span>{{ obj.get_time_format_display}}</span>
                 </div>
             </div>
         </div>

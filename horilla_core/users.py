@@ -4,13 +4,13 @@ This view handles the methods for user view
 
 # Standard library imports
 from functools import cached_property
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 # Third-party imports (Django)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, View
@@ -69,6 +69,16 @@ class UserNavbar(LoginRequiredMixin, HorillaNavView):
     nav_width = False
     gap_enabled = False
     exclude_kanban_fields = "country"
+    column_selector_exclude_fields = [
+        "password",
+        "last_login",
+        "date_joined",
+        "is_staff",
+        "is_active",
+        "groups",
+        "user_permissions",
+        "profile",
+    ]
     enable_actions = True
 
     @cached_property
@@ -139,10 +149,10 @@ class UserListView(LoginRequiredMixin, HorillaListView):
 
     columns = [
         (_("Name"), "get_avatar_with_name"),
+        "email",
         "state",
         "country",
         "contact_number",
-        "department",
         "role",
     ]
 
@@ -469,9 +479,18 @@ class UserDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_obj = self.get_object()
-        self.request.session["last_visited_url"] = self.request.get_full_path()
-        context["current_obj"] = current_obj
+        obj = context.get("obj") or self.get_object()
+        referer_session_key = f"detail_referer_{self.model._meta.model_name}_{obj.pk}"
+        stored_referer = self.request.session.get(referer_session_key)
+        user_view_url = reverse("horilla_core:user_view")
+
+        if stored_referer:
+            referer_path = urlparse(stored_referer).path
+            if "login-history-view" in referer_path:
+                context["previous_url"] = user_view_url
+                self.request.session[referer_session_key] = user_view_url
+                return context
+        context["previous_url"] = stored_referer or user_view_url
         return context
 
 
@@ -486,7 +505,6 @@ class MyProfileView(LoginRequiredMixin, TemplateView):
     template_name = "settings/users/my_profile.html"
 
 
-@method_decorator(htmx_required, name="dispatch")
 class LoginHistoryView(LoginRequiredMixin, HorillaView):
     """
     Main login history view of user
@@ -526,11 +544,18 @@ class LoginHistoryNavbar(LoginRequiredMixin, HorillaNavView):
     search_option = False
 
     def get_navbar_indication_attrs(self):
+        # When viewing a specific user's login history (?pk=), back goes to that user's detail view
+        pk = self.request.GET.get("pk")
+        if pk:
+            back_url = reverse("horilla_core:user_detail_view", kwargs={"pk": pk})
+        else:
+            back_url = self.request.session.get("last_visited_url")
 
-        last_url = self.request.session.get("last_visited_url")
+        if not back_url:
+            return {}
 
         return {
-            "hx-get": last_url,
+            "hx-get": back_url,
             "hx-target": "#users-view",
             "hx-swap": "innerHTML",
             "hx-push-url": "true",
