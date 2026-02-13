@@ -25,7 +25,14 @@ class UserFilter(HorillaFilterSet):
 
         model = User
         fields = "__all__"
-        exclude = ["profile"]
+        exclude = [
+            "profile",
+            "password",
+            "last_login",
+            "date_joined",
+            "username",
+            "is_staff",
+        ]
         search_fields = ["first_name", "email", "last_name"]
 
 
