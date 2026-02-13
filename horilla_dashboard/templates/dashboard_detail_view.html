@@ -29,33 +29,47 @@
                 <div class="flex items-center gap-5 h-[70px]">
                     <div class="flex items-center gap-5">
                         <div class="flex items-center gap-3">
-                            <button
-                                hx-get="{% url 'horilla_dashboard:component_create' %}?{{ request.GET.urlencode}}&dashboard={{current_obj.pk}}"
-                                onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML"
-                                class="border border-primary-500 btn-with-icon flex items-center gap-3 text-sm px-4 py-2 rounded-md text-primary-600 bg-primary-100 hover:bg-primary-600 hover:text-[white] transition duration-300 cursor-pointer">
-                                <i class="fa-solid fa-plus"></i>
-                                {% trans "Add components" %}
-                            </button>
+                            {% has_perm "horilla_dashboard.add_dashboardcomponent" as can_add_component %}
+                            {% if can_add_component %}
+                                <button id="addComponentBtn"
+                                    hx-get="{% url 'horilla_dashboard:component_create' %}?{{ request.GET.urlencode}}&dashboard={{current_obj.pk}}"
+                                    onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML"
+                                    class="border border-primary-500 btn-with-icon flex items-center gap-3 text-sm px-4 py-2 rounded-md text-primary-600 bg-primary-100 hover:bg-primary-600 hover:text-[white] transition duration-300 cursor-pointer">
+                                    <i class="fa-solid fa-plus"></i>
+                                    {% trans "Add components" %}
+                                </button>
+                            {% endif %}
                             {% if has_components %}
-                                <button onclick="openReorderModal()"
+                                <button type="button" id="editLayoutBtn" onclick="toggleEditMode()"
                                     class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
                                     {% trans "Reorder" %}
                                 </button>
+                                <span id="editModeActions" class="hidden items-center gap-2">
+                                    <button type="button" onclick="saveDragOrder()" id="saveOrderBtn"
+                                    class="text-sm px-4 py-2 bg-primary-600 rounded-md transition duration-300 text-[white]">
+                                    {% trans "Save" %}
+                                    </button>
+                                    <button type="button" onclick="toggleEditMode()" id="cancelEditBtn"
+                                    class="text-sm px-4 py-2 rounded-md border border-primary-600 text-primary-600 transition duration-300 cursor-pointer">
+                                    {% trans "Cancel" %}
+                                    </button>
+                                </span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="p-5 pt-24" id="dashboard-detail-view">
+        <div class="p-5 pt-24" id="dashboard-detail-view" data-reorder-url="{% url 'horilla_dashboard:reorder_components' dashboard_id=current_obj.pk %}" data-csrf-token="{{ csrf_token }}">
             {% if has_components %}
                 <!-- KPI Components - Always at the top -->
                 {% with kpi_components=components|filter_by_type:'kpi' %}
                     {% if kpi_components %}
                         <div class="mb-6">
-                            <div class="grid grid-cols-12 gap-6">
+                            <div class="grid grid-cols-12 gap-6" id="reorderable-kpis">
                                 {% for component in kpi_components %}
-                                <div class="col-span-3 kpi-component-fixed">
+                                <div class="col-span-3 kpi-component-fixed kpi-dashboard-card relative" data-component-id="{{ component.id }}">
+                                    <div class="edit-drag-handle hidden absolute left-2 top-2 cursor-grab text-gray-400 z-20" title="{% trans 'Drag to reorder' %}"><i class="fa-solid fa-grip-vertical"></i></div>
                                     <div hx-get="{% url 'horilla_dashboard:component_chart' component_id=component.id %}" hx-trigger="load"
                                         hx-swap="innerHTML" class="w-full h-full">
                                         <div class="text-gray-500 text-sm flex items-center justify-center h-full">
@@ -80,10 +94,14 @@
                             {% endif %}
                             <div class="grid grid-cols-12 gap-6" id="reorderable-components">
                                 {% for component in non_kpi_components %}
-                                    <div class="col-span-6" data-component-id="{{ component.id }}">
-                                        <div class="shadow-sm bg-white rounded-lg z-0 p-4 overflow overflow-hidden">
+                                    <div class="col-span-6 dashboard-component-card" data-component-id="{{ component.id }}">
+                                        <div class="shadow-sm bg-white rounded-lg z-0 p-4 overflow overflow-hidden relative">
+                                            <div class="edit-drag-handle hidden absolute left-2 top-2 cursor-grab text-gray-400 z-20" title="{% trans 'Drag to reorder' %}"><i class="fa-solid fa-grip-vertical"></i></div>
                                             <div class="flex items-center justify-between mb-3">
                                                 <h3 class="text-md font-semibold">{{ component.name }}</h3>
+                                                {% has_perm "horilla_dashboard.change_dashboard" as can_change_dashboard %}
+                                                {% has_perm "horilla_dashboard.delete_dashboard" as can_delete_dashboard %}
+                                                {% if component.component_type == 'chart' or component.component_type == 'table_data' and can_change_dashboard or component.component_type == 'table_data' and instance.dashboard_owner == request.user or component.component_type == 'table_data' and can_delete_dashboard %}
                                                 <div class="relative dropdown-wrapper z-[10]">
                                                     <button id="dropdownbtn-{{ component.id }}" type="button"
                                                         class="flex relative">
@@ -152,6 +170,7 @@
                                                         </ul>
                                                     </div>
                                                 </div>
+                                                {% endif %}
                                             </div>
                                             {% if component.component_type == 'chart' %}
                                                 <div class="chart-container relative w-full" style="height: 344px">
@@ -216,7 +235,6 @@
             <script>
                 $(document).ready(function () {
                     initializeSelect2();
-                    initializeReorderTabs();
                     bindEventHandlers();
                 });
 
@@ -231,20 +249,108 @@
                     });
                 }
 
-                function initializeReorderTabs() {
-                    switchReorderTab("components");
+                var sortableKpis = null;
+                var sortableComponents = null;
+                var editMode = false;
+
+                function toggleEditMode() {
+                    editMode = !editMode;
+                    var $view = $("#dashboard-detail-view");
+                    if (editMode) {
+                        $("#editLayoutBtn").addClass("hidden");
+                        $("#editModeActions").removeClass("hidden").addClass("flex");
+                        $("#addComponentBtn").addClass("hidden");
+                        $view.addClass("edit-mode");
+                        $view.find(".edit-drag-handle").removeClass("hidden");
+                        initDragSortables();
+                    } else {
+                        $("#editLayoutBtn").removeClass("hidden");
+                        $("#editModeActions").addClass("hidden").removeClass("flex");
+                        $("#addComponentBtn").removeClass("hidden");
+                        $view.removeClass("edit-mode");
+                        $view.find(".edit-drag-handle").addClass("hidden");
+                        destroyDragSortables();
+                    }
                 }
 
-                function bindEventHandlers() {
-                    $("#componentReorderForm").on("submit", handleComponentReorderSubmit);
-                    $("#kpiReorderForm").on("submit", handleKpiReorderSubmit);
+                function initDragSortables() {
+                    if (typeof Sortable === "undefined") return;
+                    var kpiList = document.getElementById("reorderable-kpis");
+                    var compList = document.getElementById("reorderable-components");
+                    var handle = ".edit-drag-handle";
+                    if (kpiList && !sortableKpis) {
+                        sortableKpis = Sortable.create(kpiList, {
+                            handle: handle,
+                            animation: 150,
+                            ghostClass: "opacity-50"
+                        });
+                    }
+                    if (compList && !sortableComponents) {
+                        sortableComponents = Sortable.create(compList, {
+                            handle: handle,
+                            animation: 150,
+                            ghostClass: "opacity-50"
+                        });
+                    }
+                }
 
-                    $("#reorderModal").on("click", handleModalOutsideClick);
+                function destroyDragSortables() {
+                    if (sortableKpis) { sortableKpis.destroy(); sortableKpis = null; }
+                    if (sortableComponents) { sortableComponents.destroy(); sortableComponents = null; }
+                }
 
-                    $("#reorderModal .bg-white").on("click", function (e) {
-                        e.stopPropagation();
+                function saveDragOrder() {
+                    var $view = $("#dashboard-detail-view");
+                    var url = $view.data("reorder-url");
+                    var csrfToken = $view.data("csrf-token");
+                    if (!url) return;
+
+                    function postOrder(reorderType, order) {
+                        var formData = new FormData();
+                        formData.append("csrfmiddlewaretoken", csrfToken);
+                        formData.append("reorder_type", reorderType);
+                        order.forEach(function(id) { formData.append("component_order", id); });
+                        return $.ajax({
+                            url: url,
+                            method: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            headers: { "X-CSRFToken": csrfToken }
+                        });
+                    }
+
+                    var kpiIds = [];
+                    $("#reorderable-kpis").find("[data-component-id]").each(function() {
+                        kpiIds.push($(this).data("component-id"));
+                    });
+                    var compIds = [];
+                    $("#reorderable-components").find("[data-component-id]").each(function() {
+                        compIds.push($(this).data("component-id"));
+                    });
+
+                    var promises = [];
+                    if (kpiIds.length) promises.push(postOrder("kpi", kpiIds));
+                    if (compIds.length) promises.push(postOrder("components", compIds));
+
+                    if (!promises.length) {
+                        toggleEditMode();
+                        return;
+                    }
+                    $("#saveOrderBtn").prop("disabled", true);
+                    $.when.apply($, promises).done(function() {
+                        toggleEditMode();
+                        window.location.reload();
+                    }).fail(function() {
+                        window.location.reload();
+                    }).always(function() {
+                        $("#saveOrderBtn").prop("disabled", false);
                     });
                 }
+
+
+                window.toggleEditMode = toggleEditMode;
+                window.saveDragOrder = saveDragOrder;
 
                 function exportChart(chartId, chartName, format) {
                     const $chartDom = $("#" + chartId);
@@ -274,356 +380,10 @@
                     }
                 }
 
-                function openReorderModal() {
-                    $("#reorderModal").removeClass("hidden");
-                    $("body").css("overflow", "hidden");
-                }
-
-                function closeReorderModal() {
-                    $("#reorderModal").addClass("hidden");
-                    $("body").css("overflow", "auto");
-                }
-
-                function switchReorderTab(tabType) {
-                    const $componentsTab = $("#tab-components");
-                    const $kpiTab = $("#tab-kpi");
-                    const $componentsContent = $("#tab-components-content");
-                    const $kpiContent = $("#tab-kpi-content");
-
-                    $componentsContent.addClass("hidden");
-                    $kpiContent.addClass("hidden");
-
-                    $componentsTab
-                        .removeClass("text-primary-600 border-b-2 border-primary-600")
-                        .addClass("text-[#333]");
-                    $kpiTab
-                        .removeClass("text-primary-600 border-b-2 border-primary-600")
-                        .addClass("text-[#333]");
-
-                    if (tabType === "components") {
-                        $componentsContent.removeClass("hidden");
-                        $componentsTab
-                            .removeClass("text-[#333]")
-                            .addClass("text-primary-600 border-b-2 border-primary-600");
-                        $componentsTab.attr("aria-selected", "true");
-                        $kpiTab.attr("aria-selected", "false");
-                    } else {
-                        $kpiContent.removeClass("hidden");
-                        $kpiTab
-                            .removeClass("text-[#333]")
-                            .addClass("text-primary-600 border-b-2 border-primary-600");
-                        $kpiTab.attr("aria-selected", "true");
-                        $componentsTab.attr("aria-selected", "false");
-                    }
-                }
-
-                function moveComponent(componentId, direction, tabType) {
-                    const listId = tabType === "kpi" ? "kpiOrderList" : "componentOrderList";
-                    const $list = $("#" + listId);
-                    const $currentItem = $list.find(`li[data-component-id="${componentId}"]`);
-
-                    if ($currentItem.length === 0) return;
-
-                    if (direction === "up") {
-                        const $prevItem = $currentItem.prev();
-                        if ($prevItem.length) {
-                            $currentItem.insertBefore($prevItem);
-                        }
-                    } else if (direction === "down") {
-                        const $nextItem = $currentItem.next();
-                        if ($nextItem.length) {
-                            $currentItem.insertAfter($nextItem);
-                        }
-                    }
-
-                    updateComponentOrder(tabType);
-                }
-
-                function updateComponentOrder(tabType) {
-                    const listId = tabType === "kpi" ? "kpiOrderList" : "componentOrderList";
-                    const inputsContainerId =
-                        tabType === "kpi" ? "kpiOrderInputs" : "componentOrderInputs";
-
-                    const $list = $("#" + listId);
-                    const $items = $list.find("li[data-component-id]");
-                    const $inputsContainer = $("#" + inputsContainerId);
-
-                    $inputsContainer.empty();
-
-                    $items.each(function (index) {
-                        const componentId = $(this).data("component-id");
-                        const $input = $("<input>", {
-                            type: "hidden",
-                            name: "component_order",
-                            value: componentId,
-                        });
-                        $inputsContainer.append($input);
-                    });
-                }
-
-                function handleComponentReorderSubmit(e) {
-                    e.preventDefault();
-                    submitReorderForm(this, "components");
-                }
-
-                function handleKpiReorderSubmit(e) {
-                    e.preventDefault();
-                    submitReorderForm(this, "kpi");
-                }
-
-                function submitReorderForm(form, type) {
-                    const $form = $(form);
-                    const formData = new FormData(form);
-                    const csrfToken = $("[name=csrfmiddlewaretoken]").val();
-
-                    $.ajax({
-                        url: form.action,
-                        method: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            "X-CSRFToken": csrfToken,
-                        },
-                        success: function (data) {
-                            if (data.success) {
-                                closeReorderModal();
-                                window.location.reload();
-                            } else {
-                                alert("Error: " + (data.error || `Failed to reorder ${type}`));
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error:", error);
-                            alert(`An error occurred while reordering ${type}`);
-                        },
-                    });
-                }
-
-                function handleModalOutsideClick(e) {
-                    if (e.target === this) {
-                        closeReorderModal();
-                    }
-                }
-
                 window.exportChart = exportChart;
-                window.openReorderModal = openReorderModal;
-                window.closeReorderModal = closeReorderModal;
-                window.switchReorderTab = switchReorderTab;
-                window.moveComponent = moveComponent;
             </script>
         </div>
 
-        <div id="reorderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[999] flex items-center justify-center">
-            <div
-                class="bg-white w-full max-w-md rounded-lg shadow-lg p-0 transition-all duration-300 md:min-w-[650px] opacity-100 scale-100">
-                <div class="relative p-4 w-full max-w-2xl max-h-full">
-                    <div class="relative bg-white rounded-lg shadow-sm">
-                        <!-- Header -->
-                        <div class="p-5 pt-3">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h2 class="text-md font-semibold">
-                                        {% trans 'Reorder Components'%}
-                                    </h2>
-                                </div>
-                                <button type="button" onclick="closeReorderModal()"
-                                    class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
-                                    <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Tabs -->
-                        <div class="mb-4 border-b border-[#dddddd]">
-                            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="reorder-tabs"
-                                data-tabs-toggle="#reorder-tabs-content" data-tabs-active-classes="text-primary-600 border-b-2"
-                                data-tabs-inactive-classes="text-[#333] hover:text-primary-600 hover:border-gray-300"
-                                role="tablist">
-                                <li class="me-2" role="presentation">
-                                    <button
-                                        class="inline-block px-5 py-3 text-sm border-b-2 rounded-t-lg transition duration-300"
-                                        id="tab-components" data-tabs-target="#tab-components-content" type="button" role="tab"
-                                        aria-controls="tab-components-content" aria-selected="true"
-                                        onclick="switchReorderTab('components')">
-                                        {% trans 'Reorder Components' %}
-                                    </button>
-                                </li>
-                                <li class="me-2" role="presentation">
-                                    <button
-                                        class="inline-block px-5 py-3 text-sm border-b-2 rounded-t-lg transition duration-300"
-                                        id="tab-kpi" data-tabs-target="#tab-kpi-content" type="button" role="tab"
-                                        aria-controls="tab-kpi-content" aria-selected="false" onclick="switchReorderTab('kpi')">
-                                        {% trans 'Reorder KPIs' %}
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Tab Content -->
-                        <div id="reorder-tabs-content" class="overflow-hidden">
-                            <!-- Components Tab -->
-                            <div id="tab-components-content" role="tabpanel" aria-labelledby="tab-components">
-                                <form id="componentReorderForm" method="post"
-                                    action="{% url 'horilla_dashboard:reorder_components' dashboard_id=current_obj.pk %}">
-                                    {% csrf_token %}
-                                    <div class="p-5 pt-3">
-                                        <div class="grid grid-cols-1 gap-4">
-                                            <div class="mt-4">
-                                                <ul class="flex gap-2 flex-col border-[1px] border-[solid] border-[#e5e5e5] rounded-[10px] h-[400px] overflow-hidden overflow-y-auto p-4"
-                                                    id="componentOrderList">
-                                                    {% for component in components %}
-                                                        {% if component.component_type != 'kpi' %}
-                                                            <li data-component-id="{{ component.id }}"
-                                                                data-sequence="{{ component.sequence }}">
-                                                                <div class="flex justify-between items-center relative component-item">
-                                                                    <div
-                                                                        class="ps-4 pr-16 bg-primary-100 px-[10px] py-[8px] w-full flex text-[#333] border-[1px] border-[solid] border-[#dddddd] rounded-[5px] text-[.8rem]">
-                                                                        <div class="flex items-center gap-3">
-                                                                            {% if component.component_type == 'chart' %}
-                                                                                <i class="fa-solid fa-chart-bar text-blue-500"></i>
-                                                                            {% elif component.component_type == 'table_data' %}
-                                                                                <i class="fa-solid fa-table text-green-500"></i>
-                                                                            {% endif %}
-                                                                            <div>
-                                                                                <div class="font-medium">
-                                                                                    {{ component.name }}
-                                                                                </div>
-                                                                                <div class="text-xs text-gray-500">
-                                                                                    {% if component.component_type == 'chart' %}
-                                                                                        {% trans 'Chart' %} - {{ component.get_chart_type_display }}
-                                                                                    {% elif component.component_type == 'table_data' %}
-                                                                                        {% trans 'Table Data' %} - {{ component.module|title }}
-                                                                                    {% endif %}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="flex absolute right-0 h-full">
-                                                                        <button type="button"
-                                                                            onclick="moveComponent({{ component.id }}, 'up', 'components')"
-                                                                            class="border-[1px] border-r-[0px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 hover:bg-gray-100">
-                                                                            <i class="fa-solid fa-angle-up"></i>
-                                                                        </button>
-                                                                        <button type="button"
-                                                                            onclick="moveComponent({{ component.id }}, 'down', 'components')"
-                                                                            class="border-[1px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 rounded-r-[5px] hover:bg-gray-100">
-                                                                            <i class="fa-solid fa-angle-down"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        {% endif %}
-                                                    {% endfor %}
-
-                                                    {% with non_kpi_components=components|filter_by_type_exclude:'kpi' %}
-                                                        {% if not non_kpi_components %}
-                                                            <li class="text-center text-gray-500 py-8">
-                                                                {% trans 'No components to reorder' %}
-                                                            </li>
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="dashboard_id" value="{{ current_obj.id }}" />
-                                    <input type="hidden" name="reorder_type" value="components" />
-                                    <div id="componentOrderInputs">
-                                        {% for component in components %}
-                                            {% if component.component_type != 'kpi' %}
-                                                <input type="hidden" name="component_order" value="{{ component.id }}" />
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    <div class="flex justify-end p-5">
-                                        <button type="submit"
-                                            class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
-                                            {% trans 'Save Component Order' %}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <!-- KPI Tab -->
-                            <div id="tab-kpi-content" role="tabpanel" aria-labelledby="tab-kpi" class="hidden">
-                                <form id="kpiReorderForm" method="post"
-                                    action="{% url 'horilla_dashboard:reorder_components' dashboard_id=current_obj.pk %}">
-                                    {% csrf_token %}
-                                    <div class="p-5 pt-3">
-                                        <div class="grid grid-cols-1 gap-4">
-                                            <div class="mt-4">
-                                                <ul class="flex gap-2 flex-col border-[1px] border-[solid] border-[#e5e5e5] rounded-[10px] h-[400px] overflow-hidden overflow-y-auto p-4"
-                                                    id="kpiOrderList">
-                                                    {% for component in components %}
-                                                        {% if component.component_type == 'kpi' %}
-                                                        <li data-component-id="{{ component.id }}"
-                                                            data-sequence="{{ component.sequence }}">
-                                                            <div class="flex justify-between items-center relative component-item">
-                                                                <div
-                                                                    class="ps-4 pr-16 bg-primary-100 px-[10px] py-[8px] w-full flex text-[#333] border-[1px] border-[solid] border-[#dddddd] rounded-[5px] text-[.8rem]">
-                                                                    <div class="flex items-center gap-3">
-                                                                        <i class="fa-solid fa-chart-line text-yellow-600"></i>
-                                                                        <div>
-                                                                            <div class="font-medium">
-                                                                                {{ component.name }}
-                                                                            </div>
-                                                                            <div class="text-xs text-gray-500">
-                                                                                {% trans 'KPI' %} - {{ component.get_metric_type_display|default:component.metric_type|title }}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="flex absolute right-0 h-full">
-                                                                    <button type="button"
-                                                                        onclick="moveComponent({{ component.id }}, 'up', 'kpi')"
-                                                                        class="border-[1px] border-r-[0px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 hover:bg-gray-100">
-                                                                        <i class="fa-solid fa-angle-up"></i>
-                                                                    </button>
-                                                                    <button type="button"
-                                                                        onclick="moveComponent({{ component.id }}, 'down', 'kpi')"
-                                                                        class="border-[1px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 rounded-r-[5px] hover:bg-gray-100">
-                                                                        <i class="fa-solid fa-angle-down"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        {% endif %}
-                                                    {% endfor %}
-
-                                                    {% with kpi_components=components|filter_by_type:'kpi' %}
-                                                        {% if not kpi_components %}
-                                                            <li class="text-center text-gray-500 py-8">
-                                                                {% trans 'No KPI components to reorder' %}
-                                                            </li>
-                                                    {% endif %}
-                                                {% endwith%}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="dashboard_id" value="{{ current_obj.id }}" />
-                                    <input type="hidden" name="reorder_type" value="kpi" />
-                                    <div id="kpiOrderInputs">
-                                        {% for component in components %}
-                                            {% if component.component_type == 'kpi' %}
-                                                <input type="hidden" name="component_order" value="{{ component.id }}" />
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    <div class="flex justify-end p-5">
-                                        <button type="submit"
-                                            class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
-                                            {% trans 'Save KPI Order' %}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 </div>

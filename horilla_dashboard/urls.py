@@ -158,6 +158,21 @@ urlpatterns = [
         name="reorder_components",
     ),
     path(
+        "save-default-home-layout-order/",
+        views.SaveDefaultHomeLayoutOrderView.as_view(),
+        name="save_default_home_layout_order",
+    ),
+    path(
+        "reset-default-home-layout-order/",
+        views.ResetDefaultHomeLayoutOrderView.as_view(),
+        name="reset_default_home_layout_order",
+    ),
+    path(
+        "dashboard-reset-component-order/<int:dashboard_id>/",
+        views.ResetDashboardLayoutOrderView.as_view(),
+        name="reset_dashboard_layout_order",
+    ),
+    path(
         "report-to-dashboard/",
         views.ReportToDashboardForm.as_view(),
         name="report_to_dashboard",

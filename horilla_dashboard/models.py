@@ -493,3 +493,57 @@ class ComponentCriteria(HorillaCoreModel):
 
     def __str__(self):
         return f"{self.component.name} - {self.field} {self.operator} {self.value}"
+
+
+class DefaultHomeLayoutOrder(models.Model):
+    """
+    Store layout order per user: for default home (dashboard=null) or for a
+    specific dashboard (dashboard set). Same model for both cases.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="layout_orders",
+        verbose_name=_("User"),
+    )
+    dashboard = models.ForeignKey(
+        "Dashboard",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="user_layout_orders",
+        verbose_name=_("Dashboard"),
+    )
+    order = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=_(
+            'For default home: {"kpi": ["default-kpi-0", ...], "chartsAndTables": [...]}. '
+            'For dashboard: {"kpi": [id, ...], "components": [id, ...]}.'
+        ),
+    )
+
+    class Meta:
+        unique_together = ("user", "dashboard")
+        verbose_name = _("Default Home Layout Order")
+        verbose_name_plural = _("Default Home Layout Orders")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "dashboard"],
+                name="unique_user_dashboard_layout_order",
+            ),
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(dashboard__isnull=True),
+                name="unique_user_default_home_layout_order",
+            ),
+        ]
+
+    def __str__(self):
+        if self.dashboard_id:
+            return _("Layout order for %(user)s - %(dashboard)s") % {
+                "user": self.user,
+                "dashboard": self.dashboard,
+            }
+        return _("Default home layout order for %(user)s") % {"user": self.user}
