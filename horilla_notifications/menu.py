@@ -4,11 +4,10 @@ for the Horilla CRM Notifications app
 """
 
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 from horilla.menu import settings_menu
 from horilla_notifications.models import NotificationTemplate
-from django.utils.translation import gettext_lazy as _
-
 
 
 @settings_menu.register
@@ -28,4 +27,3 @@ class NotificationSettings:
             "hx-select-oob": "#settings-sidebar",
         },
     ]
-

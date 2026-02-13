@@ -5,15 +5,16 @@ Uses python-windows-service to run Django as a Windows service
 
 # Standard library imports
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
+import servicemanager
+import win32event
 
 # Third-party imports (Others)
 import win32service
 import win32serviceutil
-import win32event
-import servicemanager
 
 
 class HorillaCRMService(win32serviceutil.ServiceFramework):
