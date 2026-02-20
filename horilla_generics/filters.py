@@ -14,6 +14,17 @@ import django_filters
 from django.db import models
 from django.db.models import Q
 
+# String-like field types where "empty" means NULL or empty string
+STRING_LIKE_FIELDS = (
+    models.CharField,
+    models.TextField,
+    models.EmailField,
+    models.URLField,
+    models.GenericIPAddressField,
+    models.SlugField,
+)
+
+
 logger = logging.getLogger(__name__)
 # Define operator choices by field type
 OPERATOR_CHOICES = {
@@ -176,10 +187,32 @@ class HorillaFilterSet(django_filters.FilterSet):
                         queryset = queryset.filter(**{f"{field}__lte": end_value})
 
                 elif operator == "isnull":
-                    queryset = queryset.filter(**{f"{field}__isnull": True})
+                    # For string-like fields, "empty" = NULL or empty string
+                    try:
+                        field_obj = model._meta.get_field(field)
+                        if isinstance(field_obj, STRING_LIKE_FIELDS):
+                            queryset = queryset.filter(
+                                Q(**{f"{field}__isnull": True})
+                                | Q(**{f"{field}__exact": ""})
+                            )
+                        else:
+                            queryset = queryset.filter(**{f"{field}__isnull": True})
+                    except (models.FieldDoesNotExist, AttributeError):
+                        queryset = queryset.filter(**{f"{field}__isnull": True})
 
                 elif operator == "isnotnull":
-                    queryset = queryset.filter(**{f"{field}__isnull": False})
+                    # For string-like fields, "not empty" = NOT NULL and not empty string
+                    try:
+                        field_obj = model._meta.get_field(field)
+                        if isinstance(field_obj, STRING_LIKE_FIELDS):
+                            queryset = queryset.filter(
+                                ~Q(**{f"{field}__isnull": True})
+                                & ~Q(**{f"{field}__exact": ""})
+                            )
+                        else:
+                            queryset = queryset.filter(**{f"{field}__isnull": False})
+                    except (models.FieldDoesNotExist, AttributeError):
+                        queryset = queryset.filter(**{f"{field}__isnull": False})
 
                 else:
                     value = values[i] if i < len(values) else None
@@ -203,16 +236,38 @@ class HorillaFilterSet(django_filters.FilterSet):
         if not value or not search_fields:
             return queryset
 
+        # Resolve name_split_fields from Meta, or infer from search_fields
+        name_split_fields = getattr(self.Meta, "name_split_fields", None)
+        if not name_split_fields:
+            if "first_name" in search_fields and "last_name" in search_fields:
+                name_split_fields = ["first_name", "last_name"]
+
+        stripped = value.strip()
+        is_split_search = (
+            name_split_fields and len(name_split_fields) == 2 and " " in stripped
+        )
+
         queries = Q()
 
-        # Regular field search
-        for field in search_fields:
-            queries |= Q(**{f"{field}__icontains": value})
+        if is_split_search:
+            parts = stripped.split(None, 1)
+            first_part, second_part = parts
 
-        if " " in value.strip():
-            parts = value.strip().split(None, 1)  # Split on first space
-            if len(parts) == 2:
-                first, last = parts
-                queries |= Q(first_name__icontains=first, last_name__icontains=last)
+            # Only search non-name fields with the full string
+            for field in search_fields:
+                if field not in name_split_fields:
+                    queries |= Q(**{f"{field}__icontains": stripped})
+
+            # Split name search with AND logic
+            queries |= Q(
+                **{
+                    f"{name_split_fields[0]}__icontains": first_part,
+                    f"{name_split_fields[1]}__icontains": second_part,
+                }
+            )
+        else:
+            # No space — normal search across all fields
+            for field in search_fields:
+                queries |= Q(**{f"{field}__icontains": value})
 
         return queryset.filter(queries)
