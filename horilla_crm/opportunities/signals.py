@@ -18,6 +18,7 @@ from django.urls import reverse_lazy
 
 # First-party / Horilla imports
 from horilla.auth.models import User
+from horilla_core.models import TeamRole
 from horilla_core.signals import company_currency_changed
 from horilla_crm.leads.signals import lead_stage_created
 from horilla_crm.opportunities.models import (
@@ -165,13 +166,20 @@ def sync_opportunity_owner(sender, instance, created, **kwargs):
     new_owner = instance.owner
     owner_changed = old_owner_id and old_owner_id != new_owner.id
 
+    # Resolve "Opportunity Owner" TeamRole for this company (FK requires instance)
+    owner_role, _ = TeamRole.objects.get_or_create(
+        company=instance.company,
+        team_role_name="Opportunity Owner",
+        defaults={"team_role_name": "Opportunity Owner"},
+    )
+
     # Create/update team member for new owner
     _team_member, _tm_created = OpportunityTeamMember.objects.update_or_create(
         opportunity=instance,
         user=new_owner,
         defaults={
-            "team_role": "Opportunity Owner",
-            "opportunity_access": "Read/Write",
+            "team_role": owner_role,
+            "opportunity_access": "edit",  # Read/Write
             "company": instance.company,
         },
     )
