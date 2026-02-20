@@ -358,8 +358,10 @@
         }
     });
 
-    // Make insertTextAtCursor globally available for field-selection modal
+    // Make functions globally available for hx-on handlers and field-selection modal
     window.insertTextAtCursor = insertTextAtCursor;
+    window.saveCursorPosition = saveCursorPosition;
+    window.syncEditorContent = syncEditorContent;
 
     // Initialize Summernote when this form is loaded (e.g. after navigating from notification template).
     // Script runs after htmx:afterSwap has already fired, so the listener above misses the first load.
