@@ -148,7 +148,7 @@ class ActivityNavbar(LoginRequiredMixin, HorillaNavView):
     filterset_class = ActivityFilter
     kanban_url = reverse_lazy("horilla_activity:activity_kanban_view")
     model_name = "Activity"
-    model_app_label = "activity"
+    model_app_label = "horilla_activity"
     enable_actions = True
 
     @cached_property
@@ -217,9 +217,7 @@ class AllActivityListView(LoginRequiredMixin, HorillaListView):
 
     columns = [
         "subject",
-        "description",
         "activity_type",
-        "source",
         (_("Related To"), "related_object"),
         "status",
     ]
@@ -291,7 +289,6 @@ class AcivityKanbanView(LoginRequiredMixin, HorillaKanbanView):
     columns = [
         "subject",
         "activity_type",
-        "source",
         (_("Related To"), "related_object"),
     ]
 
@@ -341,7 +338,6 @@ class ActivityDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDetailV
     body = [
         "subject",
         "activity_type",
-        "source",
         (_("Related To"), "related_object"),
         "status",
         "owner",
@@ -382,7 +378,6 @@ class ActivityDetailTab(LoginRequiredMixin, HorillaDetailSectionView):
         base_fields = [
             "activity_type",
             "subject",
-            "source",
             "status",
             "description",
             "assigned_to",
@@ -1805,7 +1800,6 @@ class ActivityCreateView(LoginRequiredMixin, HorillaSingleFormView):
         "event": [
             "activity_type",
             "subject",
-            "source",
             "content_type",
             "object_id",
             "owner",
@@ -1822,7 +1816,6 @@ class ActivityCreateView(LoginRequiredMixin, HorillaSingleFormView):
         "meeting": [
             "activity_type",
             "subject",
-            "source",
             "content_type",
             "object_id",
             "owner",
@@ -1840,7 +1833,6 @@ class ActivityCreateView(LoginRequiredMixin, HorillaSingleFormView):
         "task": [
             "activity_type",
             "subject",
-            "source",
             "content_type",
             "object_id",
             "status",
@@ -1852,7 +1844,6 @@ class ActivityCreateView(LoginRequiredMixin, HorillaSingleFormView):
         "email": [
             "activity_type",
             "subject",
-            "source",
             "content_type",
             "object_id",
             "status",
@@ -1869,7 +1860,6 @@ class ActivityCreateView(LoginRequiredMixin, HorillaSingleFormView):
         "log_call": [
             "activity_type",
             "subject",
-            "source",
             "content_type",
             "object_id",
             "owner",

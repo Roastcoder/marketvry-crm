@@ -47,7 +47,6 @@ class Activity(HorillaCoreModel):
     activity_type = models.CharField(
         max_length=20, choices=ACTIVITY_TYPES, verbose_name=_("Activity Type")
     )
-    source = models.CharField(max_length=100, blank=True, verbose_name=_("Source"))
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
