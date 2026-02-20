@@ -175,57 +175,8 @@ class OpenNotificationView(LoginRequiredMixin, View):
             notif.save()
 
             url = (notif.url or "").strip()
-            if url:
-                response = HttpResponse()
-                response["HX-Redirect"] = url
-                return response
-
-            # No URL: show detail popup (related object details or notification message)
-            obj = None
-            object_fields = []
-            detail_url = None
-            title = _("Notification")
-
-            if notif.content_type_id and notif.object_id:
-                try:
-                    model_class = notif.content_type.model_class()
-                    if model_class:
-                        obj = model_class.objects.filter(pk=notif.object_id).first()
-                        if obj:
-                            object_fields = _get_object_display_fields(obj)
-                            title = f"{model_class._meta.verbose_name}: {str(obj)}"
-                            if hasattr(obj, "get_detail_url"):
-                                try:
-                                    detail_url = obj.get_detail_url()
-                                except Exception:
-                                    pass
-                except Exception:
-                    pass
-
-            if not object_fields:
-                title = _("Notification details")
-
-            from django.utils.timesince import timesince
-
-            created_at = timesince(notif.created_at) if notif.created_at else ""
-            sender = notif.sender.get_username() if notif.sender else _("System")
-
-            html = render(
-                request,
-                "notification_detail_popup.html",
-                {
-                    "title": title,
-                    "notification_message": notif.message,
-                    "created_at": created_at,
-                    "sender": sender,
-                    "object_fields": object_fields,
-                    "detail_url": detail_url,
-                },
-            )
-            response = HttpResponse(html.content)
-            response["HX-Retarget"] = "#modalBox"
-            response["HX-Swap"] = "innerHTML"
-            response["HX-Trigger"] = "openNotificationDetailModal"
+            response = HttpResponse()
+            response["HX-Redirect"] = url
             return response
 
         except Notification.DoesNotExist:
