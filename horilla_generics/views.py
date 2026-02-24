@@ -1016,15 +1016,18 @@ class HorillaListView(ListView):
 
         return super().render_to_response(context, **response_kwargs)
 
-    def _get_model_fields(self, include_properties=False):
+    def _get_model_fields(self, include_properties=False, for_export=False):
         """Extract model fields with metadata for filtering UI.
 
         Args:
             include_properties: If True, include model properties in the result.
                               Default False to exclude properties from filters.
+            for_export: If True, fields are for export columns; filterset Meta
+                        exclude is not applied. Set export_exclude on the list
+                        view class to hide specific fields from export.
         """
-        # Use separate cache for properties vs non-properties
-        cache_key = f"_model_fields_cache_{include_properties}"
+        # Use separate cache for properties vs non-properties and export vs filter
+        cache_key = f"_model_fields_cache_{include_properties}_{for_export}"
         if hasattr(self, cache_key) and getattr(self, cache_key) is not None:
             return getattr(self, cache_key)
 
@@ -1034,8 +1037,11 @@ class HorillaListView(ListView):
         ]
         if self.filterset_class:
             exclude_fields = getattr(self.filterset_class.Meta, "exclude", [])
-        # Exclude histories and full_histories from export additional columns
+        # Exclude from export: base list + view.export_exclude (if set on list view)
         exclude_from_export = ["histories", "full_histories"]
+        if for_export:
+            view_export_exclude = getattr(self, "export_exclude", [])
+            exclude_from_export = list(exclude_from_export) + list(view_export_exclude)
         model_fields = []
         # Bulk update form context: when we're building fields for the bulk update modal
         is_bulk_update_trigger = self.request.POST.get(
@@ -1058,7 +1064,8 @@ class HorillaListView(ListView):
 
             if field.name in exclude_from_export:
                 continue
-            if self.filterset_class:
+            # Apply filterset exclude only when not building export columns
+            if self.filterset_class and not for_export:
                 if field.name in exclude_fields:
                     continue
 
@@ -1190,24 +1197,28 @@ class HorillaListView(ListView):
         # Only include properties if explicitly requested (for export) AND model defines PROPERTY_LABELS
         if include_properties:
             property_labels = getattr(self.model, "PROPERTY_LABELS", None)
-            # Only process properties if PROPERTY_LABELS is explicitly defined on the model
             if property_labels:
-                for name, member in inspect.getmembers(
-                    self.model, predicate=lambda x: isinstance(x, property)
-                ):
-                    label_key = (
-                        name.replace("get_", "", 1) if name.startswith("get_") else name
-                    )
-                    # Exclude histories, full_histories, and pk properties from export additional columns
-                    if name in exclude_from_export or label_key in exclude_from_export:
+                for name in property_labels:
+                    # Check if it's a property or a callable method
+                    member = getattr(self.model, name, None)
+                    if member is None:
                         continue
-                    # Only include properties that are explicitly defined in PROPERTY_LABELS
-                    if label_key in property_labels:
+                    if isinstance(member, property) or callable(member):
+                        label_key = (
+                            name.replace("get_", "", 1)
+                            if name.startswith("get_")
+                            else name
+                        )
+                        if name in ["histories", "full_histories"] or label_key in [
+                            "histories",
+                            "full_histories",
+                        ]:
+                            continue
                         model_fields.append(
                             {
                                 "name": name,
                                 "type": "text",
-                                "verbose_name": property_labels[label_key],
+                                "verbose_name": property_labels[name],
                                 "choices": [],
                                 "operators": [],
                                 "is_property": True,
@@ -2042,7 +2053,7 @@ class HorillaListView(ListView):
             if new_filters:
                 QuickFilter.objects.bulk_create(new_filters)
 
-            # Render response
+            # Render response via template to avoid manual HTML construction (XSS-safe)
             context = self.get_context_data(object_list=self.get_queryset())
             quick_filters_html = render_to_string(
                 "partials/quick_filters_bar.html", context, request=request
@@ -2050,13 +2061,14 @@ class HorillaListView(ListView):
             list_view_html = render_to_string(
                 self.template_name, context, request=request
             )
-
-            response_html = (
-                f"{quick_filters_html}"
-                f'<div class="p-5" id="mainSession" hx-swap-oob="outerHTML">{list_view_html}</div>'
+            return render(
+                request,
+                "partials/quick_filter_response.html",
+                {
+                    "quick_filters_html": quick_filters_html,
+                    "list_view_html": list_view_html,
+                },
             )
-
-            return HttpResponse(response_html)
 
         # Handle remove quick filter
         if action == "remove_quick_filter":
@@ -2104,12 +2116,15 @@ class HorillaListView(ListView):
                 # Always restore original GET
                 request.GET = original_get
 
-            # Build response HTML
-            response_html = (
-                f"{quick_filters_html}"
-                f'<div class="p-5" id="mainSession" hx-swap-oob="outerHTML">{list_view_html}</div>'
+            # Build response via template to avoid manual HTML construction (XSS-safe)
+            response = render(
+                request,
+                "partials/quick_filter_response.html",
+                {
+                    "quick_filters_html": quick_filters_html,
+                    "list_view_html": list_view_html,
+                },
             )
-            response = HttpResponse(response_html)
 
             # Set URL headers
             if self.filter_url_push:
@@ -2141,17 +2156,19 @@ class HorillaListView(ListView):
             property_labels = getattr(self.model, "PROPERTY_LABELS", None)
             # Only process properties if PROPERTY_LABELS is explicitly defined on the model
             if property_labels:
-                for name, member in inspect.getmembers(
-                    self.model, predicate=lambda x: isinstance(x, property)
-                ):
-                    label_key = (
-                        name.replace("get_", "", 1) if name.startswith("get_") else name
-                    )
-                    # Only include properties that are explicitly defined in PROPERTY_LABELS
-                    if label_key in property_labels:
-                        model_fields.append(
-                            (str(property_labels[label_key]), name, None)
+                for name, label in property_labels.items():
+                    member = getattr(self.model, name, None)
+                    if member is None:
+                        continue
+                    if isinstance(member, property) or callable(member):
+                        label_key = (
+                            name.replace("get_", "", 1)
+                            if name.startswith("get_")
+                            else name
                         )
+                        if label_key in ["histories", "full_histories"]:
+                            continue
+                        model_fields.append((str(label), name, None))
 
             for field in self.model._meta.fields:
                 if field.choices:
@@ -2213,9 +2230,18 @@ class HorillaListView(ListView):
                             value = getattr(obj, field_name, "")
                         if field == "method" or callable(value):
                             value = value() if callable(value) else value
+                            if (
+                                field is None
+                                and value
+                                and isinstance(value, str)
+                                and "<" in value
+                            ):
+                                value = re.sub(r"<[^>]+>", "", value).strip()
                         elif field is None:  # This is a @property
-                            # Properties already computed by getattr, no further action needed
-                            pass
+                            if callable(value):
+                                value = value()
+                            if value and isinstance(value, str) and "<" in value:
+                                value = re.sub(r"<[^>]+>", "", value).strip()
                         elif isinstance(field, ForeignKey):
                             value = (
                                 str(getattr(value, "username", value)) if value else ""
@@ -3080,7 +3106,9 @@ class HorillaListView(ListView):
             context["ordered_ids"] = self.request.session.get(self.ordered_ids_key, [])
 
         filter_fields = self._get_model_fields(include_properties=False)
-        export_additional_fields = self._get_model_fields(include_properties=True)
+        export_additional_fields = self._get_model_fields(
+            include_properties=True, for_export=True
+        )
 
         available_column_names = {col[1] for col in self._get_columns()}
         export_additional_fields = [
@@ -10570,9 +10598,7 @@ class HorillaSingleDeleteView(DeleteView):
                         request,
                         f"Successfully reassigned {reassigned_count} records and deleted the {self.model._meta.verbose_name}.",
                     )
-                    return HttpResponse(
-                        "<script>htmx.trigger('#reloadButton','click');closeDeleteModal();closeModal();closeDeleteModeModal();</script>"
-                    )
+                    return self.get_post_delete_response()
                 except Exception as e:
                     logger.error("Bulk reassign error: %s", str(e))
                     return HttpResponse(
@@ -10784,9 +10810,7 @@ class HorillaSingleDeleteView(DeleteView):
                         request,
                         f"Successfully deleted the {self.model._meta.verbose_name} and all its related records.",
                     )
-                    return HttpResponse(
-                        "<script>htmx.trigger('#reloadButton','click');closeDeleteModeModal();CloseDeleteConfirmModal();closeModal();</script>"
-                    )
+                    return self.get_post_delete_response()
                 except Exception as e:
                     logger.error("Bulk delete error: %s", str(e))
                     return HttpResponse(
