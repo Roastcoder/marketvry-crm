@@ -19,6 +19,9 @@ RUN useradd --create-home --uid 1000 appuser
 
 WORKDIR /app
 
+# Upgrade pip, wheel, and setuptools for security (CVE-2026-1703, CVE-2026-24049)
+RUN pip install --no-cache-dir --upgrade 'pip>=26.0' 'wheel>=0.46.2' 'setuptools>=80.10.2'
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt uvicorn[standard] psycopg2-binary

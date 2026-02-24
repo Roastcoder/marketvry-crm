@@ -19,10 +19,10 @@ click-plugins==1.1.1.2
 click-repl==0.3.0
 constantly==23.10.4
 cron_descriptor==2.0.6
-cryptography==46.0.3
+cryptography==46.0.5
 daphne==4.2.1
 dj-user-login-history==1.0.6
-Django==6.0
+Django==6.0.2
 django-auditlog==3.4.0
 django-colorfield==0.14.0
 django-countries==8.2.0
@@ -48,7 +48,7 @@ oauthlib==3.3.1
 openpyxl==3.1.5
 packaging==25.0
 pandas==2.3.3
-pillow==12.0.0
+pillow==12.1.1
 prompt_toolkit==3.0.52
 py-moneyed==3.0
 py-ubjson==0.16.1
@@ -67,7 +67,7 @@ reportlab==4.4.6
 requests==2.32.5
 requests-oauthlib==2.0.0
 service-identity==24.2.0
-setuptools==80.9.0
+setuptools>=80.10.2
 six==1.17.0
 sqlparse==0.5.4
 Twisted==25.5.0
@@ -81,5 +81,6 @@ urllib3==2.6.3
 vine==5.1.0
 wcwidth==0.2.14
 webencodings==0.5.1
+wheel>=0.46.2
 whitenoise==6.11.0
 zope.interface==8.1.1
