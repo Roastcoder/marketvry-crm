@@ -24,12 +24,13 @@ from django.core.paginator import Paginator
 from django.db import IntegrityError, models
 from django.db.models import CharField, Q, TextField
 from django.db.models.fields import Field
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_str
+from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import FormView
@@ -1765,7 +1766,8 @@ class UpdateFieldView(LoginRequiredMixin, View):
                                 setattr(obj, field_name, Decimal(value))
                             except InvalidOperation:
                                 return HttpResponse(
-                                    f"Invalid decimal value: {value}", status=400
+                                    f"Invalid decimal value: {escape(value)}",
+                                    status=400,
                                 )
                         else:
                             setattr(obj, field_name, None)
@@ -1805,7 +1807,8 @@ class UpdateFieldView(LoginRequiredMixin, View):
                                 setattr(obj, field_name, parsed_value)
                             except ValueError as e:
                                 return HttpResponse(
-                                    f"Invalid datetime format: {value}", status=400
+                                    f"Invalid datetime format: {escape(value)}",
+                                    status=400,
                                 )
                         else:
                             setattr(obj, field_name, None)
@@ -1817,7 +1820,7 @@ class UpdateFieldView(LoginRequiredMixin, View):
                                 setattr(obj, field_name, parsed_value)
                             except ValueError:
                                 return HttpResponse(
-                                    f"Invalid date format: {value}", status=400
+                                    f"Invalid date format: {escape(value)}", status=400
                                 )
                         else:
                             setattr(obj, field_name, None)
@@ -2542,20 +2545,20 @@ class GetModelFieldChoicesView(LoginRequiredMixin, View):
         field_id = f"id_{field_name}"
 
         if not content_type_id:
-            return HttpResponse(
-                f'<select name="{field_name}" id="{field_id}" '
-                f'class="js-example-basic-single headselect">'
-                f'<option value="">---------</option></select>'
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
             )
 
         try:
             content_type = HorillaContentType.objects.get(pk=content_type_id)
             model_name = content_type.model
         except HorillaContentType.DoesNotExist:
-            return HttpResponse(
-                f'<select name="{field_name}" id="{field_id}" '
-                f'class="js-example-basic-single headselect">'
-                f'<option value="">---------</option></select>'
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
             )
 
         # Get the model class
@@ -2568,10 +2571,10 @@ class GetModelFieldChoicesView(LoginRequiredMixin, View):
                 continue
 
         if not model_class:
-            return HttpResponse(
-                f'<select name="{field_name}" id="{field_id}" '
-                f'class="js-example-basic-single headselect">'
-                f'<option value="">---------</option></select>'
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
             )
 
         # Get filter parameters
@@ -2616,6 +2619,9 @@ class GetModelFieldChoicesView(LoginRequiredMixin, View):
         for field in all_forward_fields:
             if field.name in exclude_fields:
                 continue
+            # Skip non-editable fields (e.g. editable=False on the model)
+            if not getattr(field, "editable", True):
+                continue
 
             # Filter by field types if specified
             if field_types:
@@ -2642,9 +2648,12 @@ class GetModelFieldChoicesView(LoginRequiredMixin, View):
             field_choices.append((field.name, str(verbose_name).title()))
 
         # Build select HTML
-        select_html = f'<select name="{field_name}" id="{field_id}" class="js-example-basic-single headselect">'
-        for value, label in field_choices:
-            select_html += f'<option value="{value}">{label}</option>'
-        select_html += "</select>"
-
-        return HttpResponse(select_html)
+        return render(
+            request,
+            "partials/field_select_empty.html",
+            {
+                "field_name": field_name,
+                "field_id": field_id,
+                "field_choices": field_choices,
+            },
+        )

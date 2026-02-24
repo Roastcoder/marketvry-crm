@@ -119,6 +119,9 @@ class HorillaAutomationForm(HorillaModelForm):
                         "additional_info",
                     ]:
                         continue
+                    # Skip non-editable fields (e.g. editable=False on the model)
+                    if not getattr(field, "editable", True):
+                        continue
 
                     verbose_name = (
                         getattr(field, "verbose_name", None)
