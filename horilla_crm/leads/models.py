@@ -288,7 +288,9 @@ class Lead(HorillaCoreModel):
     requirements = models.TextField(
         blank=True, null=True, verbose_name=_("Requirements")
     )
-    is_convert = models.BooleanField(default=False, null=True, blank=True)
+    is_convert = models.BooleanField(
+        default=False, null=True, blank=True, editable=False
+    )
     lead_score = models.IntegerField(
         default=0, verbose_name=_("Lead Score"), null=True, blank=True
     )

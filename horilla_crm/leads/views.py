@@ -141,6 +141,7 @@ class LeadListView(LoginRequiredMixin, HorillaListView):
     model = Lead
     view_id = "leads-list"
     filterset_class = LeadFilter
+    export_exclude = ["additional_info", "is_convert", "message_id"]
     search_url = reverse_lazy("leads:leads_list")
     main_url = reverse_lazy("leads:leads_view")
     max_visible_actions = 5
