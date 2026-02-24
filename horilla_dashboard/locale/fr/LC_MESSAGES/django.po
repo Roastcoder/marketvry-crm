@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-13 10:49+0000\n"
+"POT-Creation-Date: 2026-02-21 07:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,11 +167,34 @@ msgstr "Valeur"
 msgid "Component Criteria"
 msgstr "Critères du composant"
 
-msgid "Edit"
-msgstr ""
+msgid "User"
+msgstr "Utilisateur"
 
-#, fuzzy
-#| msgid "Component Owner"
+msgid ""
+"For default home: {\"kpi\": [\"default-kpi-0\", ...], \"chartsAndTables\": "
+"[...]}. For dashboard: {\"kpi\": [id, ...], \"components\": [id, ...]}."
+msgstr ""
+"Pour la page d'accueil par défaut : {\"kpi\": [\"default-kpi-0\", ...], \"chartsAndTables\": "
+"[...]}. Pour le tableau de bord : {\"kpi\": [id, ...], \"components\": [id, ...]}."
+
+msgid "Default Home Layout Order"
+msgstr "Ordre de disposition de la page d'accueil par défaut"
+
+msgid "Default Home Layout Orders"
+msgstr "Ordres de disposition de la page d'accueil par défaut"
+
+#, python-format
+msgid "Layout order for %(user)s - %(dashboard)s"
+msgstr "Ordre de disposition pour %(user)s - %(dashboard)s"
+
+#, python-format
+msgid "Default home layout order for %(user)s"
+msgstr "Ordre de disposition de la page d'accueil par défaut pour %(user)s"
+
+msgid "Edit"
+msgstr "Modifier"
+
+
 msgid "Change Owner"
 msgstr "Propriétaire du composant"
 
@@ -179,7 +202,7 @@ msgid "Delete"
 msgstr "Supprimer"
 
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 msgid "Preview"
 msgstr "Aperçu"
@@ -197,7 +220,7 @@ msgid "Conditions"
 msgstr "Conditions"
 
 msgid "Remove"
-msgstr ""
+msgstr "Supprimer"
 
 msgid "Save"
 msgstr "Enregistrer"
@@ -207,6 +230,12 @@ msgstr "Ajouter des composants"
 
 msgid "Reorder"
 msgstr "Réorganiser"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Drag to reorder"
+msgstr "Glisser pour réorganiser"
 
 msgid "Loading KPI..."
 msgstr "Chargement du KPI..."
@@ -243,27 +272,6 @@ msgstr ""
 "graphiques, des tableaux, des KPI ou des objectifs pour visualiser vos "
 "données."
 
-msgid "Reorder Components"
-msgstr "Réorganiser les composants"
-
-msgid "Reorder KPIs"
-msgstr "Réorganiser les KPI"
-
-msgid "Chart"
-msgstr "Graphique"
-
-msgid "No components to reorder"
-msgstr "Aucun composant à réorganiser"
-
-msgid "Save Component Order"
-msgstr "Enregistrer l’ordre des composants"
-
-msgid "No KPI components to reorder"
-msgstr "Aucun composant KPI à réorganiser"
-
-msgid "Save KPI Order"
-msgstr "Enregistrer l’ordre des KPI"
-
 msgid "All Dashboards"
 msgstr "Tous les tableaux de bord"
 
@@ -276,8 +284,47 @@ msgstr "Tous les dossiers"
 msgid "Favourites"
 msgstr "Favoris"
 
+msgid "From"
+msgstr "De"
+
+msgid "to"
+msgstr "à"
+
+msgid "Until"
+msgstr "Jusqu'à"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Last"
+msgstr "Derniers"
+
+msgid "Days"
+msgstr "Jours"
+
+msgid "All Time"
+msgstr "Toute la période"
+
+msgid "Reset Range"
+msgstr "Réinitialiser la plage"
+
+msgid "Custom Range"
+msgstr "Plage personnalisée"
+
+msgid "Start date"
+msgstr "Date de début"
+
+msgid "End date"
+msgstr "Date de fin"
+
+msgid "Apply"
+msgstr "Appliquer"
+
 msgid "Welcome"
 msgstr "Bienvenue"
+
+msgid "Set to default"
+msgstr "Définir par défaut"
 
 msgid "View All Dashboards"
 msgstr "Voir tous les tableaux de bord"
@@ -296,8 +343,14 @@ msgstr ""
 "votre administrateur pour demander des autorisations ou explorer les "
 "fonctionnalités disponibles."
 
+msgid "Nothing to show yet. Please add your data."
+msgstr "Rien à afficher pour l'instant. Veuillez ajouter vos données."
+
 msgid "Records"
 msgstr "Enregistrements"
+
+msgid "Failed to reset layout to default."
+msgstr "Échec de la réinitialisation de la disposition par défaut."
 
 msgid " Delete"
 msgstr " Supprimer"
@@ -305,10 +358,16 @@ msgstr " Supprimer"
 msgid " Add to Another Dashboard"
 msgstr " Ajouter à un autre tableau de bord"
 
-#, fuzzy
-#| msgid "KPI Icon"
+
 msgid "KPI icon"
 msgstr "Icône KPI"
+
+msgid ""
+"Your saved layout order was invalid and has been reset. Please reorder the "
+"dashboard again if needed."
+msgstr ""
+"L'ordre de disposition enregistré était invalide et a été réinitialisé. "
+"Veuillez réorganiser le tableau de bord à nouveau si nécessaire."
 
 msgid "New Dashboard"
 msgstr "Nouveau tableau de bord"
@@ -331,10 +390,76 @@ msgstr "Nom"
 msgid "Type"
 msgstr "Type"
 
-#, fuzzy
-#| msgid "View All Dashboards"
+
 msgid "Favourite Dashboards"
 msgstr "Voir tous les tableaux de bord"
+
+msgid "No component order provided. Please try reordering again."
+msgstr "Aucun ordre de composant fourni. Veuillez réessayer de réorganiser."
+
+msgid "No component order provided."
+msgstr "Aucun composant à réorganiser"
+
+msgid "Invalid component order. Please refresh and try again."
+msgstr "Ordre de composant invalide. Veuillez actualiser la page et réessayer."
+
+
+msgid "Invalid component order."
+msgstr "Enregistrer l’ordre des composants"
+
+
+msgid "Components reordered successfully!"
+msgstr "Composant ajouté avec succès !"
+
+msgid "KPI data is missing in the request"
+msgstr "Les données KPI sont manquantes dans la requête"
+
+msgid "Charts and tables data is missing in the request"
+msgstr "Les données des graphiques et tableaux sont manquantes dans la requête"
+
+msgid "KPI data is invalid. Expected a list"
+msgstr "Les données KPI sont invalides. Une liste est attendue"
+
+msgid "Charts and tables data is invalid. Expected a list"
+msgstr "Les données des graphiques et tableaux sont invalides. Une liste est attendue"
+
+msgid "KPI order is empty."
+msgstr "L'ordre des KPI est vide."
+
+msgid "Charts and tables order cannot be empty."
+msgstr "L'ordre des graphiques et tableaux ne peut pas être vide."
+
+msgid "Invalid KPI id in order."
+msgstr "Identifiant KPI invalide dans l'ordre."
+
+msgid "Invalid chart or table id in order."
+msgstr "Identifiant de graphique ou de tableau invalide dans l'ordre."
+
+msgid "Invalid KPI order: IDs must match the current default home KPIs."
+msgstr "Ordre KPI invalide : les identifiants doivent correspondre aux KPI par défaut de la page d'accueil."
+
+msgid ""
+"Invalid charts/tables order: IDs must match the current default home charts "
+"and tables."
+msgstr ""
+"Ordre des graphiques/tableaux invalide : les identifiants doivent correspondre "
+"aux graphiques et tableaux par défaut de la page d'accueil."
+
+
+msgid "Layout order saved successfully"
+msgstr "Composant ajouté avec succès !"
+
+msgid "Layout order saved."
+msgstr "Ordre de disposition enregistré."
+
+msgid "Layout reset to default."
+msgstr "Disposition réinitialisée par défaut."
+
+msgid "Dashboard layout reset to default order."
+msgstr "Disposition du tableau de bord réinitialisée à l'ordre par défaut."
+
+msgid "Dashboard layout reset to default."
+msgstr "Disposition du tableau de bord réinitialisée par défaut."
 
 msgid "Add to Dashboard"
 msgstr "Ajouter au tableau de bord"
@@ -347,9 +472,3 @@ msgstr "Rapport ajouté au tableau de bord avec succès !"
 
 msgid "Report not found."
 msgstr "Rapport introuvable."
-
-#~ msgid "Component updated successfully!"
-#~ msgstr "Composant mis à jour avec succès !"
-
-#~ msgid "Component added successfully!"
-#~ msgstr "Composant ajouté avec succès !"
