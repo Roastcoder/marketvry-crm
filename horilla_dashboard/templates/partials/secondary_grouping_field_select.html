@@ -1,0 +1,6 @@
+<label for="id_secondary_grouping" class="text-xs text-color-600">Secondary Grouping Field</label>
+<select name="secondary_grouping" id="id_secondary_grouping" class="js-example-basic-single headselect">
+{% for value, label in field_choices %}
+    <option value="{{ value }}">{{ label }}</option>
+{% endfor %}
+</select>
