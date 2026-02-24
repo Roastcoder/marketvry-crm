@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-17 06:38+0000\n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,6 +129,13 @@ msgstr "Relation contact-compte"
 msgid "Contact Account Relationships"
 msgstr "Relations contact-compte"
 
+
+msgid "contact Hierarchy"
+msgstr "Propriétaire du contact"
+
+msgid "Close"
+msgstr "Fermer"
+
 msgid "Edit"
 msgstr "Modifier"
 
@@ -159,6 +166,9 @@ msgstr "Comptes liés"
 msgid "Child Contacts"
 msgstr "Contacts enfants"
 
+msgid "View Hierarchy"
+msgstr "Voir la hiérarchie"
+
 msgid "Add Account Contact Relationships"
 msgstr "Ajouter des relations contact-compte"
 
@@ -184,7 +194,8 @@ msgid "Invalid parent contact ID format."
 msgstr "Format d’identifiant du contact parent invalide."
 
 msgid "An unexpected error occurred while assigning the child contact."
-msgstr "Une erreur inattendue est survenue lors de l’attribution du contact enfant."
+msgstr ""
+"Une erreur inattendue est survenue lors de l’attribution du contact enfant."
 
 msgid "You don't have permission to perform this action."
 msgstr "Vous n’avez pas la permission d’effectuer cette action."
@@ -193,8 +204,11 @@ msgid "This contact doesn't have a parent contact."
 msgstr "Ce contact n’a pas de contact parent."
 
 #, python-brace-format
-msgid "Successfully removed {child_contact} from {parent_contact}'s child contacts."
-msgstr "{child_contact} a été retiré avec succès des contacts enfants de {parent_contact}."
+msgid ""
+"Successfully removed {child_contact} from {parent_contact}'s child contacts."
+msgstr ""
+"{child_contact} a été retiré avec succès des contacts enfants de "
+"{parent_contact}."
 
 msgid "An error occurred while removing the child contact."
 msgstr "Une erreur s’est produite lors de la suppression du contact enfant."

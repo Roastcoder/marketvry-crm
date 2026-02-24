@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-17 06:38+0000\n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,9 @@ msgid "Select Contact"
 msgstr "Kontakt auswählen"
 
 msgid "Select the contact to assign as a child contact."
-msgstr "Wählen Sie den Kontakt aus, der als untergeordneter Kontakt zugewiesen werden soll."
+msgstr ""
+"Wählen Sie den Kontakt aus, der als untergeordneter Kontakt zugewiesen "
+"werden soll."
 
 msgid "Please select contact."
 msgstr "Bitte wählen Sie einen Kontakt aus."
@@ -129,6 +131,13 @@ msgstr "Kontakt-Konto-Beziehung"
 msgid "Contact Account Relationships"
 msgstr "Kontakt-Konto-Beziehungen"
 
+
+msgid "contact Hierarchy"
+msgstr "Kontaktinhaber"
+
+msgid "Close"
+msgstr "Schließen"
+
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -159,6 +168,9 @@ msgstr "Zugehörige Konten"
 msgid "Child Contacts"
 msgstr "Untergeordnete Kontakte"
 
+msgid "View Hierarchy"
+msgstr "Hierarchie anzeigen"
+
 msgid "Add Account Contact Relationships"
 msgstr "Kontakt-Konto-Beziehungen hinzufügen"
 
@@ -184,7 +196,9 @@ msgid "Invalid parent contact ID format."
 msgstr "Ungültiges Format der übergeordneten Kontakt-ID."
 
 msgid "An unexpected error occurred while assigning the child contact."
-msgstr "Beim Zuweisen des untergeordneten Kontakts ist ein unerwarteter Fehler aufgetreten."
+msgstr ""
+"Beim Zuweisen des untergeordneten Kontakts ist ein unerwarteter Fehler "
+"aufgetreten."
 
 msgid "You don't have permission to perform this action."
 msgstr "Sie haben keine Berechtigung, diese Aktion auszuführen."
@@ -193,8 +207,12 @@ msgid "This contact doesn't have a parent contact."
 msgstr "Dieser Kontakt hat keinen übergeordneten Kontakt."
 
 #, python-brace-format
-msgid "Successfully removed {child_contact} from {parent_contact}'s child contacts."
-msgstr "{child_contact} wurde erfolgreich aus den untergeordneten Kontakten von {parent_contact} entfernt."
+msgid ""
+"Successfully removed {child_contact} from {parent_contact}'s child contacts."
+msgstr ""
+"{child_contact} wurde erfolgreich aus den untergeordneten Kontakten von "
+"{parent_contact} entfernt."
 
 msgid "An error occurred while removing the child contact."
-msgstr "Beim Entfernen des untergeordneten Kontakts ist ein Fehler aufgetreten."
+msgstr ""
+"Beim Entfernen des untergeordneten Kontakts ist ein Fehler aufgetreten."
