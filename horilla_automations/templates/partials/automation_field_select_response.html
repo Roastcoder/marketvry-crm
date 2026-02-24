@@ -1,0 +1,12 @@
+<select name="{{ field_name }}" id="{{ field_id }}" class="js-example-basic-single headselect"
+  hx-get="{{ hx_get_url }}"
+  hx-target="#id_value_{{ row_id }}_container"
+  hx-swap="innerHTML"
+  hx-include="[name='{{ field_name }}'],[name='operator_{{ row_id }}'],#id_value_{{ row_id }},[name='model']"
+  hx-vals="{{ hx_vals_json|escapejs }}"
+  hx-trigger="change,load">
+{% for value, label in field_choices %}
+  <option value="{{ value }}">{{ label }}</option>
+{% endfor %}
+</select>
+{{ mail_to_html|safe }}
