@@ -50,6 +50,19 @@ from horilla_generics.views import HorillaListView, HorillaTabView
 
 logger = logging.getLogger(__name__)
 
+# Fields to exclude from import mapping/validation (used across all import views)
+IMPORT_EXCLUDED_FIELDS = [
+    "id",
+    "created_at",
+    "updated_at",
+    "is_active",
+    "additional_info",
+    "company",
+    "created_by",
+    "updated_by",
+    "history",
+]
+
 
 def get_model_verbose_name(module_name, app_label):
     """Get the verbose name of a model from its module name and app label."""
@@ -244,10 +257,13 @@ class ImportStep1View(View):
             existing_filename = existing_import_data.get("original_filename")
 
             if not all([module, import_name]):
-                return HttpResponse(
-                    """
-                    <div class="text-red-500 text-sm">Module and Import Name are required</div>
-                """
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": _("Module and Import Name are required"),
+                        "variant": "sm",
+                    },
                 )
 
             if existing_file_path and existing_filename:
@@ -268,10 +284,13 @@ class ImportStep1View(View):
 
                     model_fields = self.get_model_fields(module, app_label)
                     if not model_fields:
-                        return HttpResponse(
-                            f"""
-                            <div class="text-red-500 text-sm">No valid fields found for the selected model: {module}</div>
-                        """
+                        return render(
+                            request,
+                            "import/partials/message_fragment.html",
+                            {
+                                "message": f"{_('No valid fields found for the selected model')}: {module}",
+                                "variant": "sm",
+                            },
                         )
 
                     headers = existing_import_data.get("headers", [])
@@ -320,25 +339,28 @@ class ImportStep1View(View):
                 except Exception as e:
                     tb = traceback.format_exc()
                     logger.error(tb)
-                    return HttpResponse(
-                        f"""
-                        <div class="text-red-500 text-sm">Error processing module change: {str(e)}</div>
-                    """
+                    return render(
+                        request,
+                        "import/partials/message_fragment.html",
+                        {
+                            "message": f"Error processing module change: {e!s}",
+                            "variant": "sm",
+                        },
                     )
 
         # Original validation for new uploads
         if not all([module, import_name, uploaded_file]):
-            return HttpResponse(
-                """
-                <div class="text-red-500 text-sm">All fields are required</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("All fields are required"), "variant": "sm"},
             )
 
         if not uploaded_file.name.endswith((".csv", ".xlsx", ".xls")):
-            return HttpResponse(
-                """
-                <div class="text-red-500 text-sm">Please upload a CSV or Excel file</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("Please upload a CSV or Excel file"), "variant": "sm"},
             )
 
         try:
@@ -368,10 +390,13 @@ class ImportStep1View(View):
 
             model_fields = self.get_model_fields(module, app_label)
             if not model_fields:
-                return HttpResponse(
-                    f"""
-                    <div class="text-red-500 text-sm">No valid fields found for the selected model: {module}</div>
-                """
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": f"{_('No valid fields found for the selected model')}: {module}",
+                        "variant": "sm",
+                    },
                 )
 
             # Auto-map fields
@@ -406,10 +431,10 @@ class ImportStep1View(View):
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">Error processing file: {str(e)}</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error processing file: {e!s}", "variant": "sm"},
             )
 
     def auto_map_fields(self, headers, model_fields):
@@ -610,20 +635,10 @@ class ImportStep1View(View):
         try:
             model = apps.get_model(app_label, module_name)
             fields = []
-            # Define fields to exclude
-            excluded_fields = [
-                "id",
-                "created_at",
-                "updated_at",
-                "is_active",
-                "additional_info",
-                "company",
-                "created_by",
-                "updated_by",
-                "history",
-            ]
             for field in model._meta.fields:
-                if field.name in excluded_fields:
+                if field.name in IMPORT_EXCLUDED_FIELDS:
+                    continue
+                if not getattr(field, "editable", True):
                     continue
 
                 if isinstance(field, EmailField):
@@ -759,10 +774,13 @@ class ImportStep2View(View):
         # Get model fields
         model_fields = self.get_model_fields(module, app_label)
         if not model_fields:
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">{_('No valid fields found for the selected model')}: {module}</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {
+                    "message": f"{_('No valid fields found for the selected model')}: {module}",
+                    "variant": "sm",
+                },
             )
 
         # Get existing mappings from session
@@ -805,20 +823,10 @@ class ImportStep2View(View):
         try:
             model = apps.get_model(app_label, module_name)
             fields = []
-            # Define fields to exclude
-            excluded_fields = [
-                "id",
-                "created_at",
-                "updated_at",
-                "is_active",
-                "additional_info",
-                "company",
-                "created_by",
-                "updated_by",
-                "history",
-            ]
             for field in model._meta.fields:
-                if field.name in excluded_fields:
+                if field.name in IMPORT_EXCLUDED_FIELDS:
+                    continue
+                if not getattr(field, "editable", True):
                     continue
 
                 # Determine the field type - use actual class for EmailField and URLField
@@ -878,10 +886,13 @@ class ImportStep2View(View):
         unique_values = import_data.get("unique_values", {})
 
         if not module or not app_label:
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">{_('Missing module or app_label in session')}</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {
+                    "message": _("Missing module or app_label in session"),
+                    "variant": "sm",
+                },
             )
 
         try:
@@ -893,10 +904,13 @@ class ImportStep2View(View):
 
             model_fields = self.get_model_fields(module, app_label)
             if not model_fields:
-                return HttpResponse(
-                    f"""
-                    <div class="text-red-500 text-sm">{_('No valid fields found for the selected model')}: {module}</div>
-                """
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": f"{_('No valid fields found for the selected model')}: {module}",
+                        "variant": "sm",
+                    },
                 )
 
             model = apps.get_model(app_label, module)
@@ -1277,10 +1291,13 @@ class ImportStep2View(View):
             logger.error("Error in ImportStep2View.post: %s", e)
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">{_('Error processing field mappings')}: {str(e)}</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {
+                    "message": f"{_('Error processing field mappings')}: {e!s}",
+                    "variant": "sm",
+                },
             )
 
     def is_valid_date_format(self, value):
@@ -1378,10 +1395,13 @@ class ImportStep3View(View):
         single_import = import_config.get("single_import", False)
 
         if not module or not app_label:
-            return HttpResponse(
-                """
-                <div class="text-red-500 text-sm">Missing module or app_label in session</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {
+                    "message": _("Missing module or app_label in session"),
+                    "variant": "sm",
+                },
             )
 
         try:
@@ -1437,20 +1457,26 @@ class ImportStep3View(View):
                 logger.error("Template rendering error in ImportStep3View: %s", e)
                 tb = traceback.format_exc()
                 logger.error(tb)
-                return HttpResponse(
-                    f"""
-                    <div class="text-red-500 text-sm">Template rendering error: {str(e)}</div>
-                """
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": f"Template rendering error: {e!s}",
+                        "variant": "sm",
+                    },
                 )
 
         except Exception as e:
             logger.error("Error in ImportStep3View.post: %s", e)
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">Error processing import options: {str(e)}</div>
-                """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {
+                    "message": f"Error processing import options: {e!s}",
+                    "variant": "sm",
+                },
             )
 
     def get_model_fields(self, module_name, app_label):
@@ -1459,20 +1485,10 @@ class ImportStep3View(View):
         try:
             model = apps.get_model(app_label, module_name)
             fields = []
-            # Define fields to exclude
-            excluded_fields = [
-                "id",
-                "created_at",
-                "updated_at",
-                "is_active",
-                "additional_info",
-                "company",
-                "created_by",
-                "updated_by",
-                "history",
-            ]
             for field in model._meta.fields:
-                if field.name in excluded_fields:
+                if field.name in IMPORT_EXCLUDED_FIELDS:
+                    continue
+                if not getattr(field, "editable", True):
                     continue
                 field_info = {
                     "name": field.name,
@@ -1567,10 +1583,10 @@ class ImportStep4View(View):
         single_import = import_config.get("single_import", False)
 
         if not import_data:
-            return HttpResponse(
-                """
-                <div class="text-red-500 text-sm">No import data found in session</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("No import data found in session"), "variant": "sm"},
             )
 
         # Create import history record
@@ -1639,10 +1655,10 @@ class ImportStep4View(View):
             )
             import_history.save()
 
-            return HttpResponse(
-                f"""
-                <div class="text-red-500 text-sm">Error during import: {str(e)}</div>
-            """
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error during import: {e!s}", "variant": "sm"},
             )
 
     def generate_error_csv(self, detailed_errors, import_data):
@@ -2358,8 +2374,13 @@ class GetModelFieldsView(View):
             model = apps.get_model(app_label, module)
             field = next((f for f in model._meta.fields if f.name == field_name), None)
             if not field:
-                return HttpResponse(
-                    f'<div class="text-xs p-2 border text-red-500">Field not found: {field_name}</div>'
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": f"Field not found: {field_name}",
+                        "variant": "border",
+                    },
                 )
 
             unique_file_values = unique_values.get(file_header, [])
@@ -2406,8 +2427,10 @@ class GetModelFieldsView(View):
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f'<div class="text-xs p-2 border text-red-500">Error: {str(e)}</div>'
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error: {e!s}", "variant": "border"},
             )
 
 
@@ -2424,11 +2447,16 @@ class UpdateFieldStatusView(View):
         file_header = request.POST.get(f"file_header_{field_name}")
 
         if file_header:
-            status_html = '<span class="bg-green-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">Mapped</span>'
-        else:
-            status_html = '<span class="bg-red-100 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">Not Mapped</span>'
-
-        return HttpResponse(status_html)
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("Mapped"), "variant": "success_badge"},
+            )
+        return render(
+            request,
+            "import/partials/message_fragment.html",
+            {"message": _("Not Mapped"), "variant": "badge"},
+        )
 
 
 @method_decorator(
@@ -2470,8 +2498,13 @@ class GetUniqueValuesView(View):
             model = apps.get_model(app_label, module)
             field = next((f for f in model._meta.fields if f.name == field_name), None)
             if not field:
-                return HttpResponse(
-                    f'<div class="text-xs p-2 border text-red-500">Field not found: {field_name}</div>'
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {
+                        "message": f"Field not found: {field_name}",
+                        "variant": "border",
+                    },
                 )
 
             unique_file_values = unique_values.get(file_header, [])
@@ -2518,8 +2551,10 @@ class GetUniqueValuesView(View):
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f'<div class="text-xs p-2 border text-red-500">Error: {str(e)}</div>'
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error: {e!s}", "variant": "border"},
             )
 
 
@@ -2540,8 +2575,10 @@ class UpdateValueMappingStatusView(View):
         ) or request.POST.get(f"fk_mapping_{field_name}_{slug_value}")
 
         if not all([field_name, slug_value, value]):
-            return HttpResponse(
-                '<span class="bg-red-100 text-red-500 text-xs font-medium px-2 py-0.5 rounded-full">Error: Missing parameters</span>'
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("Error: Missing parameters"), "variant": "badge"},
             )
 
         try:
@@ -2552,8 +2589,10 @@ class UpdateValueMappingStatusView(View):
             field = next((f for f in model._meta.fields if f.name == field_name), None)
 
             if not field:
-                return HttpResponse(
-                    '<span class="bg-red-100 text-red-500 text-xs font-medium px-2 py-0.5 rounded-full">Error: Field not found</span>'
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {"message": _("Error: Field not found"), "variant": "badge"},
                 )
 
             is_choice_field = isinstance(field, CharField) and field.choices
@@ -2570,21 +2609,27 @@ class UpdateValueMappingStatusView(View):
                     value
                 )  # Store as string
             else:
-                return HttpResponse(
-                    '<span class="bg-red-100 text-red-500 text-xs font-medium px-2 py-0.5 rounded-full">Error: Invalid field type</span>'
+                return render(
+                    request,
+                    "import/partials/message_fragment.html",
+                    {"message": _("Error: Invalid field type"), "variant": "badge"},
                 )
 
             request.session["import_data"] = import_data
             request.session.modified = True
 
-            return HttpResponse(
-                '<span class="bg-green-100 text-green-500 text-xs font-medium px-2 py-0.5 rounded-full">Mapped</span>'
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": _("Mapped"), "variant": "success_badge"},
             )
         except Exception as e:
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f'<span class="bg-red-100 text-red-500 text-xs font-medium px-2 py-0.5 rounded-full">Error: {str(e)}</span>'
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error: {e!s}", "variant": "badge"},
             )
 
 
@@ -2700,8 +2745,11 @@ class DownloadImportedFileView(LoginRequiredMixin, View):
             logger.error("Error downloading imported file: %s", e)
             tb = traceback.format_exc()
             logger.error(tb)
-            return HttpResponse(
-                f"Error downloading imported file: {str(e)}", status=500
+            return render(
+                request,
+                "import/partials/message_fragment.html",
+                {"message": f"Error downloading imported file: {e!s}", "variant": "sm"},
+                status=500,
             )
 
 
@@ -2783,19 +2831,10 @@ class DownloadTemplateModalView(LoginRequiredMixin, TemplateView):
         try:
             model = apps.get_model(app_label, module_name)
             fields = []
-            excluded_fields = [
-                "id",
-                "created_at",
-                "updated_at",
-                "is_active",
-                "additional_info",
-                "company",
-                "created_by",
-                "updated_by",
-                "history",
-            ]
             for field in model._meta.fields:
-                if field.name in excluded_fields:
+                if field.name in IMPORT_EXCLUDED_FIELDS:
+                    continue
+                if not getattr(field, "editable", True):
                     continue
 
                 field_info = {
