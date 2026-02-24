@@ -58,7 +58,6 @@ class BranchNavbar(LoginRequiredMixin, HorillaNavView):
     model_name = "Company"
     model_app_label = "horilla_core"
     nav_width = False
-    gap_enabled = False
     url_name = "branches_list_view"
     one_view_only = True
     reload_option = False
@@ -245,4 +244,7 @@ class BranchDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
             f'hx-select-oob="#dropdown-companies">'
             f"</span>"
         )
-        return HttpResponse(mark_safe(response_html))
+        response = HttpResponse(mark_safe(response_html))
+        response["HX-Retarget"] = "#branches-view"
+        response["HX-Reswap"] = "innerHTML"
+        return response

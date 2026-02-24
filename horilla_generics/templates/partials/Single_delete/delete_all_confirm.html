@@ -21,7 +21,7 @@
               hx-target="#deleteConfirmModalBox"
               hx-swap="none"
               hx-push-url="false"
-              hx-on::after-request="CloseDeleteConfirmModal();closeDeleteModeModal();closeModal();$('.unselect-all-btn').click();htmx.trigger('#reloadButton','click');">
+              hx-on::after-request="CloseDeleteConfirmModal();closeDeleteModeModal();closeModal();$('.unselect-all-btn').click();">
             {% csrf_token %}
             <input type="hidden" name="action" value="bulk_delete">
             <input type="hidden" name="record_id" value="{{ record_id }}">
