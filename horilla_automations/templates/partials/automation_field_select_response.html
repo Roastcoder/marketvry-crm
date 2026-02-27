@@ -3,7 +3,7 @@
   hx-target="#id_value_{{ row_id }}_container"
   hx-swap="innerHTML"
   hx-include="[name='{{ field_name }}'],[name='operator_{{ row_id }}'],#id_value_{{ row_id }},[name='model']"
-  hx-vals="{{ hx_vals_json|escapejs }}"
+  hx-vals="{{ hx_vals_json }}"
   hx-trigger="change,load">
 {% for value, label in field_choices %}
   <option value="{{ value }}">{{ label }}</option>

@@ -5,11 +5,10 @@ Contains form classes and helpers used across the horilla_generics app.
 """
 
 # Standard library imports
+import json
 import logging
 from datetime import date, datetime
 from decimal import Decimal
-
-import bleach
 
 # Django imports
 from django import forms
@@ -21,8 +20,7 @@ from django.db.models.fields.files import ImageFieldFile
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 # Third-party imports
@@ -90,6 +88,7 @@ class KanbanGroupByForm(forms.ModelForm):
         self.fields["view_type"].initial = view_type
 
     def clean(self):
+        """Validate group-by field and add field_name errors if invalid."""
         cleaned_data = super().clean()
         model_name = cleaned_data.get("model_name")
         app_label = cleaned_data.get("app_label")
@@ -113,6 +112,7 @@ class KanbanGroupByForm(forms.ModelForm):
         return cleaned_data
 
     def validate_unique(self):
+        """Skip unique validation; group-by is validated in clean()."""
         pass
 
 
@@ -124,6 +124,7 @@ class ColumnSelectionForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        """Initialize form with model and app_label; populate visible_fields choices."""
         model = kwargs.pop("model", None)
         app_label = kwargs.pop("app_label", None)
         path_context = kwargs.pop("path_context", None)
@@ -1068,6 +1069,7 @@ class HorillaMultiStepForm(forms.ModelForm):
         field.widget._pagination_configured = True
 
     def clean(self):
+        """Validate form and enforce readonly field permissions (restore original values)."""
         cleaned_data = super().clean()
 
         # SECURITY: Prevent readonly fields from being changed - restore original values
@@ -1236,6 +1238,7 @@ class SaveFilterListForm(forms.Form):
     )
 
     def clean(self):
+        """Validate list name is non-empty."""
         cleaned_data = super().clean()
         list_name = cleaned_data.get("list_name")
         if not list_name or not list_name.strip():
@@ -1247,6 +1250,7 @@ class PasswordInputWithEye(forms.PasswordInput):
     """Password input widget with eye icon toggle for showing/hiding password."""
 
     def __init__(self, attrs=None):
+        """Initialize widget with default styling and optional extra attrs."""
         default_attrs = {
             "class": "text-color-600 p-2 placeholder:text-xs font-normal w-full border border-dark-50 rounded-md mt-1 focus-visible:outline-0 placeholder:text-dark-100 text-sm transition duration-300 focus:border-primary-600 pr-10",
         }
@@ -1255,31 +1259,37 @@ class PasswordInputWithEye(forms.PasswordInput):
         super().__init__(attrs=default_attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
+        """Render password input with eye toggle button markup."""
         password_input = super().render(name, value, attrs, renderer)
 
-        eye_toggle = f"""
-        <div class="relative">
-            {password_input}
-            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"onclick="togglePassword('{attrs.get('id', name)}')">
-                <img id="eye-icon-{attrs.get('id', name)}" src="/static/assets/icons/eye-hide.svg" alt="Toggle Password" class="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
-            </button>
-        </div>
-        <script>
-        function togglePassword(fieldId) {{
-            const passwordField = document.getElementById(fieldId);
-            const eyeIcon = document.getElementById('eye-icon-' + fieldId);
-            if (passwordField.type === 'password') {{
-                passwordField.type = 'text';
-                eyeIcon.src = '/static/assets/icons/eye.svg';
-            }} else {{
-                passwordField.type = 'password';
-                eyeIcon.src = '/static/assets/icons/eye-hide.svg';
+        return format_html(
+            """
+            <div class="relative">
+                {}
+                <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onclick="togglePassword(this)">
+                    <img src="/static/assets/icons/eye-hide.svg"
+                        alt="Toggle Password"
+                        class="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                </button>
+            </div>
+            <script>
+            function togglePassword(btn) {{
+                const container = btn.closest('.relative');
+                const passwordField = container.querySelector('input');
+                const eyeIcon = btn.querySelector('img');
+                if (passwordField.type === 'password') {{
+                    passwordField.type = 'text';
+                    eyeIcon.src = '/static/assets/icons/eye.svg';
+                }} else {{
+                    passwordField.type = 'password';
+                    eyeIcon.src = '/static/assets/icons/eye-hide.svg';
+                }}
             }}
-        }}
-        </script>
-        """
-
-        return mark_safe(eye_toggle)
+            </script>
+            """,
+            password_input,
+        )
 
 
 class HorillaModelForm(forms.ModelForm):
@@ -2065,28 +2075,25 @@ class HorillaModelForm(forms.ModelForm):
                                             getattr(first_condition, "value", "") or ""
                                         )
 
-                    # Build hx-vals - include existing field and value so it shows on page load
-                    hx_vals_parts = [
-                        f'"model_name": "{model_name}"',
-                        f'"row_id": "{row_id}"',
-                    ]
+                    # Build hx-vals with json.dumps so values are properly escaped for JSON.
+                    # Do NOT include field_{row_id} in hx-vals: the dropdown's current value
+                    # must be sent via hx-include so the value/operator widgets update when
+                    # the user changes the field in the edit form.
+                    hx_vals_dict = {
+                        "model_name": model_name or "",
+                        "row_id": row_id,
+                    }
                     condition_model = getattr(self, "condition_model", None)
                     if condition_model:
-                        hx_vals_parts.append(
-                            f'"condition_model": "{condition_model._meta.app_label}.{condition_model._meta.model_name}"'
-                        )
-                    if existing_field:
-                        hx_vals_parts.append(
-                            f'"field_{row_id}": "{escape(str(existing_field))}"'
+                        hx_vals_dict["condition_model"] = (
+                            f"{condition_model._meta.app_label}.{condition_model._meta.model_name}"
                         )
                     if existing_value:
-                        existing_value_escaped = escape(str(existing_value))
-                        hx_vals_parts.append(
-                            f'"value_{row_id}": "{existing_value_escaped}"'
-                        )
-                    hx_vals = "{" + ", ".join(hx_vals_parts) + "}"
+                        hx_vals_dict[f"value_{row_id}"] = str(existing_value)
+                    hx_vals = json.dumps(hx_vals_dict)
 
-                    hx_include = f'[name="field_{row_id}"],[name="operator_{row_id}"]'
+                    # Include value input so current value is sent when user changes field
+                    hx_include = f'[name="field_{row_id}"],[name="operator_{row_id}"],[name="value_{row_id}"]'
                     if (
                         hasattr(self, "condition_hx_include")
                         and self.condition_hx_include
@@ -2664,6 +2671,7 @@ class HorillaModelForm(forms.ModelForm):
         return condition_rows
 
     def clean(self):
+        """Validate and normalize condition fields; strip condition data when no condition_model."""
         cleaned_data = super().clean()
 
         if self.condition_fields and not self.condition_model:
@@ -2982,6 +2990,7 @@ class RowFieldWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def get_context(self, name, value, attrs):
+        """Add field_configs to the widget template context."""
         context = super().get_context(name, value, attrs)
         context["field_configs"] = self.field_configs
         return context
@@ -3014,7 +3023,7 @@ class RowField(forms.MultiValueField):
         self.is_row_field = True
 
     def compress(self, data_list):
-        # Process the data into your desired format
+        """Return the list of subfield values as the combined value for the row."""
         return data_list
 
 
@@ -3024,6 +3033,7 @@ class CustomFileInput(forms.ClearableFileInput):
     template_name = "forms/widgets/custom_file_input.html"
 
     def get_context(self, name, value, attrs):
+        """Add selected_filename and other display data to the widget template context."""
         context = super().get_context(name, value, attrs)
 
         selected_filename = None
