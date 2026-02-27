@@ -21,7 +21,6 @@ from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 
@@ -73,7 +72,7 @@ class LeadStatus(HorillaCoreModel):
             path="lead_status/is_final_col.html",
             context={"instance": self},
         )
-        return mark_safe(html)
+        return html
 
     def clean(self):
         if self.order < 0:
@@ -548,7 +547,7 @@ class ScoringRule(HorillaCoreModel):
             path="scoring_rule/is_active_col.html", context={"instance": self}
         )
 
-        return mark_safe(html)
+        return html
 
     def get_edit_url(self):
         """
