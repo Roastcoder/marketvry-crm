@@ -56,7 +56,7 @@ def _get_model_list_view_url(model_class):
                     return path
         return None
     except Exception as e:
-        logger.debug("_get_model_list_view_url(%s): %s", model_class.__name__, e)
+        logger.debug("_get_model_list_view_url(%s): %s", model_class.__name__, str(e))
         return None
 
 
@@ -180,7 +180,7 @@ def evaluate_condition(condition, instance):
         return False
 
     except Exception as e:
-        logger.error(f"Error evaluating condition {condition}: {str(e)}")
+        logger.error("Error evaluating condition %s: %s", condition, str(e))
         return False
 
 
@@ -270,7 +270,7 @@ def resolve_mail_recipients(mail_to, instance, user):
                 if "@" in recipient_spec:
                     recipients.append(recipient_spec)
         except Exception as e:
-            logger.error(f"Error resolving recipient '{recipient_spec}': {str(e)}")
+            logger.error("Error resolving recipient '%s': %s", recipient_spec, str(e))
             continue
 
     return recipients
@@ -337,7 +337,9 @@ def resolve_notification_users(mail_to, instance, user):
                         pass
         except Exception as e:
             logger.error(
-                f"Error resolving notification user '{recipient_spec}': {str(e)}",
+                "Error resolving notification user '%s': %s",
+                recipient_spec,
+                str(e),
                 exc_info=True,
             )
             continue
@@ -375,7 +377,9 @@ def execute_automation(automation, instance, user=None, trigger_type="on_create"
         if not skip_conditions:
             if not evaluate_automation_conditions(automation, instance):
                 logger.info(
-                    f"Automation {automation.title} conditions not met for instance {instance}"
+                    "Automation %s conditions not met for instance %s",
+                    automation.title,
+                    instance,
                 )
                 return
 
@@ -398,7 +402,7 @@ def execute_automation(automation, instance, user=None, trigger_type="on_create"
                         recipients.append(email)
 
         if not recipients:
-            logger.warning(f"Automation {automation.title} has no valid recipients")
+            logger.warning("Automation %s has no valid recipients", automation.title)
             return
 
         # Prepare context for template rendering
@@ -425,7 +429,7 @@ def execute_automation(automation, instance, user=None, trigger_type="on_create"
 
     except Exception as e:
         logger.error(
-            f"Error executing automation {automation.title}: {str(e)}", exc_info=True
+            "Error executing automation %s: %s", automation.title, str(e), exc_info=True
         )
 
 
@@ -442,7 +446,7 @@ def send_automation_email(automation, instance, recipients, context, user):
     """
     try:
         if not automation.mail_template:
-            logger.warning(f"Automation {automation.title} has no mail template")
+            logger.warning("Automation %s has no mail template", automation.title)
             return
 
         # Create HorillaMail instance
@@ -514,11 +518,18 @@ def send_automation_email(automation, instance, recipients, context, user):
                 mail.refresh_from_db()
                 if mail.mail_status != "sent":
                     logger.error(
-                        f"Email failed to send via threading: {automation.title} (mail_id: {mail.pk}), status: {mail.mail_status}, message: {mail.mail_status_message}"
+                        "Email failed to send via threading: %s (mail_id: %s), status: %s, message: %s",
+                        automation.title,
+                        mail.pk,
+                        mail.mail_status,
+                        mail.mail_status_message,
                     )
             except Exception as e:
                 logger.error(
-                    f"Error sending email in thread for automation {automation.title} (mail_id: {mail.pk}): {str(e)}",
+                    "Error sending email in thread for automation %s (mail_id: %s ): %s",
+                    automation.title,
+                    mail.pk,
+                    str(e),
                     exc_info=True,
                 )
                 # Update mail status to failed
@@ -541,7 +552,9 @@ def send_automation_email(automation, instance, recipients, context, user):
 
     except Exception as e:
         logger.error(
-            f"Error sending automation email for {automation.title}: {str(e)}",
+            "Error sending automation email for %s: %s",
+            automation.title,
+            str(e),
             exc_info=True,
         )
 
@@ -563,13 +576,15 @@ def send_automation_notification(automation, instance, recipients, context, user
         if not notification_template and automation.mail_template:
             # Fallback to mail_template for backward compatibility
             logger.warning(
-                f"Automation {automation.title} has no notification template, using mail template as fallback"
+                "Automation %s has no notification template, using mail template as fallback",
+                automation.title,
             )
             notification_template = None  # Will use mail_template below
 
         if not notification_template and not automation.mail_template:
             logger.warning(
-                f"Automation {automation.title} has no notification template or mail template"
+                "Automation %s  has no notification template or mail template",
+                automation.title,
             )
             return
 
@@ -583,7 +598,7 @@ def send_automation_notification(automation, instance, recipients, context, user
 
         if not users_to_notify:
             logger.warning(
-                f"Automation {automation.title} has no valid users for notification"
+                "Automation %s has no valid users for notification", automation.title
             )
             return
 
@@ -642,7 +657,7 @@ def send_automation_notification(automation, instance, recipients, context, user
                                 instance_url = parsed.path or instance_url
                             break
                     except Exception as e:
-                        logger.debug(f"get_detail_* {attr}: {str(e)}")
+                        logger.debug("get_detail_* %s: %s", attr, str(e))
                         continue
 
         # If no detail URL, use the model's list/view URL with filter so the instance is focused
@@ -701,21 +716,28 @@ def send_automation_notification(automation, instance, recipients, context, user
                             created_count += 1
                     except Exception as e:
                         logger.error(
-                            f"Error creating notification for user {notification_user.username}: {str(e)}",
+                            "Error creating notification for user %s: %s",
+                            notification_user.username,
+                            str(e),
                             exc_info=True,
                         )
                         continue
 
             logger.info(
-                f"Created {created_count} notifications for automation '{automation.title}' "
-                f"(instance: {instance}, URL: {instance_url or 'none'})"
+                "Created %s notifications for automation '%s' (instance: %s, URL: %s )",
+                created_count,
+                automation.title,
+                instance,
+                instance_url or "none",
             )
         except Exception as e:
-            logger.error(f"Error creating notifications: {str(e)}", exc_info=True)
+            logger.error("Error creating notifications: %s", str(e), exc_info=True)
 
     except Exception as e:
         logger.error(
-            f"Error sending automation notification for {automation.title}: {str(e)}",
+            "Error sending automation notification for %s: %s",
+            automation.title,
+            str(e),
             exc_info=True,
         )
 
@@ -769,10 +791,12 @@ def trigger_automations(instance, trigger_type="on_create", user=None):
                 execute_automation(automation, instance, user, trigger_type)
             except Exception as e:
                 logger.error(
-                    f"Error executing automation {automation.title}: {str(e)}",
+                    "Error executing automation %s: %s",
+                    automation.title,
+                    str(e),
                     exc_info=True,
                 )
                 continue
 
     except Exception as e:
-        logger.error(f"Error triggering automations: {str(e)}", exc_info=True)
+        logger.error("Error triggering automations: %s", str(e), exc_info=True)

@@ -37,6 +37,6 @@ class HorillaAutomationsConfig(AppConfig):
         except Exception as e:
             import logging
 
-            logging.warning(f"HorillaAutomationsConfig.ready failed: {e}")
+            logging.warning("HorillaAutomationsConfig.ready failed: %s", str(e))
 
         super().ready()

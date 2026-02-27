@@ -79,7 +79,9 @@ def execute_automation_task(
         model_class = content_type.model_class()
 
         if not model_class:
-            logger.error(f"Model class not found for content_type_id {content_type_id}")
+            logger.error(
+                "Model class not found for content_type_id %s", content_type_id
+            )
             return f"Model class not found for content_type_id {content_type_id}"
 
         # Get the instance
@@ -92,12 +94,15 @@ def execute_automation_task(
                 # For delete triggers, the instance is already deleted
                 # We'll still try to execute automations, but condition evaluation will be skipped
                 logger.info(
-                    f"Instance {object_id} of {model_class.__name__} already deleted, "
-                    f"proceeding with delete automation"
+                    "Instance %s of %s already deleted, proceeding with delete automation",
+                    object_id,
+                    model_class.__name__,
                 )
             else:
                 logger.warning(
-                    f"Instance {object_id} of {model_class.__name__} not found, skipping automation"
+                    "Instance %s of %s not found, skipping automation",
+                    object_id,
+                    model_class.__name__,
                 )
                 return f"Instance {object_id} not found"
 
@@ -107,7 +112,7 @@ def execute_automation_task(
             try:
                 user = User.objects.get(pk=user_id)
             except User.DoesNotExist:
-                logger.warning(f"User {user_id} not found")
+                logger.warning("User %s not found", user_id)
 
         # Get company if provided
         company = None
@@ -115,7 +120,7 @@ def execute_automation_task(
             try:
                 company = Company.objects.get(pk=company_id)
             except Company.DoesNotExist:
-                logger.warning(f"Company {company_id} not found")
+                logger.warning("Company %s not found", company_id)
 
         # Set up thread local for context
         request_info = request_info or {}
@@ -146,15 +151,19 @@ def execute_automation_task(
                         )
                     except Exception as e:
                         logger.error(
-                            f"Error executing delete automation {automation.title}: {str(e)}",
+                            "Error executing delete automation %s : %s",
+                            automation.title,
+                            str(e),
                             exc_info=True,
                         )
             else:
                 trigger_automations(instance, trigger_type=trigger_type, user=user)
 
             logger.info(
-                f"Successfully executed automations for {model_class.__name__} "
-                f"(id={object_id}, trigger={trigger_type})"
+                "Successfully executed automations for %s (id=%s, trigger=%s)",
+                model_class.__name__,
+                object_id,
+                trigger_type,
             )
             return f"Automations executed for {model_class.__name__} {object_id}"
 
@@ -165,18 +174,22 @@ def execute_automation_task(
 
     except Exception as e:
         logger.error(
-            f"Error executing automation task for {trigger_type} (content_type_id={content_type_id}, object_id={object_id}): {str(e)}",
+            "Error executing automation task for %s (content_type_id=%s, object_id=%s ): %s",
+            trigger_type,
+            content_type_id,
+            object_id,
+            str(e),
             exc_info=True,
         )
         # Don't retry for certain errors (like instance not found)
         if "not found" in str(e).lower() or "DoesNotExist" in str(type(e).__name__):
-            logger.warning(f"Skipping retry for non-retryable error: {str(e)}")
+            logger.warning("Skipping retry for non-retryable error: %s", str(e))
             return f"Task failed: {str(e)}"
         # Retry on other failures
         try:
             raise self.retry(exc=e, countdown=60)
         except Exception as retry_error:
-            logger.error(f"Failed to retry task: {str(retry_error)}")
+            logger.error("Failed to retry task: %s", retry_error)
             return f"Task failed and retry failed: {str(e)}"
         # Note: raise self.retry() will cause Celery to retry the task,
         # so this function will be called again. The return below ensures

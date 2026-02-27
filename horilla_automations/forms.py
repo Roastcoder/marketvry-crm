@@ -107,7 +107,7 @@ class HorillaAutomationForm(HorillaModelForm):
                 )
 
                 for field in all_forward_fields:
-                    # Skip excluded fields
+                    # Skip excluded fields (must match AUTOMATION_CONDITION_EXCLUDED_FIELDS in views)
                     if field.name in [
                         "id",
                         "pk",
@@ -117,6 +117,7 @@ class HorillaAutomationForm(HorillaModelForm):
                         "updated_by",
                         "company",
                         "additional_info",
+                        "password",
                     ]:
                         continue
                     # Skip non-editable fields (e.g. editable=False on the model)
