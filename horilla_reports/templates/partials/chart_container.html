@@ -46,7 +46,7 @@
     {% endif %}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'assets/js/horilla_charts.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         {% if not chart_data.error %}
