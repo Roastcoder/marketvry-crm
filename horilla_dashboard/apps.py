@@ -30,8 +30,8 @@ class HorillaDashboardConfig(AppConfig):
         ]
 
     def ready(self):
+        """Run on startup: load registration, register URLs, and import menu and signals."""
         try:
-            __import__("horilla_dashboard.registration")
 
             # Auto-register this app's URLs and add to installed apps
             from django.urls import include, path
@@ -45,6 +45,7 @@ class HorillaDashboardConfig(AppConfig):
 
             __import__("horilla_dashboard.menu")
             __import__("horilla_dashboard.signals")
+            __import__("horilla_dashboard.registration")
         except Exception as e:
             import logging
 
