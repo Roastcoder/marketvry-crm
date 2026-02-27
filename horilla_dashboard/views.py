@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db.models import Case, Count, ForeignKey, Q, When
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import redirect, render
@@ -23,15 +23,17 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, View
 
-# First-party / Horilla imports
-from horilla.exceptions import HorillaHttp404
-from horilla.utils.choices import DISPLAYABLE_FIELD_TYPES
-from horilla.utils.shortcuts import get_object_or_404
-from horilla_core.decorators import (
+from horilla.decorator import (
     htmx_required,
     permission_required,
     permission_required_or_denied,
 )
+from horilla.exceptions import HorillaHttp404
+
+# First-party / Horilla imports
+from horilla.http import HorillaRefreshResponse
+from horilla.utils.choices import DISPLAYABLE_FIELD_TYPES
+from horilla.utils.shortcuts import get_object_or_404
 from horilla_core.models import HorillaContentType
 from horilla_dashboard.filters import DashboardFilter
 from horilla_dashboard.forms import DashboardCreateForm, DashboardForm
@@ -71,6 +73,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = "home/default_home.html"
 
     def get(self, request, *args, **kwargs):
+        """Validate date range, then render default or dynamic dashboard as home."""
         redirect_url = validate_date_range_request(request)
         if redirect_url:
             return redirect(redirect_url)
@@ -272,6 +275,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         return context
 
     def render_to_response(self, context, template_name=None, **response_kwargs):
+        """Render with optional override of template_name."""
         if template_name:
             self.template_name = template_name
         return super().render_to_response(context, **response_kwargs)
@@ -518,6 +522,7 @@ class DashboardDetailView(RecentlyViewedMixin, LoginRequiredMixin, TemplateView)
         return self._object
 
     def get(self, request, *args, **kwargs):
+        """Check ownership or view_dashboard permission and date range; then render dashboard."""
         self.object = self.get_object()
         if not self.model.objects.filter(
             dashboard_owner_id=self.request.user, pk=self.kwargs["pk"]
@@ -540,7 +545,7 @@ class DashboardDetailView(RecentlyViewedMixin, LoginRequiredMixin, TemplateView)
         except Exception as e:
             if request.headers.get("HX-Request") == "true":
                 messages.error(self.request, e)
-                return HttpResponse(headers={"HX-Refresh": "true"})
+                return HorillaRefreshResponse(request)
             raise HorillaHttp404(e)
         return super().dispatch(request, *args, **kwargs)
 
@@ -1087,7 +1092,6 @@ class DashboardDetailView(RecentlyViewedMixin, LoginRequiredMixin, TemplateView)
         list_view.bulk_export_option = True
         list_view.bulk_update_option = False
         list_view.bulk_delete_enabled = False
-        list_view.clear_session_button_enabled = True
         list_view.list_column_visibility = False
         list_view.table_height = False
         list_view.table_height_as_class = "h-[300px]"
@@ -1194,6 +1198,7 @@ class DashboardDetailView(RecentlyViewedMixin, LoginRequiredMixin, TemplateView)
         return HttpResponse("No table component found to handle export", status=400)
 
     def get_context_data(self, **kwargs):
+        """Add section, layout, components, and dashboard context for the detail view template."""
         context = super().get_context_data(**kwargs)
 
         section = self.request.GET.get("section")
@@ -1608,6 +1613,7 @@ class DashboardComponentFormView(LoginRequiredMixin, HorillaSingleFormView):
     save_and_new = False
 
     def get_initial(self):
+        """Set initial dashboard, company, and component_owner from request."""
         initial = super().get_initial()
         dashboard_id = self.request.GET.get("dashboard") or self.request.POST.get(
             "dashboard"
@@ -2038,19 +2044,22 @@ class ChartPreviewView(View):
             chart_type = ""
 
         if component_type == "kpi":
-            html = """
-            <div class="bg-white rounded-lg border border-primary-300 p-4 shadow-sm" style="width: 30vh;">
-                <div class="flex flex-col space-y-2">
-                    <h3 class="text-sm font-medium text-gray-500">Total</h3>
-                    <div class="flex items-baseline space-x-2">
-                        <span class="text-2xl font-bold text-gray-900">$574.34</span>
-                        <span class="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
-                            +23%
-                        </span>
+            html = format_html(
+                """
+                    <div class="bg-white rounded-lg border border-primary-300 p-4 shadow-sm" style="width: 30vh;">
+                        <div class="flex flex-col space-y-2">
+                            <h3 class="text-sm font-medium text-gray-500">{}</h3>
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-2xl font-bold text-gray-900">{}</span>
+                                <span class="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">{}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            """
+                    """,
+                "Total",
+                "$574.34",
+                "+23%",
+            )
             return HttpResponse(html)
 
         if component_type == "table_data":
@@ -2989,7 +2998,10 @@ class DashboardComponentChartView(View):
             )
         except Exception as e:
             return HttpResponse(
-                f'<div class="text-gray-500 text-sm flex items-center justify-center h-full">Error: {str(e)}</div>'
+                format_html(
+                    '<div class="text-gray-500 text-sm flex items-center justify-center h-full">Error: {} </div>',
+                    str(e),
+                )
             )
 
 
@@ -3029,6 +3041,7 @@ class AddToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
         return kwargs
 
     def get_initial(self):
+        """Set initial dashboard from component_id when moving component."""
         initial = super().get_initial()
         component_id = self.kwargs.get("component_id")
         if component_id:
@@ -3039,6 +3052,7 @@ class AddToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
         return initial
 
     def get_form(self, form_class=None):
+        """Add widget attrs and restrict dashboard queryset for non-superusers."""
         form = super().get_form(form_class)
         user = getattr(self.request, "user", None)
         if user:
@@ -3132,6 +3146,7 @@ class DashboardCreateFormView(LoginRequiredMixin, HorillaSingleFormView):
         return reverse_lazy("horilla_dashboard:dashboard_create")
 
     def get_initial(self):
+        """Set initial company and dashboard_owner; merge GET params into initial."""
         initial = super().get_initial()
 
         company = (
@@ -3157,6 +3172,7 @@ class DashboardDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
     model = Dashboard
 
     def get_post_delete_response(self):
+        """Return HTMX trigger script to reload after delete."""
         return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")
 
 
@@ -3173,12 +3189,14 @@ class DashboardFolderCreate(LoginRequiredMixin, HorillaSingleFormView):
     save_and_new = False
 
     def get_form(self, form_class=None):
+        """In edit mode (pk set), show only the name field."""
         form = super().get_form(form_class)
         if self.kwargs.get("pk"):
             form.fields = {k: v for k, v in form.fields.items() if k in ["name"]}
         return form
 
     def get_initial(self):
+        """Set parent_folder from GET and folder_owner to current user."""
         initial = super().get_initial()
         pk = self.request.GET.get("pk")
         initial["parent_folder"] = pk if pk else None
@@ -3352,7 +3370,7 @@ class FolderDetailListView(LoginRequiredMixin, HorillaListView):
         except Exception as e:
             if request.headers.get("HX-Request") == "true":
                 messages.error(self.request, e)
-                return HttpResponse(headers={"HX-Refresh": "true"})
+                return HorillaRefreshResponse(request)
             raise HorillaHttp404(e)
         return super().get(request, *args, **kwargs)
 
@@ -3508,6 +3526,7 @@ class MoveDashboardView(LoginRequiredMixin, HorillaSingleFormView):
         return render(request, "error/403.html")
 
     def get_form(self, form_class=None):
+        """Add widget attrs and restrict folder queryset for non-superusers."""
         form = super().get_form(form_class)
         user = getattr(self.request, "user", None)
         if user:
@@ -3557,6 +3576,7 @@ class MoveFolderView(LoginRequiredMixin, HorillaSingleFormView):
         return render(request, "error/403.html")
 
     def get_form(self, form_class=None):
+        """Add widget attrs and restrict parent_folder queryset for non-superusers."""
         form = super().get_form(form_class)
         user = getattr(self.request, "user", None)
         if user:
@@ -3836,6 +3856,7 @@ class SaveDefaultHomeLayoutOrderView(LoginRequiredMixin, View):
         )
 
     def post(self, request, *args, **kwargs):
+        """Validate and save default home KPI/charts order; return JSON success or error."""
         previous_order = _get_default_home_previous_order(request.user)
 
         try:
@@ -3961,6 +3982,7 @@ class ResetDefaultHomeLayoutOrderView(LoginRequiredMixin, View):
     """Remove the current user's saved default home layout order and revert to template default."""
 
     def post(self, request, *args, **kwargs):
+        """Delete user's default home layout order and return JSON response."""
         try:
             DefaultHomeLayoutOrder.objects.filter(
                 user=request.user, dashboard__isnull=True
@@ -3981,6 +4003,7 @@ class ResetDashboardLayoutOrderView(LoginRequiredMixin, View):
     """Remove the current user's saved layout order for this dashboard so default order is used."""
 
     def post(self, request, *args, **kwargs):
+        """Delete user's layout order for the given dashboard and return JSON response."""
         dashboard_id = kwargs.get("dashboard_id")
         try:
             dashboard = get_object_or_404(Dashboard, id=dashboard_id)
@@ -4018,6 +4041,7 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
         return kwargs
 
     def get_initial(self):
+        """Set initial reports from report_id in GET when adding report to dashboard."""
         initial = super().get_initial()
         report_id = self.request.GET.get("report_id")
         if report_id:
@@ -4025,6 +4049,7 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
         return initial
 
     def get(self, request, *args, **kwargs):
+        """Check change_dashboard/add_dashboard or dashboard ownership; then show form or 403."""
         component_id = self.kwargs.get("component_id")
         if request.user.has_perm(
             "horilla_dashboard.change_dashboard"
@@ -4039,6 +4064,7 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
         return render(request, "error/403.html")
 
     def get_form(self, form_class=None):
+        """Add widget attrs and restrict dashboard queryset for non-superusers."""
         form = super().get_form(form_class)
         user = getattr(self.request, "user", None)
         if user:

@@ -36,22 +36,22 @@
                                     onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML"
                                     class="border border-primary-500 btn-with-icon flex items-center gap-3 text-sm px-4 py-2 rounded-md text-primary-600 bg-primary-100 hover:bg-primary-600 hover:text-[white] transition duration-300 cursor-pointer">
                                     <i class="fa-solid fa-plus"></i>
-                                    {% trans "Add components" %}
+                                    {% trans "Add components"|force_escape %}
                                 </button>
                             {% endif %}
                             {% if has_components %}
                                 <button type="button" id="editLayoutBtn" onclick="toggleEditMode()"
                                     class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
-                                    {% trans "Reorder" %}
+                                    {% trans "Reorder"|force_escape %}
                                 </button>
                                 <span id="editModeActions" class="hidden items-center gap-2">
                                     <button type="button" onclick="saveDragOrder()" id="saveOrderBtn"
                                     class="text-sm px-4 py-2 bg-primary-600 rounded-md transition duration-300 text-[white]">
-                                    {% trans "Save" %}
+                                    {% trans "Save"|force_escape %}
                                     </button>
                                     <button type="button" onclick="toggleEditMode()" id="cancelEditBtn"
                                     class="text-sm px-4 py-2 rounded-md border border-primary-600 text-primary-600 transition duration-300 cursor-pointer">
-                                    {% trans "Cancel" %}
+                                    {% trans "Cancel"|force_escape %}
                                     </button>
                                 </span>
                             {% endif %}
@@ -73,7 +73,7 @@
                                     <div hx-get="{% url 'horilla_dashboard:component_chart' component_id=component.id %}" hx-trigger="load"
                                         hx-swap="innerHTML" class="w-full h-full">
                                         <div class="text-gray-500 text-sm flex items-center justify-center h-full">
-                                            {% trans "Loading KPI..." %}
+                                            {% trans "Loading KPI..."|force_escape %}
                                         </div>
                                     </div>
                                 </div>
@@ -115,15 +115,15 @@
                                                             <li>
                                                                 <a href="#"
                                                                     class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
-                                                                    onclick="exportChart('component-chart-{{ component.id }}', '{{ component.name }}', 'png')">
-                                                                    {% trans "Export as PNG" %}
+                                                                    onclick="exportChart('component-chart-{{ component.id }}', '{{ component.name|escapejs }}', 'png')">
+                                                                    {% trans "Export as PNG"|force_escape %}
                                                                 </a>
                                                             </li>
                                                             <li>
                                                                 <a href="#"
                                                                     class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
-                                                                    onclick="exportChart('component-chart-{{ component.id }}', '{{ component.name }}', 'pdf')">
-                                                                    {% trans "Export as PDF" %}
+                                                                    onclick="exportDashboardChartAsPDF('{{ component.id }}', '{{ component.name|escapejs }}')">
+                                                                    {% trans "Export as PDF"|force_escape %}
                                                                 </a>
                                                             </li>
                                                             {% endif %}
@@ -138,7 +138,7 @@
                                                                                 class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
                                                                                 hx-get="{% url 'horilla_dashboard:component_update' pk=component.id %}?{{ request.GET.urlencode}}"
                                                                                 onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML">
-                                                                                {% trans "Update" %}
+                                                                                {% trans "Update"|force_escape%}
                                                                             </a>
                                                                         </li>
                                                                     {% endif %}
@@ -149,7 +149,7 @@
                                                                         hx-get="{% url 'horilla_dashboard:move_to_another_dashboard' component.pk %}"
                                                                         hx-target="#modalBox" hx-swap="innerHTML" hx-trigger="click"
                                                                         onclick="openModal()">
-                                                                        {% trans "Add to Another Dashboard" %}
+                                                                        {% trans "Add to Another Dashboard"|force_escape%}
                                                                     </a>
                                                                 </li>
                                                             {% endif %}
@@ -163,7 +163,7 @@
                                                                         hx-target="#deleteModeBox" hx-swap="innerHTML" hx-trigger="click"
                                                                         onclick="openDeleteModeModal();"
                                                                         hx-vals='{"check_dependencies": "true"}'>
-                                                                        {% trans "Delete" %}
+                                                                        {% trans "Delete"|force_escape %}
                                                                     </a>
                                                                 </li>
                                                             {% endif %}
@@ -178,7 +178,7 @@
                                                         hx-trigger="load" hx-swap="innerHTML"
                                                         class="w-full h-full">
                                                         <div class="text-gray-500 text-sm flex items-center justify-center h-full">
-                                                            {% trans " Loading chart..." %}
+                                                            {% trans " Loading chart..."|force_escape %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -186,7 +186,7 @@
                                                     <div class="mt-3 flex items-center gap-2 text-xs text-gray-600">
                                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-300 rounded-md">
                                                             <i class="fa-solid fa-file-lines text-black"></i>
-                                                            <span class="font-bold">{% trans "Created From report" %}</span>
+                                                            <span class="font-bold">{% trans "Created From report"|force_escape %}</span>
                                                             <a href="{% url 'horilla_reports:report_detail' component.reports.pk %}?section=analytics"
                                                             class="text-primary-600 hover:text-blue-800 font-bold"
                                                             hx-get="{% url 'horilla_reports:report_detail' component.reports.pk %}?section=analytics"
@@ -223,15 +223,16 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-2">
-                        {% trans 'No Components Added'%}
+                        {% trans 'No Components Added'|force_escape %}
                     </h3>
                     <p class="text-gray-500 mb-6 max-w-md">
-                        {% trans "This dashboard doesn't have any components yet. Add charts, tables, KPIs, or targets to visualize your data." %}
+                        {% trans "This dashboard doesn't have any components yet. Add charts, tables, KPIs, or targets to visualize your data."|force_escape %}
                     </p>
                 </div>
             {% endif %}
 
-
+            <!-- Ensure jsPDF is available for chart PDF export (e.g. when view is loaded via HTMX) -->
+            <script src="{% static 'assets/js/jspdf/jspdf.umd.min.js' %}"></script>
             <script>
                 $(document).ready(function () {
                     initializeSelect2();
@@ -329,16 +330,15 @@
                         compIds.push($(this).data("component-id"));
                     });
 
-                    var promises = [];
-                    if (kpiIds.length) promises.push(postOrder("kpi", kpiIds));
-                    if (compIds.length) promises.push(postOrder("components", compIds));
-
-                    if (!promises.length) {
+                    if (!kpiIds.length && !compIds.length) {
                         toggleEditMode();
                         return;
                     }
                     $("#saveOrderBtn").prop("disabled", true);
-                    $.when.apply($, promises).done(function() {
+                    var p = $.Deferred().resolve();
+                    if (kpiIds.length) p = p.then(function() { return postOrder("kpi", kpiIds); });
+                    if (compIds.length) p = p.then(function() { return postOrder("components", compIds); });
+                    p.done(function() {
                         toggleEditMode();
                         window.location.reload();
                     }).fail(function() {
@@ -380,7 +380,65 @@
                     }
                 }
 
+                // Dashboard-specific PDF export, similar to report_detail.html
+                function exportDashboardChartAsPDF(componentId, filename) {
+                    try {
+                        if (!window.jspdf || !window.jspdf.jsPDF) {
+                            console.error('jsPDF library is not loaded.');
+                            alert('Failed to export PDF: jsPDF library is not loaded.');
+                            return;
+                        }
+
+                        var compKey = 'dashboard-component-' + componentId;
+                        var entry = window.chartInstances && window.chartInstances[compKey];
+
+                        if (!entry || !entry.instance || entry.instance.isDisposed()) {
+                            console.error('Chart instance not found or disposed for component ID:', componentId);
+                            alert('Failed to export PDF: Chart instance not available.');
+                            return;
+                        }
+
+                        var chartInstance = entry.instance;
+                        chartInstance.resize();
+
+                        var imgData = chartInstance.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff',
+                            excludeComponents: ['toolbox']
+                        });
+
+                        if (!imgData) {
+                            console.error('Failed to generate chart image data.');
+                            alert('Failed to export PDF: Could not generate chart image.');
+                            return;
+                        }
+
+                        var jsPDF = window.jspdf.jsPDF;
+                        var pdf = new jsPDF({
+                            orientation: 'landscape',
+                            unit: 'px',
+                            format: [800, 400]
+                        });
+
+                        var imgProps = pdf.getImageProperties(imgData);
+                        var pdfWidth = pdf.internal.pageSize.getWidth();
+                        var pdfHeight = pdf.internal.pageSize.getHeight();
+                        var imgWidth = 700;
+                        var imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+                        var x = (pdfWidth - imgWidth) / 2;
+                        var y = (pdfHeight - imgHeight) / 2;
+
+                        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                        pdf.save(filename + '.pdf');
+                    } catch (error) {
+                        console.error('Error exporting chart as PDF:', error);
+                        alert('Failed to export PDF: An error occurred.');
+                    }
+                }
+
                 window.exportChart = exportChart;
+                window.exportDashboardChartAsPDF = exportDashboardChartAsPDF;
             </script>
         </div>
 

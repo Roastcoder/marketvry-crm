@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.urls import reverse_lazy
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from horilla.registry.permission_registry import permission_exempt_model
@@ -188,7 +187,7 @@ class Dashboard(HorillaCoreModel):
             path="is_default_dashboard.html", context={"instance": self}
         )
 
-        return mark_safe(html)
+        return html
 
     def save(self, *args, **kwargs):
         """Override save to ensure only one default dashboard per user/company"""
@@ -525,6 +524,10 @@ class DefaultHomeLayoutOrder(models.Model):
     )
 
     class Meta:
+        """
+        Meta class for DefaultHomeLayoutOrder. Enforce uniqueness of user-dashboard combination,
+        """
+
         unique_together = ("user", "dashboard")
         verbose_name = _("Default Home Layout Order")
         verbose_name_plural = _("Default Home Layout Orders")
