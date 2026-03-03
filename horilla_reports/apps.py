@@ -3,18 +3,30 @@ App configuration for the Reports module in Horilla.
 Handles app metadata and auto-registering URLs.
 """
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class HorillaReportsConfig(AppConfig):
+class HorillaReportsConfig(AppLauncher):
     """
-    Configuration class for the Reports app in Horilla.
+    App configuration class for the Reports module in Horilla.
     """
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_reports"
     verbose_name = _("Reports")
+
+    url_prefix = "reports/"
+    url_module = "horilla_reports.urls"
+    url_namespace = "horilla_reports"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+    ]
 
     def get_api_paths(self):
         """
@@ -31,24 +43,3 @@ class HorillaReportsConfig(AppConfig):
                 "namespace": "horilla_reports",
             }
         ]
-
-    def ready(self):
-        """Auto-register URLs and import the app menu."""
-        from django.urls import include, path
-
-        from horilla.urls import urlpatterns
-
-        try:
-            urlpatterns.append(
-                path("reports/", include("horilla_reports.urls")),
-            )
-
-            __import__("horilla_reports.registration")
-            __import__("horilla_reports.menu")  # noqa: F401
-            __import__("horilla_reports.signals")
-        except Exception as e:
-            import logging
-
-            logging.warning("ReportsConfig.ready failed: %s", e)
-
-        super().ready()
