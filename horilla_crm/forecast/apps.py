@@ -1,15 +1,34 @@
 """App configuration for the forecast module."""
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class ForecastConfig(AppConfig):
-    """Configuration class for the Forecast app."""
+class ForecastConfig(AppLauncher):
+    """Forecast App Configuration"""
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_crm.forecast"
     verbose_name = _("Forecast")
+
+    url_prefix = "forecast/"
+    url_module = "horilla_crm.forecast.urls"
+    url_namespace = "forecast"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+    ]
+
+    demo_data = {
+        "files": [
+            (7, "load_data/forecast_type.json"),
+        ],
+        "order": 4,
+    }
 
     def get_api_paths(self):
         """
@@ -26,28 +45,3 @@ class ForecastConfig(AppConfig):
                 "namespace": "horilla_crm_forecast",
             }
         ]
-
-    demo_data_files = [
-        (7, "load_data/forecast_type.json"),
-    ]
-
-    def ready(self):
-        try:
-            from django.urls import include, path
-
-            from horilla.urls import urlpatterns
-
-            urlpatterns.append(
-                path("forecast/", include("horilla_crm.forecast.urls")),
-            )
-
-            __import__("horilla_crm.forecast.registration")
-            __import__("horilla_crm.forecast.menu")
-            __import__("horilla_crm.forecast.signals")
-
-        except Exception as e:
-            import logging
-
-            logging.warning("ForecastsConfig.ready failed: %s", e)
-
-        super().ready()

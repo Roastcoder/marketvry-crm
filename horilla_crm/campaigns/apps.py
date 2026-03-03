@@ -1,15 +1,28 @@
 """App configuration for the Campaign module."""
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class CampaignsConfig(AppConfig):
-    """Configuration class for the Campaigns app."""
+class CampaignsConfig(AppLauncher):
+    """Campaigns App Configuration"""
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_crm.campaigns"
     verbose_name = _("Campaigns")
+
+    url_prefix = "campaigns/"
+    url_module = "horilla_crm.campaigns.urls"
+    url_namespace = "campaigns"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+        "dashboard",
+    ]
 
     demo_data = {
         "files": [
@@ -33,25 +46,3 @@ class CampaignsConfig(AppConfig):
                 "namespace": "horilla_crm_campaigns",
             }
         ]
-
-    def ready(self):
-        try:
-
-            from django.urls import include, path
-
-            from horilla.urls import urlpatterns
-
-            urlpatterns.append(
-                path("campaigns/", include("horilla_crm.campaigns.urls")),
-            )
-
-            __import__("horilla_crm.campaigns.registration")
-            __import__("horilla_crm.campaigns.menu")  # noqa: F401
-            __import__("horilla_crm.campaigns.signals")  # noqa:F401
-            __import__("horilla_crm.campaigns.dashboard")
-
-        except Exception as e:
-            import logging
-
-            logging.warning("CampaignsConfig.ready failed: %s", e)
-        super().ready()

@@ -1,15 +1,28 @@
 """App configuration for the contacts module."""
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class ContactsConfig(AppConfig):
-    """Configuration class for the Contacts app."""
+class ContactsConfig(AppLauncher):
+    """Contacts App Configuration"""
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_crm.contacts"
     verbose_name = _("Contacts")
+
+    url_prefix = "contacts/"
+    url_module = "horilla_crm.contacts.urls"
+    url_namespace = "contacts"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+        "dashboard",
+    ]
 
     demo_data = {
         "files": [
@@ -33,24 +46,3 @@ class ContactsConfig(AppConfig):
                 "namespace": "horilla_crm_contacts",
             }
         ]
-
-    def ready(self):
-        try:
-            from django.urls import include, path
-
-            from horilla.urls import urlpatterns
-
-            # Add app URLs to main urlpatterns
-            urlpatterns.append(
-                path("contacts/", include("horilla_crm.contacts.urls")),
-            )
-            __import__("horilla_crm.contacts.registration")  # noqa: F401
-            __import__("horilla_crm.contacts.menu")  # noqa: F401
-            __import__("horilla_crm.contacts.signals")  # noqa:F401
-            __import__("horilla_crm.contacts.dashboard")
-        except Exception as e:
-            import logging
-
-            logging.warning("ContactsConfig.ready failed: %s", e)
-
-        super().ready()

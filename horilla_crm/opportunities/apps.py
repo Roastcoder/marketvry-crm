@@ -1,15 +1,28 @@
 """App configuration for the opportunities module."""
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class OpportunitiesConfig(AppConfig):
-    """Configuration class for the Opportunities app."""
+class OpportunitiesConfig(AppLauncher):
+    """Opportunities App Configuration"""
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_crm.opportunities"
     verbose_name = _("Opportunities")
+
+    url_prefix = "opportunities/"
+    url_module = "horilla_crm.opportunities.urls"
+    url_namespace = "opportunities"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+        "dashboard",
+    ]
 
     demo_data = {
         "files": [
@@ -38,26 +51,3 @@ class OpportunitiesConfig(AppConfig):
                 "namespace": "horilla_crm_opportunities",
             }
         ]
-
-    def ready(self):
-        from django.urls import include, path
-
-        from horilla.urls import urlpatterns
-
-        try:
-
-            urlpatterns.append(
-                path("opportunities/", include("horilla_crm.opportunities.urls")),
-            )
-
-            __import__("horilla_crm.opportunities.registration")
-            __import__("horilla_crm.opportunities.menu")
-            __import__("horilla_crm.opportunities.signals")
-            __import__("horilla_crm.opportunities.dashboard")
-
-        except Exception as e:
-            import logging
-
-            logging.warning("OpportunitiesConfig.ready failed: %s", e)
-
-        super().ready()

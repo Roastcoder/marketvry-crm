@@ -1,15 +1,31 @@
 """Leads app configuration."""
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class LeadsConfig(AppConfig):
+class LeadsConfig(AppLauncher):
     """Leads App Configuration"""
+
+    default = True
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_crm.leads"
     verbose_name = _("Leads")
+
+    url_prefix = "leads/"
+    url_module = "horilla_crm.leads.urls"
+    url_namespace = "leads"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+        "dashboard",
+    ]
+
+    celery_schedule_module = "celery_schedules"
+    celery_schedule_variable = "HORILLA_CRM_BEAT_SCHEDULE"
 
     demo_data = {
         "files": [
@@ -38,35 +54,3 @@ class LeadsConfig(AppConfig):
                 "namespace": "horilla_crm_leads",
             }
         ]
-
-    def ready(self):
-        try:
-
-            # Auto-register this app's URLs and add to installed apps
-            from django.urls import include, path
-
-            from horilla.urls import urlpatterns
-
-            __import__("horilla_crm.leads.registration")
-            __import__("horilla_crm.leads.signals")  # noqa: F401
-            __import__("horilla_crm.leads.menu")  # noqa: F401
-            __import__("horilla_crm.leads.dashboard")
-
-            urlpatterns.append(
-                path("leads/", include("horilla_crm.leads.urls", namespace="leads")),
-            )
-
-            from django.conf import settings
-
-            from .celery_schedules import HORILLA_CRM_BEAT_SCHEDULE
-
-            if not hasattr(settings, "CELERY_BEAT_SCHEDULE"):
-                settings.CELERY_BEAT_SCHEDULE = {}
-
-            settings.CELERY_BEAT_SCHEDULE.update(HORILLA_CRM_BEAT_SCHEDULE)
-
-        except Exception as e:
-            import logging
-
-            logging.warning("LeadsConfig.ready failed: %s", e)
-        super().ready()
