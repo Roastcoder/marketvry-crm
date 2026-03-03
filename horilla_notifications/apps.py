@@ -5,11 +5,11 @@ This module defines the application configuration for the notifications app,
 including URL registration and signal imports.
 """
 
-from django.apps import AppConfig
-from django.utils.translation import gettext_lazy as _
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
 
 
-class HorillaNotificationsConfig(AppConfig):
+class HorillaNotificationsConfig(AppLauncher):
     """
     Application configuration for horilla_notifications app.
 
@@ -20,9 +20,21 @@ class HorillaNotificationsConfig(AppConfig):
     - API path configurations
     """
 
+    default = True
+
     default_auto_field = "django.db.models.BigAutoField"
     name = "horilla_notifications"
     verbose_name = _("Notifications")
+
+    url_prefix = "notifications/"
+    url_module = "horilla_notifications.urls"
+    url_namespace = "horilla_notifications"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+    ]
 
     def get_api_paths(self):
         """
@@ -39,27 +51,3 @@ class HorillaNotificationsConfig(AppConfig):
                 "namespace": "horilla_notifications",
             }
         ]
-
-    def ready(self):
-        """Perform app initialization: register URLs and import signals and menu."""
-        try:
-            # Auto-register this app's URLs and add to installed apps
-            from django.urls import include, path
-
-            from horilla.urls import urlpatterns
-
-            # Add app URLs to main urlpatterns
-            urlpatterns.append(
-                path("notifications/", include("horilla_notifications.urls")),
-            )
-
-            __import__("horilla_notifications.registration")
-            __import__("horilla_notifications.signals")
-            __import__("horilla_notifications.menu")
-
-        except Exception as e:
-            import logging
-
-            logging.warning("HorillaNotificationsConfig.ready failed: %s", e)
-
-        super().ready()
