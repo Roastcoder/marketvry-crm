@@ -138,7 +138,17 @@
                         <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3">
                             {% if request.GET.user_id %}
                                 {% if forecast.period %}
-                                    {{ forecast.period.name }}
+                                    {% if forecast.period.quarter.fiscal_year.fiscal_year_config.fiscal_year_type == "standard" %}
+                                        {% trans "Period" %} {{ forecast.period.get_display_period_number }}
+                                        {% if forecast.period.start_date and forecast.period.end_date %}
+                                            - ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                        {% endif %}
+                                    {% else %}
+                                        {{ forecast.period.name }}
+                                        {% if forecast.period.start_date and forecast.period.end_date %}
+                                            ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                        {% endif %}
+                                    {% endif %}
                                 {% elif forecast.quarter %}
                                     {{ forecast.quarter.name }}
                                 {% else %}
@@ -157,7 +167,17 @@
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                                     </svg>
                                     {% if forecast.period %}
-                                        {{ forecast.period.name }}
+                                        {% if forecast.period.quarter.fiscal_year.fiscal_year_config.fiscal_year_type == "standard" %}
+                                            {% trans "Period" %} {{ forecast.period.get_display_period_number }}
+                                            {% if forecast.period.start_date and forecast.period.end_date %}
+                                                - ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                            {% endif %}
+                                        {% else %}
+                                            {{ forecast.period.name }}
+                                            {% if forecast.period.start_date and forecast.period.end_date %}
+                                                ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                            {% endif %}
+                                        {% endif %}
                                     {% elif forecast.quarter %}
                                         {{ forecast.quarter.name }}
                                     {% else %}
@@ -491,7 +511,18 @@
                                             <div id="loadingIndicator-{{ forecast_type.id }}-{{ forecast.view_id }}" class="flex justify-center items-center gap-3 htmx-indicator">
                                                 <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-primary-600"></div>
                                                 <span class="text-[13px] text-primary-600 font-medium">
-                                                    {% trans "Loading more users for" %} {{ forecast.period.name }}
+                                                    {% trans "Loading more users for" %}
+                                                    {% if forecast.period.quarter.fiscal_year.fiscal_year_config.fiscal_year_type == "standard" %}
+                                                        {% trans "Period" %} {{ forecast.period.get_display_period_number }}
+                                                        {% if forecast.period.start_date and forecast.period.end_date %}
+                                                            - ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{ forecast.period.name }}
+                                                        {% if forecast.period.start_date and forecast.period.end_date %}
+                                                            ({{ forecast.period.start_date|date:"M d" }} - {{ forecast.period.end_date|date:"M d" }})
+                                                        {% endif %}
+                                                    {% endif %}
                                                 </span>
                                             </div>
                                         </td>
