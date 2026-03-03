@@ -662,7 +662,7 @@ def clear_column_visibility_cache_on_permission_change(sender, instance, **kwarg
                             add_to_header = False
                             add_to_details = False
                             try:
-                                from horilla_generics.horilla_support_views import (
+                                from horilla_generics.views.helpers import (
                                     get_detail_field_defaults_no_request,
                                 )
 

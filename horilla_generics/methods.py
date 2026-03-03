@@ -1,6 +1,8 @@
-# Define your horilla_generics helper methods here
+"""
+Helper methods for horilla_generics.
 
-"""Helper methods for horilla_generics."""
+Provides dynamic form resolution and other utilities used by generic views.
+"""
 
 from horilla_core.mixins import OwnerQuerysetMixin
 from horilla_generics.forms import HorillaModelForm

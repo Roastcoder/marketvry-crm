@@ -7,13 +7,8 @@ Provides routes for global search, kanban and AJAX helper views.
 # Third-party imports (Django)
 from django.urls import path
 
-from horilla_generics import horilla_support_views as view
-
 # First-party / Horilla imports
-from horilla_generics.global_search import GlobalSearchView
-
-# Local application imports
-from . import views
+from horilla_generics import views
 
 app_name = "horilla_generics"
 
@@ -30,71 +25,73 @@ urlpatterns = [
     ),
     path(
         "kanban-load-more/<str:app_label>/<str:model_name>/",
-        view.KanbanLoadMoreView.as_view(),
+        views.helpers.KanbanLoadMoreView.as_view(),
         name="kanban_load_more",
     ),
     path(
         "group-by-load-more/<str:app_label>/<str:model_name>/",
-        view.GroupByLoadMoreView.as_view(),
+        views.helpers.GroupByLoadMoreView.as_view(),
         name="group_by_load_more",
     ),
     path(
         "create-kanban-group/",
-        view.HorillaKanbanGroupByView.as_view(),
+        views.helpers.HorillaKanbanGroupByView.as_view(),
         name="create_kanban_group",
     ),
     path(
         "column-selector/",
-        view.ListColumnSelectFormView.as_view(),
+        views.helpers.ListColumnSelectFormView.as_view(),
         name="column_selector",
     ),
     path(
         "reset-columns-to-default/",
-        view.ResetColumnToDefaultView.as_view(),
+        views.helpers.ResetColumnToDefaultView.as_view(),
         name="reset_columns_to_default",
     ),
     path(
         "detail-field-selector/",
-        view.DetailFieldSelectorView.as_view(),
+        views.helpers.DetailFieldSelectorView.as_view(),
         name="detail_field_selector",
     ),
     path(
         "save-detail-fields/",
-        view.SaveDetailFieldsView.as_view(),
+        views.helpers.SaveDetailFieldsView.as_view(),
         name="save_detail_fields",
     ),
     path(
         "reset-detail-fields/",
-        view.ResetDetailFieldsView.as_view(),
+        views.helpers.ResetDetailFieldsView.as_view(),
         name="reset_detail_fields",
     ),
     path(
-        "save-filter-list/", view.SaveFilterListView.as_view(), name="save_filter_list"
+        "save-filter-list/",
+        views.helpers.SaveFilterListView.as_view(),
+        name="save_filter_list",
     ),
-    path("pin-view/", view.PinView.as_view(), name="pin_view"),
+    path("pin-views/", views.helpers.PinView.as_view(), name="pin_view"),
     path(
         "delete-saved-list/",
-        view.DeleteSavedListView.as_view(),
+        views.helpers.DeleteSavedListView.as_view(),
         name="delete_saved_list",
     ),
     path(
         "update-pipeline/<int:pk>/",
-        views.HorillaDetailView.as_view(),
+        views.helpers.HorillaDetailView.as_view(),
         name="update_pipeline",
     ),
     path(
         "edit/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
-        view.EditFieldView.as_view(),
+        views.helpers.EditFieldView.as_view(),
         name="edit_field",
     ),
     path(
         "cancel/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
-        view.CancelEditView.as_view(),
+        views.helpers.CancelEditView.as_view(),
         name="cancel_edit",
     ),
     path(
         "update/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
-        view.UpdateFieldView.as_view(),
+        views.helpers.UpdateFieldView.as_view(),
         name="update_field",
     ),
     path(
@@ -109,23 +106,23 @@ urlpatterns = [
     ),
     path(
         "<str:app_label>/<str:model_name>/select2/",
-        view.HorillaSelect2DataView.as_view(),
+        views.helpers.HorillaSelect2DataView.as_view(),
         name="model_select2",
     ),
-    path("search/", GlobalSearchView.as_view(), name="global_search"),
+    path("search/", views.GlobalSearchView.as_view(), name="global_search"),
     path(
         "remove-condition-row/<str:row_id>/",
-        view.RemoveConditionRowView.as_view(),
+        views.helpers.RemoveConditionRowView.as_view(),
         name="remove_condition_row",
     ),
     path(
         "get-field-value-widget/",
-        view.GetFieldValueWidgetView.as_view(),
+        views.helpers.GetFieldValueWidgetView.as_view(),
         name="get_field_value_widget",
     ),
     path(
         "get-model-field-choices/",
-        view.GetModelFieldChoicesView.as_view(),
+        views.helpers.GetModelFieldChoicesView.as_view(),
         name="get_model_field_choices",
     ),
     path(
@@ -139,7 +136,7 @@ urlpatterns = [
         name="notes_attachment_edit",
     ),
     path(
-        "notes-attachment-view/<int:pk>/",
+        "notes-attachment-views/<int:pk>/",
         views.HorillaNotesAttachementDetailView.as_view(),
         name="notes_attachment_view",
     ),

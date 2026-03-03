@@ -1,0 +1,624 @@
+"""
+Condition widget and operator views for horilla_generics.
+
+HTMX views for dynamic condition rows and field-value widgets in filter/automation forms.
+"""
+
+# Standard library
+import logging
+
+# Third-party imports (Django)
+from django.apps import apps
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
+from django.http import HttpResponse
+from django.template import Context, Template
+from django.utils.encoding import force_str
+from django.utils.html import escape, format_html, format_html_join
+from django.utils.safestring import mark_safe
+from django.views import View
+
+# First-party (Horilla)
+from horilla.shortcuts import render
+from horilla.utils.choices import FIELD_TYPE_MAP
+from horilla.utils.decorators import htmx_required, method_decorator
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.models import HorillaContentType
+
+logger = logging.getLogger(__name__)
+
+
+# Condition form: operator values (from horilla.utils.choices) allowed per field type.
+# Mirrors filter operator logic so conditions use operators matching the field type.
+CONDITION_OPERATORS_BY_FIELD_TYPE = {
+    "boolean": ["equals", "not_equals"],
+    "text": [
+        "equals",
+        "not_equals",
+        "contains",
+        "not_contains",
+        "starts_with",
+        "ends_with",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "number": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "greater_than_equal",
+        "less_than",
+        "less_than_equal",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "float": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "greater_than_equal",
+        "less_than",
+        "less_than_equal",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "decimal": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "greater_than_equal",
+        "less_than",
+        "less_than_equal",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "date": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "less_than",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "datetime": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "less_than",
+        "is_empty",
+        "is_not_empty",
+    ],
+    "foreignkey": ["equals", "not_equals", "is_empty", "is_not_empty"],
+    "manytomany": ["equals", "not_equals", "is_empty", "is_not_empty"],
+    "choice": ["equals", "not_equals", "is_empty", "is_not_empty"],
+    "other": ["equals", "not_equals", "contains", "is_empty", "is_not_empty"],
+}
+
+
+@method_decorator(htmx_required, name="dispatch")
+class RemoveConditionRowView(LoginRequiredMixin, View):
+    """View for removing condition rows from multi-condition filter forms."""
+
+    def delete(self, request, row_id, *args, **kwargs):
+        """
+        Remove a condition row from a multi-condition form via HTMX.
+
+        Returns an empty 200 response on success to indicate the row was removed.
+        """
+
+        return HttpResponse("")
+
+
+@method_decorator(htmx_required, name="dispatch")
+class GetFieldValueWidgetView(LoginRequiredMixin, View):
+    """HTMX view to return dynamic value field widget based on selected field"""
+
+    def get(self, request):
+        """
+        Return HTML for the input widget corresponding to the chosen field.
+
+        Accepts query parameters to determine the row and field and returns the
+        rendered widget HTML to be injected by HTMX.
+        """
+        row_id = request.GET.get("row_id", "")
+        field_name = request.GET.get(f"field_{row_id}", request.GET.get("field", ""))
+        model_name = request.GET.get("model_name", "")
+        condition_model_str = request.GET.get("condition_model", "")
+
+        # Try to get existing value from the request
+        existing_value = request.GET.get(f"value_{row_id}", "")
+        existing_operator = request.GET.get(f"operator_{row_id}", "")
+
+        # Get the model field to determine appropriate widget
+        widget_html = self._get_value_widget_html(
+            field_name, model_name, row_id, existing_value
+        )
+
+        # For single-form condition fields: update operator dropdown by field type
+        # (same operator matching as filter: boolean=equals/not_equals, text=contains/etc.)
+        operator_oob = self._get_operator_oob_html(
+            row_id, field_name, model_name, condition_model_str, existing_operator
+        )
+        if operator_oob:
+            widget_html = mark_safe(widget_html + operator_oob)
+
+        # Render via template engine to satisfy XSS defenses (content is built with format_html)
+        template = Template("{{ widget_html }}")
+        return HttpResponse(template.render(Context({"widget_html": widget_html})))
+
+    def _get_field_type_for_condition(self, model_field):
+        """Return field type string for operator matching (same logic as filter)."""
+        field_class_name = model_field.__class__.__name__
+        if field_class_name == "ForeignKey":
+            return "foreignkey"
+        if field_class_name == "ManyToManyField":
+            return "manytomany"
+        if hasattr(model_field, "choices") and model_field.choices:
+            return "choice"
+        if field_class_name == "DateTimeField":
+            return "datetime"
+        if field_class_name == "DateField":
+            return "date"
+        if field_class_name in ("BooleanField", "NullBooleanField"):
+            return "boolean"
+        return FIELD_TYPE_MAP.get(field_class_name, "other")
+
+    def _get_operator_oob_html(
+        self, row_id, field_name, model_name, condition_model_str, existing_operator
+    ):
+        """
+        Return OOB (out-of-band) HTML to swap the operator dropdown in single-form
+        condition fields. Operators are filtered by field type (same logic as filter).
+        """
+        if not condition_model_str or not row_id:
+            return ""
+
+        try:
+            # Resolve target model and get selected field
+            target_model = None
+            for app_config in apps.get_app_configs():
+                try:
+                    target_model = apps.get_model(
+                        app_label=app_config.label, model_name=model_name
+                    )
+                    break
+                except LookupError:
+                    continue
+            if not target_model or not field_name:
+                return ""
+
+            try:
+                model_field = target_model._meta.get_field(field_name)
+            except Exception:
+                return ""
+
+            field_type = self._get_field_type_for_condition(model_field)
+            allowed_operators = set(
+                CONDITION_OPERATORS_BY_FIELD_TYPE.get(
+                    field_type, CONDITION_OPERATORS_BY_FIELD_TYPE["other"]
+                )
+            )
+
+            # Resolve condition model and get full operator choices
+            condition_model = None
+            parts = condition_model_str.split(".")
+            model_name_part = parts[-1] if parts else ""
+            app_label_part = (
+                ".".join(parts[:-1]) if len(parts) > 1 else (parts[0] if parts else "")
+            )
+            try:
+                condition_model = apps.get_model(app_label_part, model_name_part)
+            except LookupError:
+                pass
+            if not condition_model:
+                for app_config in apps.get_app_configs():
+                    try:
+                        candidate = apps.get_model(
+                            app_label=app_config.label,
+                            model_name=model_name_part,
+                        )
+                        if (
+                            candidate
+                            and f"{candidate._meta.app_label}.{candidate._meta.model_name}"
+                            == condition_model_str
+                        ):
+                            condition_model = candidate
+                            break
+                    except LookupError:
+                        continue
+            if not condition_model:
+                return ""
+            try:
+                op_field = condition_model._meta.get_field("operator")
+                full_choices = list(getattr(op_field, "choices", []) or [])
+            except Exception:
+                return ""
+
+            # Restrict to operators allowed for this field type (like filter)
+            operator_choices = [("", "---------")] + [
+                (v, label) for v, label in full_choices if v in allowed_operators
+            ]
+
+            options_iter = (
+                (
+                    escape(force_str(val)),
+                    (
+                        ' selected="selected"'
+                        if str(val) == str(existing_operator)
+                        else ""
+                    ),
+                    escape(force_str(label)),
+                )
+                for val, label in operator_choices
+            )
+            options_html = format_html_join(
+                "",
+                '<option value="{}" {}>{}</option>',
+                options_iter,
+            )
+            return format_html(
+                '<div id="id_operator_{}_container" hx-swap-oob="true">'
+                '<select name="operator_{}" id="id_operator_{}" '
+                'class="js-example-basic-single headselect" '
+                'data-placeholder="Select Operator">{}</select></div>',
+                row_id,
+                row_id,
+                row_id,
+                options_html,
+            )
+        except Exception as e:
+            logger.debug("GetFieldValueWidgetView operator OOB: %s", e)
+            return ""
+
+    def _get_value_widget_html(self, field_name, model_name, row_id, existing_value=""):
+        """Generate appropriate widget HTML based on selected field"""
+
+        if not field_name or not model_name:
+            # Return default text input
+            return self._render_text_input(row_id, existing_value)
+
+        try:
+            # Find the model
+            model = None
+            for app_config in apps.get_app_configs():
+                try:
+                    model = apps.get_model(
+                        app_label=app_config.label, model_name=model_name
+                    )
+                    break
+                except LookupError:
+                    continue
+
+            if not model:
+                return self._render_text_input(row_id, existing_value)
+
+            # Get the field from the model
+            try:
+                model_field = model._meta.get_field(field_name)
+            except Exception:
+                return self._render_text_input(row_id, existing_value)
+
+            # Determine widget type based on field type
+            if isinstance(model_field, models.ManyToManyField):
+                related_model = model_field.related_model
+                queryset = related_model.objects.all()
+                choices = [(obj.pk, str(obj)) for obj in queryset]
+                existing_ids = [
+                    v.strip() for v in (existing_value or "").split(",") if v.strip()
+                ]
+                return self._render_multiselect_input(choices, row_id, existing_ids)
+            if isinstance(model_field, models.ForeignKey):
+                related_model = model_field.related_model
+                # Get all objects for the select, but ensure existing_value is included
+                queryset = related_model.objects.all()
+                choices = [(obj.pk, str(obj)) for obj in queryset]
+                # If existing_value is provided but not in choices, try to find the object
+                if existing_value and existing_value not in [
+                    str(c[0]) for c in choices
+                ]:
+                    try:
+                        existing_obj = related_model.objects.get(pk=existing_value)
+                        # Add it to choices if not already there
+                        if (existing_obj.pk, str(existing_obj)) not in choices:
+                            choices.insert(
+                                1, (existing_obj.pk, str(existing_obj))
+                            )  # Insert after empty option
+                    except (related_model.DoesNotExist, ValueError):
+                        pass
+                return self._render_select_input(choices, row_id, existing_value)
+            if hasattr(model_field, "choices") and model_field.choices:
+                return self._render_select_input(
+                    model_field.choices, row_id, existing_value
+                )
+            if isinstance(model_field, models.BooleanField):
+                return self._render_boolean_input(row_id, existing_value)
+            if isinstance(model_field, models.DateField):
+                return self._render_date_input(row_id, existing_value)
+            if isinstance(model_field, models.DateTimeField):
+                return self._render_datetime_input(row_id, existing_value)
+            if isinstance(model_field, models.TimeField):
+                return self._render_time_input(row_id, existing_value)
+            if isinstance(model_field, models.IntegerField):
+                return self._render_number_input(row_id, existing_value)
+            if isinstance(model_field, models.DecimalField):
+                return self._render_number_input(row_id, existing_value, step="0.01")
+            if isinstance(model_field, models.EmailField):
+                return self._render_email_input(row_id, existing_value)
+            if isinstance(model_field, models.URLField):
+                return self._render_url_input(row_id, existing_value)
+            if isinstance(model_field, models.TextField):
+                return self._render_textarea_input(row_id, existing_value)
+            # else:
+            return self._render_text_input(row_id, existing_value)
+
+        except Exception as e:
+            logger.error("Error generating value widget: %s", str(e))
+            return self._render_text_input(row_id, existing_value)
+
+    def _render_text_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="text" name="value_{}" id="id_value_{}" value="{}" placeholder="Enter Value" '
+            'class="text-color-820 p-2 placeholder:text-xs pr-[40px] w-full border border-dark-50 rounded-md  focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_select_input(self, choices, row_id, existing_value=""):
+        options_iter = (
+            (
+                choice_value,
+                "selected" if str(choice_value) == str(existing_value) else "",
+                choice_label,
+            )
+            for choice_value, choice_label in choices
+        )
+        options_html = format_html(
+            '<option value="">---------{}</option>', ""
+        ) + format_html_join(
+            "",
+            '<option value="{}" {}>{}</option>',
+            options_iter,
+        )
+        return format_html(
+            '<select name="value_{}" id="id_value_{}" class="js-example-basic-single headselect">{}</select>',
+            row_id,
+            row_id,
+            options_html,
+        )
+
+    def _render_multiselect_input(self, choices, row_id, existing_values=None):
+        """Render a multi-select for ManyToManyField; existing_values is a list of selected IDs (str or int)."""
+        existing_set = set(force_str(v) for v in (existing_values or []))
+        options_iter = (
+            (
+                choice_value,
+                "selected" if force_str(choice_value) in existing_set else "",
+                choice_label,
+            )
+            for choice_value, choice_label in choices
+        )
+        options_html = format_html_join(
+            "",
+            '<option value="{}" {}>{}</option>',
+            options_iter,
+        )
+        return format_html(
+            '<select name="value_{}" id="id_value_{}" multiple class="js-example-basic-multiple headselect w-full h-full" data-placeholder="{}">{}</select>',
+            row_id,
+            row_id,
+            _("Select value(s)"),
+            options_html,
+        )
+
+    def _render_boolean_input(self, row_id, existing_value=""):
+        true_selected = "selected" if existing_value == "True" else ""
+        false_selected = "selected" if existing_value == "False" else ""
+        return format_html(
+            '<select name="value_{}" id="id_value_{}" class="js-example-basic-single headselect">'
+            '<option value="">---------</option>'
+            '<option value="True" {}>True</option>'
+            '<option value="False" {}>False</option></select>',
+            row_id,
+            row_id,
+            true_selected,
+            false_selected,
+        )
+
+    def _render_date_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="date" name="value_{}" id="id_value_{}" value="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_datetime_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="datetime-local" name="value_{}" id="id_value_{}" value="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_time_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="time" name="value_{}" id="id_value_{}" value="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_number_input(self, row_id, existing_value="", step="1"):
+        return format_html(
+            '<input type="number" name="value_{}" id="id_value_{}" value="{}" step="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600" placeholder="Enter Number">',
+            row_id,
+            row_id,
+            existing_value,
+            step,
+        )
+
+    def _render_email_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="email" name="value_{}" id="id_value_{}" value="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600" placeholder="Enter Email">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_url_input(self, row_id, existing_value=""):
+        return format_html(
+            '<input type="url" name="value_{}" id="id_value_{}" value="{}" '
+            'class="text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600" placeholder="Enter URL">',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+    def _render_textarea_input(self, row_id, existing_value=""):
+        return format_html(
+            '<textarea name="value_{}" id="id_value_{}" rows="3" '
+            'class="text-color-600 p-2 w-full border border-dark-50 rounded-md focus-visible:outline-0 text-sm transition focus:border-primary-600" placeholder="Enter Value">{}</textarea>',
+            row_id,
+            row_id,
+            existing_value,
+        )
+
+
+@method_decorator(htmx_required, name="dispatch")
+class GetModelFieldChoicesView(LoginRequiredMixin, View):
+    """
+    Generic HTMX view to return field choices for a selected model/content_type.
+    Returns all fields by default, but can be filtered via query parameters.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """Return a select element with field choices for the selected content type"""
+
+        # Get parameters - support both 'content_type' and 'model' parameter names
+        content_type_id = request.GET.get("content_type") or request.GET.get("model")
+        row_id = request.GET.get("row_id", "0")
+
+        # Get field name pattern - support different patterns
+        field_name_pattern = request.GET.get("field_name_pattern", "field_{row_id}")
+        field_name = field_name_pattern.format(row_id=row_id)
+        field_id = f"id_{field_name}"
+
+        if not content_type_id:
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
+            )
+
+        try:
+            content_type = HorillaContentType.objects.get(pk=content_type_id)
+            model_name = content_type.model
+        except HorillaContentType.DoesNotExist:
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
+            )
+
+        # Get the model class
+        model_class = None
+        for app_config in apps.get_app_configs():
+            try:
+                model_class = apps.get_model(app_config.label, model_name.lower())
+                break
+            except (LookupError, ValueError):
+                continue
+
+        if not model_class:
+            return render(
+                request,
+                "partials/field_select_empty.html",
+                {"field_name": field_name, "field_id": field_id},
+            )
+
+        # Get filter parameters
+        field_types = (
+            request.GET.get("field_types", "").split(",")
+            if request.GET.get("field_types")
+            else []
+        )
+        exclude_fields = (
+            request.GET.get("exclude_fields", "").split(",")
+            if request.GET.get("exclude_fields")
+            else []
+        )
+        exclude_choice_fields = (
+            request.GET.get("exclude_choice_fields", "false").lower() == "true"
+        )
+        only_text_fields = (
+            request.GET.get("only_text_fields", "false").lower() == "true"
+        )
+
+        # Default exclude fields
+        default_exclude = [
+            "id",
+            "pk",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "company",
+            "additional_info",
+        ]
+        exclude_fields = list(set(exclude_fields + default_exclude))
+
+        # Build field choices
+        # Use _meta.fields and _meta.many_to_many to get only forward fields (not reverse relations)
+        # This excludes one-to-many and many-to-many reverse relationships
+        field_choices = [("", "---------")]
+        all_forward_fields = list(model_class._meta.fields) + list(
+            model_class._meta.many_to_many
+        )
+
+        for field in all_forward_fields:
+            if field.name in exclude_fields:
+                continue
+            # Skip non-editable fields (e.g. editable=False on the model)
+            if not getattr(field, "editable", True):
+                continue
+
+            # Filter by field types if specified
+            if field_types:
+                field_type_name = field.__class__.__name__
+                if field_type_name not in field_types:
+                    continue
+
+            # If only_text_fields is true, only include CharField, TextField, EmailField
+            if only_text_fields:
+                if not isinstance(
+                    field, (models.CharField, models.TextField, models.EmailField)
+                ):
+                    continue
+
+            # Skip fields with choices if specified
+            if exclude_choice_fields:
+                if hasattr(field, "choices") and field.choices:
+                    continue
+
+            verbose_name = (
+                getattr(field, "verbose_name", None)
+                or field.name.replace("_", " ").title()
+            )
+            field_choices.append((field.name, str(verbose_name).title()))
+
+        # Build select HTML
+        return render(
+            request,
+            "partials/field_select_empty.html",
+            {
+                "field_name": field_name,
+                "field_id": field_id,
+                "field_choices": field_choices,
+            },
+        )

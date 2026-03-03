@@ -1,0 +1,415 @@
+"""
+Generic views for Horilla, including base view, tab view, history section, and dynamic create view.
+"""
+
+# Standard library
+import logging
+from typing import Any
+
+# Django / third-party imports
+from django import forms
+from django.apps import apps
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
+from django.db import models
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.utils.html import escapejs
+from django.views.generic import DetailView, FormView, TemplateView
+
+from horilla.http import HorillaRefreshResponse
+
+# First-party (Horilla)
+from horilla.shortcuts import render
+from horilla.utils.decorators import htmx_required, method_decorator
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.models import ActiveTab
+from horilla_core.utils import get_field_permissions_for_model
+from horilla_generics.forms import HorillaHistoryForm, HorillaModelForm
+from horilla_utils.middlewares import _thread_local
+
+logger = logging.getLogger(__name__)
+
+
+class HorillaView(TemplateView):
+    """
+    A generic class-based view for rendering templates with context data.
+    """
+
+    template_name = "base.html"
+    list_url: str = ""
+    kanban_url: str = ""
+    group_by_url: str = ""
+    nav_url: str = ""
+
+    def get_context_data(self, **kwargs):
+        """Add nav/list/kanban/group_by URLs and filter_form trigger to template context."""
+        context = super().get_context_data(**kwargs)
+        filter_form = self.request.headers.get("HX-Trigger")
+        if filter_form == "filter-form":
+            context["filter_form"] = filter_form
+        context["nav_url"] = self.nav_url
+        context["list_url"] = self.list_url
+        context["kanban_url"] = self.kanban_url
+        context["group_by_url"] = self.group_by_url
+        return context
+
+
+@method_decorator(htmx_required, name="dispatch")
+class HorillaTabView(TemplateView):
+    """
+    Generic TabView
+    """
+
+    view_id = ""
+    template_name = "tab_view.html"
+    tabs: list = []
+    background_class = ""
+    background_color = ""
+    tab_class = ""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        request = getattr(_thread_local, "request", None)
+        self.request = request
+
+    def get_context_data(self, **kwargs):
+        """Add active_target, tabs, view_id, and tab styling to context."""
+        context = super().get_context_data(**kwargs)
+        if self.request.user:
+            active_tab = ActiveTab.objects.filter(
+                created_by=self.request.user, path=self.request.path
+            ).first()
+            if active_tab:
+                context["active_target"] = active_tab.tab_target
+        context["tabs"] = self.tabs
+        context["view_id"] = self.view_id
+        context["background_class"] = self.background_class
+        context["background_color"] = self.background_color
+        context["tab_class"] = self.tab_class
+        return context
+
+
+@method_decorator(htmx_required, name="dispatch")
+class HorillaHistorySectionView(DetailView):
+    """View for displaying object history/audit trail in detail views."""
+
+    template_name = "history_tab.html"
+    context_object_name = "obj"
+    paginate_by = 10
+    filter_form_class = HorillaHistoryForm
+
+    def dispatch(self, request, *args, **kwargs):
+        """Resolve object and return HX-Refresh on error; otherwise dispatch."""
+        try:
+            self.object = self.get_object()
+        except Exception as e:
+            messages.error(self.request, e)
+            return HorillaRefreshResponse(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """Add paginated history by date, filter form, and filter_applied to context."""
+        context = super().get_context_data(**kwargs)
+        context["model_name"] = self.model._meta.model_name
+        histories = self.get_object().full_histories
+
+        history_by_date = []
+        date_dict = {}
+        for entry in histories:
+            date_key = entry.timestamp.date()
+            if date_key not in date_dict:
+                date_dict[date_key] = []
+            date_dict[date_key].append(entry)
+
+        sorted_dates = sorted(date_dict.keys(), reverse=True)
+        history_by_date = [(date, date_dict[date]) for date in sorted_dates]
+        filter_form = self.filter_form_class(self.request.GET)
+        filter_applied = False
+        if self.request.GET:
+            filter_applied = any(
+                self.request.GET.get(field) not in [None, "", "all"]
+                for field in filter_form.fields
+            )
+
+            if filter_form.is_valid() and filter_applied:
+                history_by_date = filter_form.apply_filter(history_by_date)
+
+        paginator = Paginator(history_by_date, self.paginate_by)
+        page_number = self.request.GET.get("page", 1)
+        page_obj = paginator.get_page(page_number)
+
+        context["page_obj"] = page_obj
+        context["actions"] = [str(entry).split()[0].lower() for entry in histories]
+        context["filter_form"] = filter_form
+        context["filter_applied"] = filter_applied
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        """Render history tab or filter form partial when show_filter=true and HX-Request."""
+        self.object = self.get_object()
+        context = self.get_context_data(**kwargs)
+        if request.GET.get("show_filter") == "true" and request.headers.get(
+            "HX-Request"
+        ):
+            return HttpResponse(
+                render_to_string(
+                    "partials/history_filter_form.html",
+                    {"form": context["filter_form"], "request": request},
+                    request=request,
+                )
+            )
+
+        return self.render_to_response(context)
+
+
+@method_decorator(htmx_required, name="dispatch")
+class HorillaDynamicCreateView(LoginRequiredMixin, FormView):
+    """
+    View to handle dynamic creation of related models
+    """
+
+    template_name = "dynamic_form_view.html"
+    target_model = None
+    field_names = None
+
+    def get_permission_from_mapping(self):
+        """Get custom permission from dynamic_create_field_mapping if provided"""
+        permission_param = self.request.GET.get("permission")
+
+        if permission_param:
+            return [p.strip() for p in permission_param.split(",") if p.strip()]
+
+        return None
+
+    def get_model_and_fields(self):
+        """
+        Resolve and return a model and optional field list from kwargs/GET params.
+
+        Returns `(model, field_names)` or `(None, None)` if the model cannot be found.
+        """
+        app_label = self.kwargs.get("app_label")
+        model_name = self.kwargs.get("model_name")
+        fields_param = self.request.GET.get("fields", "")
+
+        field_names = None
+        if fields_param and fields_param.lower() not in ["none", ""]:
+            field_names = [f.strip() for f in fields_param.split(",") if f.strip()]
+
+        try:
+            model = apps.get_model(app_label, model_name)
+            return model, field_names
+        except LookupError:
+            logger.warning("Model %s.%s not found", app_label, model_name)
+            messages.error(self.request, f"Model {app_label}.{model_name} not found")
+            return None, None
+
+    def dispatch(self, request, *args, **kwargs):
+        """Resolve target model and fields; validate and check add permission; then dispatch."""
+        # Initialize model + fields once
+        self.target_model, self.field_names = self.get_model_and_fields()
+
+        if not self.target_model:
+            messages.error(self.request, "Invalid model or fields")
+            response = HttpResponse(
+                """<div></div>
+                <script>
+                    setTimeout(function() {
+                        $('#reloadMessagesButton').click();
+                        closeDynamicModal();
+                    }, 50);
+                </script>"""
+            )
+            response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
+            return response
+
+        # Validate field names against the model
+        if self.field_names:
+            valid_field_names = {f.name for f in self.target_model._meta.get_fields()}
+            invalid_fields = [f for f in self.field_names if f not in valid_field_names]
+            if invalid_fields:
+                messages.error(
+                    self.request,
+                    f"Some fields are not valid: {', '.join(invalid_fields)}.",
+                )
+                response = HttpResponse(
+                    """<div></div>
+                    <script>
+                        setTimeout(function() {
+                            $('#reloadMessagesButton').click();
+                            closeDynamicModal();
+                        }, 50);
+                    </script>"""
+                )
+                response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                response["Pragma"] = "no-cache"
+                response["Expires"] = "0"
+                return response
+
+        custom_perms = self.get_permission_from_mapping()
+
+        if custom_perms:
+            permissions = custom_perms
+        else:
+            app_label = self.target_model._meta.app_label
+            model_name = self.target_model._meta.model_name
+            permissions = [f"{app_label}.add_{model_name}"]
+
+        if not any(request.user.has_perm(perm) for perm in permissions):
+            return render(request, "error/403.html", {"modal": True})
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        """Return a dynamic ModelForm class for target_model and optional field_names."""
+        target_model, field_names = self.target_model, self.field_names
+
+        class DynamicCreateForm(HorillaModelForm):
+            """Dynamically generated form for creating related objects."""
+
+            class Meta:
+                """Meta options for DynamicCreateForm."""
+
+                model = target_model
+                fields = (
+                    field_names if field_names and field_names != [""] else "__all__"
+                )
+                exclude = [
+                    "created_at",
+                    "updated_at",
+                    "created_by",
+                    "updated_by",
+                    "additional_info",
+                ]
+                widgets = {
+                    field.name: forms.DateInput(attrs={"type": "date"})
+                    for field in target_model._meta.fields
+                    if isinstance(field, models.DateField)
+                }
+
+        return DynamicCreateForm
+
+    def get_full_width_fields(self):
+        """Get full width fields from URL parameter."""
+        full_width_param = self.request.GET.get("full_width_fields", "")
+        full_width_fields = []
+        if full_width_param and full_width_param.lower() not in ["none", ""]:
+            clean_param = full_width_param.split("?")[0]  # Remove anything after ?
+            full_width_fields = [f.strip() for f in clean_param.split(",") if f.strip()]
+        return full_width_fields
+
+    def get_context_data(self, **kwargs):
+        """Add form_title, target_field, form_url, full_width_fields, and field_permissions to context."""
+        context = super().get_context_data(**kwargs)
+        if self.target_model:
+            context["form_title"] = (
+                f"Create {self.target_model._meta.verbose_name.title()}"
+            )
+            context["target_field"] = self.request.GET.get("target_field")
+            query_string = self.request.GET.urlencode()
+            context["form_url"] = (
+                f"{self.request.path}?{query_string}"
+                if query_string
+                else self.request.path
+            )
+            context["full_width_fields"] = self.get_full_width_fields()
+
+            # Add field permissions to context
+            field_permissions = get_field_permissions_for_model(
+                self.request.user, self.target_model
+            )
+            context["field_permissions"] = field_permissions
+        else:
+            context["field_permissions"] = {}
+        return context
+
+    def get_initial_values_from_mapping(self):
+        """Get initial values from dynamic_create_field_mapping if available"""
+        initial_values = {}
+
+        # Get initial values from URL parameters with initial_ prefix
+        for key, value in self.request.GET.items():
+            if key.startswith("initial_"):
+                field_name = key.replace("initial_", "", 1)
+                try:
+                    # Try to convert to number if possible
+                    if value.isdigit():
+                        initial_values[field_name] = int(value)
+                    elif value.replace(".", "", 1).isdigit():
+                        initial_values[field_name] = float(value)
+                    else:
+                        initial_values[field_name] = value
+                except (ValueError, AttributeError):
+                    initial_values[field_name] = value
+
+        return initial_values
+
+    def get_form_kwargs(self):
+        """Pass full_width_fields and field_permissions to the form"""
+        kwargs = super().get_form_kwargs()
+        kwargs["full_width_fields"] = self.get_full_width_fields()
+
+        # Add field permissions to form kwargs
+        if self.target_model:
+            field_permissions = get_field_permissions_for_model(
+                self.request.user, self.target_model
+            )
+            kwargs["field_permissions"] = field_permissions
+
+        # Add initial values from mapping
+        initial_values = self.get_initial_values_from_mapping()
+        if initial_values:
+            if "initial" not in kwargs:
+                kwargs["initial"] = {}
+            kwargs["initial"].update(initial_values)
+
+        return kwargs
+
+    def form_valid(self, form):
+        """Save the new instance and return script to add option to target select and close modal."""
+        if not self.request.user.is_authenticated:
+            messages.error(
+                self.request, "You must be logged in to perform this action."
+            )
+            return self.form_invalid(form)
+
+        instance = form.save(commit=False)
+        instance.created_by = self.request.user
+        instance.updated_by = self.request.user
+        instance.company = form.cleaned_data.get("company") or (
+            getattr(self.request, "active_company", None) or self.request.user.company
+        )
+        instance.save()
+        form.save_m2m()
+
+        target_field = self.request.GET.get("target_field")
+
+        instance_str = escapejs(str(instance))  # Escape for JavaScript
+
+        return HttpResponse(
+            f"""
+                <script>
+                    var targetSelect = document.querySelector('select[name="{target_field}"]');
+                    if (targetSelect) {{
+                        var newOption = new Option('{instance_str}', '{instance.pk}', true, true);
+                        targetSelect.add(newOption);
+
+                        // Trigger change event if using Select2
+                        if (window.$ && $(targetSelect).hasClass('js-example-basic-single')) {{
+                            $(targetSelect).trigger('change');
+                        }}
+                    }}
+
+                    closeDynamicModal();
+                </script>
+            """
+        )
+
+    def form_invalid(self, form):
+        """Show error message and re-render form with validation errors."""
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)

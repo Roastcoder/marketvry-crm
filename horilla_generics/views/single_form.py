@@ -1,0 +1,681 @@
+"""
+A generic single form view for creating and editing objects in Horilla, with dynamic form generation based on the model and view configuration.
+This view supports dynamic condition rows, field-level permissions.
+"""
+
+# Standard library
+import inspect
+import logging
+import re
+from urllib.parse import urlencode
+
+# Django / third-party imports
+from django import forms
+from django.contrib import messages
+from django.core.exceptions import FieldDoesNotExist
+from django.db import IntegrityError, models
+from django.http import HttpResponse
+from django.urls import reverse, reverse_lazy
+from django.views.generic import FormView
+
+# First-party (Horilla)
+from horilla.utils.choices import TABLE_FALLBACK_FIELD_TYPES
+from horilla.utils.translation import gettext_lazy as _
+from horilla_generics.views.toolkit import single_form_builder
+from horilla_generics.views.toolkit.form_mixin import FormViewCommonMixin
+from horilla_utils.middlewares import _thread_local
+
+logger = logging.getLogger(__name__)
+
+
+class HorillaSingleFormView(FormViewCommonMixin, FormView):
+    """View for handling single-step form submissions."""
+
+    template_name = "single_form_view.html"
+    model = None
+    form_class = None
+    success_url = None
+    object = None
+    fields = None
+    exclude = None
+    full_width_fields = None
+    form_url = None
+    dynamic_create_fields = None
+    modal_height = True
+    form_title = None
+    hidden_fields = []
+    view_id = ""
+    condition_fields = None
+    condition_model = None
+    condition_field_choices = None
+    condition_field_title = None
+    condition_hx_include = None
+    condition_related_name = None  # Name of the related manager (e.g., "conditions", "criteria", "team_members")
+    condition_related_name_candidates = [
+        "conditions",
+        "criteria",
+        "team_members",
+    ]  # Fallback names when condition_related_name is None
+    condition_order_by = ["order", "created_at"]  # Default ordering for conditions
+    content_type_field = (
+        None  # Field name that contains ContentType (e.g., "content_type", "model")
+    )
+    header = True
+    modal_height_class = None
+    hx_attrs: dict = {}
+    permission_required = None
+    check_object_permission = True
+    permission_denied_template = "error/403.html"
+    skip_permission_check = False
+
+    multi_step_url_name = None
+    duplicate_mode = False
+    detail_url_name = None
+    save_and_new = True
+    return_response = ""
+
+    def get_multi_step_url(self):
+        """Get the URL for multi-step form."""
+        return self.get_alternate_form_url("multi_step_url_name")
+
+    def dispatch(self, request, *args, **kwargs):
+        """Set duplicate_mode from GET; check permission; handle add_condition_row; resolve object."""
+        if "pk" in self.kwargs:
+            self.duplicate_mode = (
+                request.GET.get("duplicate", "false").lower() == "true"
+            )
+
+        if not self.skip_permission_check and not self.has_permission():
+            return self.get_permission_denied_response(request)
+
+        if request.headers.get("HX-Request") and "add_condition_row" in request.GET:
+            return single_form_builder.add_condition_row(self, request)
+
+        obj, error_response = self.get_object_or_error_response(request)
+        if error_response is not None:
+            return error_response
+        if obj is not None:
+            self.object = obj
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """Clear session keys on edit and set condition_row_count; then delegate to parent get."""
+        if self.kwargs.get("pk"):
+            for key in self.session_keys_to_clear_on_edit:
+                if key in request.session:
+                    del request.session[key]
+            request.session.modified = True
+
+            existing_conditions = single_form_builder.get_existing_conditions(self)
+            if existing_conditions is not None:
+                request.session["condition_row_count"] = len(existing_conditions)
+                request.session.modified = True
+        return super().get(request, *args, **kwargs)
+
+    def get_existing_conditions(self):
+        """Retrieve existing conditions for the current object in edit mode."""
+        return single_form_builder.get_existing_conditions(self)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session_keys_to_clear_on_edit = ["condition_row_count"]
+
+    def get_model_name_from_content_type(self, request=None):
+        """Extract model_name from content_type field (POST or GET)."""
+        return single_form_builder.get_model_name_from_content_type(self, request)
+
+    def get_submitted_condition_data(self):
+        """Extract condition field data from submitted form data (POST)."""
+        return single_form_builder.get_submitted_condition_data(self)
+
+    def get_form_class(self):
+        """Return dynamic form class with condition fields and readonly handling when form_class is None."""
+        if self.form_class is None and self.model is not None:
+            return single_form_builder.get_dynamic_form_class(self)
+        return super().get_form_class()
+
+    def get_form_kwargs(self):
+        """Pass full_width_fields, conditions, request, instance/initial, and field_permissions to the form."""
+        kwargs = super().get_form_kwargs()
+
+        kwargs["full_width_fields"] = self.full_width_fields or []
+        kwargs["dynamic_create_fields"] = self.get_filtered_dynamic_create_fields()
+        kwargs["condition_fields"] = self.condition_fields or []
+        kwargs["condition_model"] = self.condition_model
+        kwargs["condition_field_choices"] = self.condition_field_choices or {}
+        if self.condition_fields:
+            kwargs["condition_related_name"] = self.condition_related_name
+            kwargs["condition_related_name_candidates"] = getattr(
+                self,
+                "condition_related_name_candidates",
+                ["conditions", "criteria", "team_members"],
+            )
+        kwargs["hidden_fields"] = getattr(self, "hidden_fields", [])
+        kwargs["condition_hx_include"] = self.condition_hx_include
+
+        # Auto-add request if form accepts it
+        form_class = self.get_form_class()
+        if (
+            form_class
+            and "request" in inspect.signature(form_class.__init__).parameters
+        ):
+            kwargs["request"] = self.request
+
+        # Auto-extract model_name if content_type_field is set
+        if self.content_type_field:
+            model_name = self.get_model_name_from_content_type()
+            if model_name:
+                if "initial" not in kwargs:
+                    kwargs["initial"] = {}
+                kwargs["initial"]["model_name"] = model_name
+
+        kwargs["field_permissions"] = self.get_field_permissions()
+
+        # Pass duplicate_mode to form so it can check if readonly fields should be hidden
+        kwargs["duplicate_mode"] = self.duplicate_mode
+
+        if self.object and not self.duplicate_mode:
+            kwargs["instance"] = self.object
+        elif self.object and self.duplicate_mode:
+            # In duplicate mode, populate initial data from the object
+            initial = kwargs.get("initial", {})
+            for field in self.object._meta.fields:
+                if field.name not in [
+                    "id",
+                    "pk",
+                    "created_at",
+                    "updated_at",
+                    "created_by",
+                    "updated_by",
+                ]:
+                    field_value = getattr(self.object, field.name)
+                    if field_value is not None:
+                        if (
+                            field.get_internal_type()
+                            in TABLE_FALLBACK_FIELD_TYPES[:2]  # [CharField, TextField]
+                            and not isinstance(
+                                field,
+                                (models.EmailField, models.URLField, models.SlugField),
+                            )
+                            and not field.choices
+                        ):
+                            initial[field.name] = f"{field_value} (Copy)"
+                        else:
+                            initial[field.name] = field_value
+
+            # Handle ManyToMany fields
+            for field in self.object._meta.many_to_many:
+                m2m_value = getattr(self.object, field.name).all()
+                if m2m_value.exists():
+                    initial[field.name] = list(m2m_value)
+
+            kwargs["initial"] = initial
+        kwargs["request"] = self.request
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """Add form_title, duplicate_mode, condition fields, and form options to context."""
+        context = super().get_context_data(**kwargs)
+        context["form_title"] = (
+            self.form_title
+            or f"{'Duplicate' if self.duplicate_mode else 'Update' if self.kwargs.get('pk') and not self.duplicate_mode else 'Create'} {self.model._meta.verbose_name}"
+        )
+        context["duplicate_mode"] = self.duplicate_mode
+        context["save_and_new"] = self.save_and_new
+        context["full_width_fields"] = self.full_width_fields or []
+        context["condition_fields"] = self.condition_fields or []
+        context["condition_fields_tiltle"] = self.condition_field_title
+        context["condition_model_str"] = ""
+        if getattr(self, "condition_model", None):
+            context["condition_model_str"] = (
+                f"{self.condition_model._meta.app_label}."
+                f"{self.condition_model._meta.model_name}"
+            )
+        context["form_url"] = self.get_form_url()
+        context["add_condition_url"] = (
+            self.get_add_condition_url() if self.condition_fields else None
+        )
+        context["dynamic_create_fields"] = self.get_filtered_dynamic_create_fields()
+        context["dynamic_create_field_mapping"] = getattr(
+            self, "dynamic_create_field_mapping", {}
+        )
+        context["modal_height"] = self.modal_height
+        self.view_id = self.view_id or f"{self.model._meta.model_name}-form-view"
+        context["view_id"] = self.view_id
+        context["form_class_name"] = self.get_form_class().__name__
+        context["model_name"] = (
+            self.model._meta.model_name if self.model is not None else ""
+        )
+        context["app_label"] = (
+            self.model._meta.app_label if self.model is not None else ""
+        )
+        context["submitted_condition_data"] = self.get_submitted_condition_data()
+
+        single_form_builder.build_condition_context(self, context)
+
+        context["field_permissions"] = self.get_field_permissions()
+
+        context["related_models_info"] = self.get_related_models_info()
+
+        query_string = ""
+        if self.request.GET:
+            query_string = f"?{self.request.GET.urlencode()}"
+
+        default_hx_attrs = {
+            "hx-post": f"{self.form_url}{query_string}",
+            "hx-swap": "outerHTML",
+            "hx-target": f"#{self.view_id}-container",
+            "enctype": "multipart/form-data",
+        }
+        context["header"] = self.header
+        context["modal_height_class"] = self.modal_height_class
+        context["hx_attrs"] = {**default_hx_attrs, **(self.hx_attrs or {})}
+        context["multi_step_url"] = self.get_multi_step_url()
+        context["condition_hx_include"] = self.condition_hx_include
+        return context
+
+    def get_form_url(self):
+        """Return the configured form URL or fall back to the current request path."""
+        return self.form_url or self.request.path
+
+    def save_conditions(self, form=None):
+        """Save conditions from form.cleaned_data or POST; delete existing and create from submitted data."""
+        single_form_builder.save_conditions(self, form)
+
+    def save_multiple_main_instances(self, form=None):
+        """Generic method to create multiple instances of the main model from condition rows.
+
+        Used when condition_fields exist but no condition_model is specified.
+        Creates multiple instances of self.model directly from condition rows.
+
+        Returns:
+            list: List of created instances, or False if validation errors occurred
+        """
+        if not (self.condition_fields and self.model):
+            return []
+
+        # Validate form has required fields (can be overridden in child classes)
+        if form and hasattr(self, "validate_form_for_multiple_instances"):
+            validation_result = self.validate_form_for_multiple_instances(form)
+            if validation_result is False:
+                return False
+
+        # Get condition data from form.cleaned_data or POST
+        condition_rows = None
+        if (
+            form
+            and hasattr(form, "cleaned_data")
+            and "condition_rows" in form.cleaned_data
+        ):
+            condition_rows = form.cleaned_data["condition_rows"]
+
+        if condition_rows:
+            # Use condition_rows from cleaned_data (already extracted and validated)
+            condition_data = {}
+            for order, row_data in enumerate(condition_rows):
+                row_id = str(order)
+                condition_data[row_id] = row_data
+        else:
+            # Extract condition data from POST
+            condition_data = self.get_submitted_condition_data()
+
+        if not condition_data:
+            if form:
+                form.add_error(None, "At least one instance must be added.")
+            return []
+
+        created_instances = []
+        validation_errors = []
+        unique_check_cache = set()  # For duplicate checking (can be overridden)
+
+        # Sort by row_id to maintain order
+        def sort_key(x):
+            try:
+                return int(x)
+            except ValueError:
+                return 999
+
+        for row_id in sorted(condition_data.keys(), key=sort_key):
+            row_data = condition_data[row_id]
+
+            # Skip empty rows
+            if not any(row_data.get(field) for field in self.condition_fields):
+                continue
+
+            # Process row_data (can be customized in child classes for "same" checkbox logic, etc.)
+            if hasattr(self, "process_row_data_before_create"):
+                processed_result = self.process_row_data_before_create(
+                    row_data, row_id, form
+                )
+                if processed_result is False:  # Explicit False means validation failed
+                    return False
+                if processed_result is None:  # None means skip this row
+                    continue
+                if isinstance(processed_result, dict):  # Returned processed row_data
+                    row_data = processed_result
+                # If True or no return, continue with original row_data
+
+            # Check for duplicates (can be customized in child classes)
+            if hasattr(self, "check_duplicate_instance"):
+                duplicate_result = self.check_duplicate_instance(
+                    row_data, unique_check_cache, form
+                )
+                if duplicate_result:
+                    if isinstance(duplicate_result, str):
+                        validation_errors.append(duplicate_result)
+                    continue
+                if duplicate_result is False:  # Explicit False means validation failed
+                    return False
+
+            try:
+                # Build create kwargs for main model instance
+                create_kwargs = {}
+
+                # Add main form fields (non-condition fields) from form.cleaned_data
+                if form and hasattr(form, "cleaned_data"):
+                    for field_name, value in form.cleaned_data.items():
+                        if (
+                            field_name not in self.condition_fields
+                            and field_name not in ["condition_rows"]
+                        ):
+                            try:
+                                model_field = self.model._meta.get_field(field_name)
+                                if isinstance(model_field, models.ForeignKey):
+                                    create_kwargs[f"{field_name}_id"] = (
+                                        value.id if hasattr(value, "id") else value
+                                    )
+                                else:
+                                    create_kwargs[field_name] = value
+                            except (FieldDoesNotExist, Exception):
+                                pass
+
+                # Add condition field values
+                for field_name in self.condition_fields:
+                    if field_name in row_data and row_data[field_name]:
+                        try:
+                            model_field = self.model._meta.get_field(field_name)
+                            if isinstance(model_field, models.ForeignKey):
+                                create_kwargs[f"{field_name}_id"] = row_data[field_name]
+                            else:
+                                create_kwargs[field_name] = row_data[field_name]
+                        except (FieldDoesNotExist, Exception):
+                            pass
+
+                # Add standard fields if they exist
+                if hasattr(self.model, "company"):
+                    create_kwargs["company"] = (
+                        getattr(_thread_local, "request", None).active_company
+                        if hasattr(_thread_local, "request")
+                        else self.request.user.company
+                    )
+
+                if hasattr(self.model, "created_by"):
+                    create_kwargs["created_by"] = self.request.user
+                if hasattr(self.model, "updated_by"):
+                    create_kwargs["updated_by"] = self.request.user
+
+                # Allow child classes to modify create_kwargs before creating instance
+                if hasattr(self, "modify_create_kwargs"):
+                    modify_result = self.modify_create_kwargs(
+                        create_kwargs, row_data, row_id, form
+                    )
+                    if modify_result is False:  # Explicit False means validation failed
+                        return False
+                    if modify_result is None:  # None means skip this row
+                        continue
+                    if isinstance(
+                        modify_result, dict
+                    ):  # Returned modified create_kwargs
+                        create_kwargs = modify_result
+
+                # Create the instance
+                instance = self.model.objects.create(**create_kwargs)
+                created_instances.append(instance)
+
+                # Update unique check cache if method exists
+                if hasattr(self, "update_unique_check_cache"):
+                    self.update_unique_check_cache(
+                        row_data, unique_check_cache, instance
+                    )
+
+            except Exception as e:
+                error_msg = str(e)
+                if "UNIQUE constraint failed" in error_msg:
+                    # Try to get a better error message
+                    if hasattr(self, "get_duplicate_error_message"):
+                        error_msg = self.get_duplicate_error_message(
+                            row_data, error_msg
+                        )
+                validation_errors.append(f"Row {row_id}: {error_msg}")
+
+        # If there are validation errors, add them to form
+        if validation_errors and form:
+            for error in validation_errors:
+                form.add_error(None, error)
+            return False
+
+        return created_instances
+
+    def get_add_condition_url(self):
+        """Return URL that adds a new condition row (with content_type_field if set)."""
+        return single_form_builder.get_add_condition_url(self)
+
+    def get_create_url(self):
+        """Get the create URL for the form"""
+        form_url_value = self.form_url
+        if hasattr(form_url_value, "url"):
+            return form_url_value.url
+        return str(form_url_value)
+
+    def form_valid(self, form):
+        """Save single or multiple instances; redirect or show errors."""
+        if not self.request.user.is_authenticated:
+            messages.error(
+                self.request, "You must be logged in to perform this action."
+            )
+            return self.form_invalid(form)
+
+        # Handle multiple main model instances pattern (no condition_model)
+        if self.condition_fields and not self.condition_model:
+            created_instances = self.save_multiple_main_instances(form)
+            # If save_multiple_main_instances returned False or None, form had errors
+            if created_instances is False:
+                return self.form_invalid(form)
+            # If we have created instances, show success and return
+            if created_instances:
+                self.request.session["condition_row_count"] = 0
+                messages.success(
+                    self.request,
+                    f"Created {len(created_instances)} {self.model._meta.verbose_name.lower()}(s) successfully!",
+                )
+                return HttpResponse(
+                    "<script>$('#reloadButton').click();closeModal();</script>"
+                )
+            # If no instances created but no errors, show error
+            if created_instances == []:
+                form.add_error(
+                    None,
+                    "At least one instance must be created with all required fields.",
+                )
+                return self.form_invalid(form)
+
+        # Standard pattern: save main object
+        self.object = form.save(commit=False)
+
+        for field_name, field in form.fields.items():
+            if isinstance(field, forms.FileField) or isinstance(
+                field, forms.ImageField
+            ):
+                clear_flag = self.request.POST.get(f"id_{field_name}_clear", "false")
+                if clear_flag == "true":
+                    setattr(self.object, field_name, None)
+
+        if self.kwargs.get("pk") and not self.duplicate_mode:
+            self.object.updated_by = self.request.user
+        else:
+            self.object.created_by = self.request.user
+            self.object.updated_by = self.request.user
+        self.object.company = form.cleaned_data.get("company") or (
+            getattr(_thread_local, "request", None).active_company
+            if hasattr(_thread_local, "request")
+            else self.request.user.company
+        )
+        try:
+            self.object.save()
+            form.save_m2m()
+
+            # Save conditions if condition_fields and condition_model are set
+            if self.condition_fields and self.condition_model:
+                self.save_conditions(form)
+
+            self.request.session["condition_row_count"] = 0
+            self.request.session.modified = True
+            action = (
+                _("duplicated")
+                if self.duplicate_mode
+                else (
+                    _("updated")
+                    if self.kwargs.get("pk") and not self.duplicate_mode
+                    else _("created")
+                )
+            )
+
+            messages.success(
+                self.request,
+                _("%(model)s %(action)s successfully!")
+                % {
+                    "model": self.model._meta.verbose_name,
+                    "action": action,
+                },
+            )
+
+            # Check if "save_and_new" button was clicked (only in create mode)
+            if (
+                "save_and_new" in self.request.POST
+                and not self.kwargs.get("pk")
+                and not self.duplicate_mode
+            ):
+                create_url = self.get_create_url()
+                return HttpResponse(
+                    f"<div hx-get='{create_url}' "
+                    f"hx-target='#modalBox' "
+                    f"hx-swap='innerHTML' "
+                    f"hx-trigger='load'>"
+                    f"</div>"
+                    f"<script>$('#reloadButton').click();</script>"
+                )
+
+            # Check if detail_url_name is provided and this is a create operation
+            if (
+                self.detail_url_name
+                and not self.kwargs.get("pk")
+                and not self.duplicate_mode
+            ):
+                detail_url = reverse(
+                    self.detail_url_name, kwargs={"pk": self.object.pk}
+                )
+                # Preserve section parameter from the request
+                if "section" in self.request.GET:
+                    query_string = urlencode(
+                        {"section": self.request.GET.get("section")}
+                    )
+                    detail_url = f"{detail_url}?{query_string}"
+                response = HttpResponse()
+                response["HX-Redirect"] = detail_url
+                return response
+
+            if self.return_response:
+                return self.return_response
+            return HttpResponse(
+                "<script>closeModal();$('#reloadButton').click();</script>"
+            )
+
+        except IntegrityError as e:
+            error_message = str(e)
+
+            field_error_added = False
+
+            if "UNIQUE constraint failed" in error_message:
+                constraint_match = re.search(
+                    r"UNIQUE constraint failed: (.+)", error_message
+                )
+                if constraint_match:
+                    fields_str = constraint_match.group(1)
+                    # Extract field names (remove table prefix)
+                    field_names = [f.split(".")[-1] for f in fields_str.split(", ")]
+
+                    # Try to find which fields are involved
+                    unique_fields = []
+                    for field_name in field_names:
+                        # Remove _id suffix for ForeignKey fields
+                        clean_field_name = field_name.replace("_id", "")
+                        if clean_field_name in form.fields:
+                            unique_fields.append(clean_field_name)
+
+                    if unique_fields:
+                        # Add error to the first field involved
+                        primary_field = unique_fields[0]
+
+                        # Build human-readable message
+                        if len(unique_fields) == 1:
+                            field_label = (
+                                form.fields[primary_field].label or primary_field
+                            )
+                            user_message = _(
+                                "A %(model)s with this %(field)s already exists."
+                            ) % {
+                                "model": self.model._meta.verbose_name,
+                                "field": str(field_label),
+                            }
+                        else:
+                            field_labels = [
+                                str(form.fields[f].label or f) for f in unique_fields
+                            ]
+                            user_message = _(
+                                "A %(model)s with this combination of %(fields)s already exists."
+                            ) % {
+                                "model": self.model._meta.verbose_name,
+                                "fields": ", ".join(field_labels),
+                            }
+
+                        form.add_error(primary_field, user_message)
+                        field_error_added = True
+
+            # If we couldn't parse the error, add a generic error
+            if not field_error_added:
+                form.add_error(
+                    None,
+                    _(
+                        "This %(model)s could not be saved due to a duplicate entry. "
+                        "Please check your input and try again."
+                    )
+                    % {"model": self.model._meta.verbose_name},
+                )
+
+            # Return form with errors
+            return self.form_invalid(form)
+
+        except Exception as e:
+            # Handle any other database errors
+            logger.error(
+                "Error saving %s: %s",
+                self.model._meta.verbose_name,
+                str(e),
+                exc_info=True,
+            )
+            form.add_error(
+                None,
+                _(
+                    "An error occurred while saving. Please try again or contact support."
+                ),
+            )
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        """Re-render form with validation errors."""
+        print(form.errors)
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        """Return success_url or default list URL for the model."""
+        return self.success_url or reverse_lazy(f"{self.model._meta.model_name}-list")

@@ -1,0 +1,254 @@
+"""
+View for rendering a customizable navigation bar with filtering and search capabilities for Horilla's generic list views.
+This view supports pinned views, recently viewed/created/modified filters, saved filter lists.
+"""
+
+# Standard library
+from functools import cached_property
+
+from django.db.models import Q
+
+# Django / third-party imports
+from django.urls import resolve, reverse_lazy
+from django.views.generic import TemplateView
+
+# First-party (Horilla)
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.models import PinnedView, SavedFilterList
+
+
+class HorillaNavView(TemplateView):
+    """View for rendering the navigation bar with filtering and search capabilities."""
+
+    template_name = "navbar.html"
+    nav_title: str = ""
+    filterset_class = None
+    search_url: str = ""
+    main_url: str = ""
+    kanban_url: str = ""
+    group_by_url: str = ""
+    default_layout: str = (
+        "list"  # "list", "kanban", or "group_by" when no layout in URL
+    )
+    actions: list = []
+    new_button: dict = None
+    second_button: dict = None
+    model_name: str = ""
+    model_app_label: str = ""
+    custom_view_type: dict = {}
+    nav_width = True
+    recently_viewed_option = True
+    all_view_types = True
+    filter_option = True
+    one_view_only = False
+    reload_option = True
+    border_enabled = True
+    search_option = True
+    navbar_indication = False
+    gap_enabled = True
+    navbar_indication_attrs: dict = {}
+    exclude_kanban_fields: str = ""
+    column_selector_exclude_fields = []
+    enable_actions = False
+    search_push_url = True
+    enable_quick_filters = False  # Set to True in child classes to enable
+
+    def get_navbar_indication_attrs(self):
+        """Return additional attributes for navbar indication when enabled."""
+        if self.navbar_indication:
+            return self.navbar_indication_attrs
+        return None
+
+    def get_default_view_type(self):
+        """Return the pinned view_type if available, else 'all'."""
+        pinned_view = PinnedView.all_objects.filter(
+            user=self.request.user, model_name=self.model_name
+        ).first()
+        return pinned_view.view_type if pinned_view else "all"
+
+    def get_valid_view_types(self):
+        """Return a set of all valid view type values."""
+        valid_types = {"all", "recently_created", "recently_modified"}
+
+        if self.recently_viewed_option:
+            valid_types.add("recently_viewed")
+
+        # Add custom view types
+        if self.custom_view_type:
+            valid_types.update(self.custom_view_type.keys())
+
+        # Add saved filter list view types
+        saved_lists = SavedFilterList.all_objects.filter(
+            model_name=self.model_name
+        ).filter(Q(user=self.request.user) | Q(is_public=True))
+        for saved_list in saved_lists:
+            valid_types.add(f"saved_list_{saved_list.id}")
+
+        return valid_types
+
+    def show_list_only(self):
+        """Check if kanban should be hidden based on current view type."""
+        current_view_type = (
+            self.request.GET.get("view_type") or self.get_default_view_type()
+        )
+
+        # Check if current view type has hide_kanban setting
+        for view_key, view_config in self.custom_view_type.items():
+            if view_key == current_view_type:
+                if isinstance(view_config, dict):
+                    return view_config.get("show_list_only", False)
+                break
+        return False
+
+    def get_context_data(self, **kwargs):
+        """Add effective_layout, nav_title, search_url, and search_push_url to context."""
+        context = super().get_context_data(**kwargs)
+        context["effective_layout"] = self.request.GET.get("layout") or getattr(
+            self, "default_layout", "list"
+        )
+        context["nav_title"] = self.nav_title
+        context["search_url"] = self.search_url or self.request.path
+        context["search_push_url"] = "true" if self.search_push_url else "false"
+        context["main_url"] = self.main_url or self.request.path
+        context["kanban_url"] = self.kanban_url
+        context["kanban_view_url"] = self.kanban_url
+        context["group_by_url"] = getattr(self, "group_by_url", None) or ""
+        context["group_by_view_url"] = getattr(self, "group_by_url", None) or ""
+        context["actions"] = self.actions
+        context["new_button"] = self.new_button or {}
+        context["second_button"] = self.second_button or {}
+        context["model_name"] = self.model_name
+        context["model_app_label"] = self.model_app_label
+        context["nav_width"] = self.nav_width
+
+        # Get view_type from request or default, and validate it
+        requested_view_type = (
+            self.request.GET.get("view_type") or self.get_default_view_type()
+        )
+        valid_view_types = self.get_valid_view_types()
+
+        # If the requested view_type is not in valid choices, default to 'all'
+        if requested_view_type not in valid_view_types:
+            context["view_type"] = "all"
+        else:
+            context["view_type"] = requested_view_type
+
+        context["show_list_only"] = self.show_list_only()
+        context["custom_view_type"] = self.custom_view_type
+        context["pinned_view"] = PinnedView.all_objects.filter(
+            user=self.request.user, model_name=self.model_name
+        ).first()
+        context["recently_viewed_option"] = self.recently_viewed_option
+        context["all_view_types"] = self.all_view_types
+        context["filter_option"] = self.filter_option
+        context["one_view_only"] = self.one_view_only
+        context["reload_option"] = self.reload_option
+        context["search_option"] = self.search_option
+        context["border_enabled"] = self.border_enabled
+        context["navbar_indication"] = self.navbar_indication
+        context["gap_enabled"] = self.gap_enabled
+        context["enable_actions"] = self.enable_actions
+        context["navbar_indication_attrs"] = self.get_navbar_indication_attrs()
+        # Saved filter lists: user's own + public ones for this model (by position)
+        context["available_saved_filter_lists"] = list(
+            SavedFilterList.all_objects.filter(model_name=self.model_name)
+            .filter(Q(user=self.request.user) | Q(is_public=True))
+            .order_by("-is_public", "name")
+        )
+        return context
+
+    @cached_property
+    def actions(self):
+        """Actions"""
+        if not self.enable_actions:
+            return []
+        view_perm = f"{self.model_app_label}.view_{self.model_name.lower()}"
+        view_own_perm = f"{self.model_app_label}.view_own_{self.model_name.lower()}"
+        can_create_perm = f"{self.model_app_label}.add_{self.model_name.lower()}"
+        resolved = resolve(str(self.search_url))
+        single_import = True
+        url_name = resolved.url_name
+
+        actions = []
+        if self.request.user.has_perm(view_perm) or self.request.user.has_perm(
+            view_own_perm
+        ):
+            if self.request.user.has_perm(can_create_perm):
+                actions.append(
+                    {
+                        "action": _("Import"),
+                        "attrs": f"""
+                        hx-get="{reverse_lazy('horilla_core:import_data')}?single_import={str(single_import).lower()}&model_name={self.model_name}&app_label={self.model_app_label}"
+                        onclick="openModal()"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        """,
+                    }
+                )
+
+            column_selector_url = (
+                f"{reverse_lazy('horilla_generics:column_selector')}"
+                f"?app_label={self.model_app_label}&model_name={self.model_name}&url_name={url_name}"
+            )
+            exclude_cols = getattr(self, "column_selector_exclude_fields", None)
+            if exclude_cols:
+                exclude_list = (
+                    exclude_cols
+                    if isinstance(exclude_cols, (list, tuple))
+                    else [f.strip() for f in str(exclude_cols).split(",") if f.strip()]
+                )
+                if exclude_list:
+                    column_selector_url += "&exclude=" + ",".join(exclude_list)
+            list_actions = [
+                {
+                    "action": _("Kanban Settings"),
+                    "attrs": f"""
+                    hx-get="{reverse_lazy('horilla_generics:create_kanban_group')}?model={self.model_name}&app_label={self.model_app_label}&exclude_fields={self.exclude_kanban_fields}&view_type=kanban"
+                    onclick="openModal()"
+                    hx-target="#modalBox"
+                    hx-swap="innerHTML"
+                    """,
+                },
+            ]
+            if getattr(self, "group_by_url", None):
+                list_actions.append(
+                    {
+                        "action": _("Group By Settings"),
+                        "attrs": f"""
+                        hx-get="{reverse_lazy('horilla_generics:create_kanban_group')}?model={self.model_name}&app_label={self.model_app_label}&exclude_fields={self.exclude_kanban_fields}&view_type=group_by"
+                        onclick="openModal()"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        """,
+                    }
+                )
+            list_actions.append(
+                {
+                    "action": "Add Column to List",
+                    "attrs": f"""
+                        hx-get="{column_selector_url}"
+                        onclick="openModal()"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        """,
+                }
+            )
+            actions.extend(list_actions)
+
+            # Add Quick Filter action if enabled
+            if self.enable_quick_filters:
+                search_url = (
+                    str(self.search_url) if self.search_url else self.request.path
+                )
+                actions.append(
+                    {
+                        "action": _("Add Quick Filter"),
+                        "attrs": f"""
+                        hx-get="{search_url}?show_add_quick_filter=true"
+                        onclick="openModal()"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        """,
+                    }
+                )
+        return actions
