@@ -7,6 +7,7 @@ add_condition_row, get_add_condition_url, save_conditions), and build_condition_
 import json
 
 from django import forms
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.http import HttpResponse, QueryDict
 from django.template.loader import render_to_string
@@ -16,6 +17,52 @@ from horilla_core.mixins import OwnerQuerysetMixin
 from horilla_generics.forms import HorillaModelForm
 from horilla_generics.views.helpers import GetFieldValueWidgetView
 from horilla_utils.middlewares import _thread_local
+
+# -----------------------------------------------------------------------------
+# Condition row helpers
+# -----------------------------------------------------------------------------
+
+
+def fill_mandatory_condition_defaults(condition_model, condition_fields, row_data):
+    """
+    Fill missing mandatory (NOT NULL, not blank) condition fields in row_data
+    with sensible defaults so DB constraint errors are avoided when a field
+    is required but not shown or submitted in the form.
+
+    - Uses the model field's default if set.
+    - For fields with choices (e.g. CharField with choices), uses the first
+      choice value.
+    - Does not fill ForeignKey fields without a default (no safe generic default).
+
+    Returns a new dict; does not mutate row_data.
+    """
+    if not condition_model or not condition_fields:
+        return dict(row_data)
+    row_data = dict(row_data)
+    for field_name in condition_fields:
+        try:
+            model_field = condition_model._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            continue
+        # Only fill when field is mandatory (NOT NULL and not blank)
+        if model_field.null or model_field.blank:
+            continue
+        value = row_data.get(field_name)
+        if value is not None and value != "":
+            continue
+        default_value = None
+        if model_field.has_default():
+            default_value = model_field.default
+            if callable(default_value):
+                default_value = default_value()
+        elif getattr(model_field, "choices", None):
+            choices = list(model_field.choices)
+            if choices:
+                default_value = choices[0][0]
+        if default_value is not None:
+            row_data[field_name] = default_value
+    return row_data
+
 
 # -----------------------------------------------------------------------------
 # Dynamic form builder
@@ -601,6 +648,9 @@ def save_conditions(view, form=None):
         order = 0
         for row_id in sorted(condition_data.keys(), key=sort_key):
             row_data = condition_data[row_id]
+            row_data = fill_mandatory_condition_defaults(
+                view.condition_model, view.condition_fields, row_data
+            )
             required_fields = ["field", "operator"]
             if not all(
                 row_data.get(f) for f in required_fields if f in view.condition_fields
