@@ -230,3 +230,48 @@ body.dark .group-by-details .group-by-summary span.text-primary-600 {
 body.dark .group-by-details .group-by-summary .fa-chevron-down {
   color: #f07a6a !important;
 }
+
+/* Calendar: dark theme variables so year/month view cells and text are visible */
+body.dark .fc,
+body.dark .fc .fc-scrollgrid {
+  --fc-page-bg-color: #2a2a2a;
+  --fc-neutral-bg-color: #3f3f3f;
+  --fc-neutral-text-color: rgba(255, 255, 255, 0.9);
+  --fc-border-color: #565656;
+}
+body.dark .fc .fc-multimonth-daygrid {
+  background: #2a2a2a !important;
+}
+/* Calendar year view: ensure date numbers are visible in dark theme */
+body.dark .fc .fc-daygrid-day-number,
+body.dark .fc .fc-multimonth .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Calendar detail popup: dark background; labels/links use primary (match light theme), values stay light */
+body.dark #calendarPopup {
+  background-color: #2f2f2f !important;
+  border-color: #565656 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+/* Only value cells (not labels): light text for readability */
+body.dark #popupContent .grid > div:not(.text-primary-600) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+/* Labels: keep primary-600 color in dark theme (same as white theme) */
+body.dark #popupContent .text-primary-600 {
+  color: #f07a6a !important;
+}
+body.dark #popupContent h5.bg-primary-300 {
+  background-color: #3f3f3f !important;
+  color: #f07a6a !important;
+}
+body.dark #popupContent button.bg-primary-100 {
+  background-color: #3f3f3f !important;
+  border-color: #565656 !important;
+  color: #e54f38 !important;
+}
+body.dark #popupContent button.bg-primary-100:hover {
+  background-color: #4a3f3f !important;
+  color: #f07a6a !important;
+}
