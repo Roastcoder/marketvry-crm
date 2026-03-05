@@ -5,11 +5,14 @@ Contains helper functions (excluded models, nullable check, FK name, context bui
 and mixins (dependency checking, pagination, bulk/individual reassign, main object deletion).
 """
 
+# Standard library imports
 import logging
 
-from django.apps import apps
-from django.core.exceptions import ObjectDoesNotExist
+# First-party (Horilla)
+from horilla.apps import apps
+from horilla.core.exceptions import ObjectDoesNotExist
 
+# First-party / Horilla apps
 from horilla_core.models import RecycleBin
 
 logger = logging.getLogger(__name__)
@@ -319,7 +322,8 @@ class DeleteDependencyMixin:
             }
 
     def _dependent_records_from_cannot_delete(self, cannot_delete, limit=8):
-        """Build dependent_records, related_model, is_nullable, has_more from cannot_delete."""
+        """Build dependent_records, related_model, is_nullable, has_more from cannot_delete.
+        Pass limit=None to return all dependent records (no slicing)."""
         dependent_records = []
         related_model = None
         is_nullable = False
@@ -330,8 +334,11 @@ class DeleteDependencyMixin:
                 related_model = dep["related_model"]
                 all_dependent_records.extend(dep["related_records"])
                 is_nullable = self._is_field_nullable(related_model)
-            dependent_records = all_dependent_records[:limit]
-            has_more = len(all_dependent_records) > limit
+            if limit is not None:
+                dependent_records = all_dependent_records[:limit]
+                has_more = len(all_dependent_records) > limit
+            else:
+                dependent_records = all_dependent_records
         return dependent_records, related_model, is_nullable, has_more
 
 

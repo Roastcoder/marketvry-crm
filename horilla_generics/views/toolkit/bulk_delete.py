@@ -170,7 +170,7 @@ class HorillaBulkDeleteMixin:
 
                         if delete_type == "soft":
                             deleted_count = HorillaBulkDeleteMixin._perform_soft_delete(
-                                self, record_ids_list
+                                self, can_delete_ids
                             )
                             messages.success(
                                 request,
@@ -217,12 +217,20 @@ class HorillaBulkDeleteMixin:
                 logger.error("JSON decode error: %s", e)
                 return HttpResponse("Invalid JSON data for record_ids", status=400)
 
-        # Delete a single dependency for one record
+        # Delete a single dependency for one record (hard or soft)
         if action == "delete_item_with_dependencies" and request.POST.get("record_id"):
             try:
                 item_id = int(request.POST.get("record_id"))
                 selected_ids = json.loads(request.POST.get("selected_ids", "[]"))
                 selected_data = [int(id) for id in selected_ids] if selected_ids else []
+                is_soft = request.POST.get("delete_type") == "soft"
+                if is_soft:
+                    context = (
+                        HorillaBulkDeleteMixin._soft_delete_item_with_dependencies(
+                            self, item_id, record_ids, selected_data
+                        )
+                    )
+                    return render(request, "partials/soft_delete_form.html", context)
                 context = HorillaBulkDeleteMixin._delete_item_with_dependencies(
                     self, item_id, record_ids, selected_data
                 )
@@ -232,14 +240,25 @@ class HorillaBulkDeleteMixin:
                 self.object_list = self.get_queryset()
                 context = self.get_context_data()
                 context["error_message"] = "Invalid JSON data for record_ids."
-                return render(request, "partials/bulk_delete_form.html", context)
+                template = (
+                    "partials/soft_delete_form.html"
+                    if request.POST.get("delete_type") == "soft"
+                    else "partials/bulk_delete_form.html"
+                )
+                return render(request, template, context)
 
-        # Delete all dependencies for one record
+        # Delete all dependencies for one record (hard or soft)
         if action == "delete_all_dependencies" and request.POST.get("record_id"):
             try:
                 item_id = int(request.POST.get("record_id"))
                 selected_ids = json.loads(request.POST.get("selected_ids", "[]"))
                 selected_data = [int(id) for id in selected_ids] if selected_ids else []
+                is_soft = request.POST.get("delete_type") == "soft"
+                if is_soft:
+                    context = HorillaBulkDeleteMixin._soft_delete_all_dependencies(
+                        self, item_id, selected_data
+                    )
+                    return render(request, "partials/soft_delete_form.html", context)
                 context = HorillaBulkDeleteMixin._delete_all_dependencies(
                     self, item_id, selected_data
                 )
@@ -249,13 +268,23 @@ class HorillaBulkDeleteMixin:
                 self.object_list = self.get_queryset()
                 context = self.get_context_data()
                 context["error_message"] = "Invalid JSON data for record_ids."
-                return render(request, "partials/bulk_delete_form.html", context)
+                template = (
+                    "partials/soft_delete_form.html"
+                    if request.POST.get("delete_type") == "soft"
+                    else "partials/bulk_delete_form.html"
+                )
+                return render(request, template, context)
             except ValueError as e:
                 logger.error("Value error: %s", str(e))
                 self.object_list = self.get_queryset()
                 context = self.get_context_data()
                 context["error_message"] = "Invalid record ID provided."
-                return render(request, "partials/bulk_delete_form.html", context)
+                template = (
+                    "partials/soft_delete_form.html"
+                    if request.POST.get("delete_type") == "soft"
+                    else "partials/bulk_delete_form.html"
+                )
+                return render(request, template, context)
 
         # Not a bulk delete–related request
         return None
@@ -519,6 +548,193 @@ class HorillaBulkDeleteMixin:
                     "selected_ids": selected_data,
                     "selected_ids_json": json.dumps(selected_data),
                     "error_message": f"Hard delete of dependencies failed: {str(e)}",
+                }
+            )
+            return context
+
+    def _soft_delete_all_dependencies(self, item_id, selected_data):
+        """
+        Soft delete all dependencies of a single record; re-check and return
+        context for soft_delete_form.
+        """
+        try:
+            if isinstance(selected_data, int):
+                selected_data = [selected_data]
+            elif not isinstance(selected_data, (list, tuple)):
+                selected_data = []
+
+            if item_id not in selected_data:
+                selected_data.append(item_id)
+
+            record = self.model.objects.get(id=item_id)
+            related_objects = self.model._meta.related_objects
+
+            total_deleted_count = 0
+            deleted_models = []
+
+            for related in related_objects:
+                related_model = related.related_model
+                field_name = related.field.name
+                filter_kwargs = {field_name: record}
+                manager = getattr(
+                    related_model,
+                    "objects",
+                    getattr(related_model, "all_objects", None),
+                )
+                if manager is None:
+                    raise AttributeError(
+                        f"No manager ('objects' or 'all_objects') defined for {related_model.__name__}"
+                    )
+                dependent_records = list(manager.filter(**filter_kwargs))
+
+                if dependent_records:
+                    for dep_record in dependent_records:
+                        RecycleBin.create_from_instance(
+                            dep_record, user=self.request.user
+                        )
+                        dep_record.delete()
+                    total_deleted_count += len(dependent_records)
+                    deleted_models.append(
+                        f"{related_model._meta.verbose_name_plural} ({len(dependent_records)})"
+                    )
+
+            cannot_delete, can_delete, _ = HorillaBulkDeleteMixin._check_dependencies(
+                self, selected_data
+            )
+
+            can_delete_count = len(can_delete)
+            if deleted_models:
+                deleted_summary = ", ".join(deleted_models)
+                success_message = f"Successfully soft deleted {total_deleted_count} dependencies: {deleted_summary}"
+            else:
+                success_message = f"No dependencies found for '{record}'"
+
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "cannot_delete": cannot_delete,
+                    "can_delete": can_delete,
+                    "cannot_delete_count": len(cannot_delete),
+                    "can_delete_count": can_delete_count,
+                    "success_message": success_message,
+                    "model_verbose_name": self.model._meta.verbose_name_plural,
+                }
+            )
+            return context
+
+        except self.model.DoesNotExist:
+            logger.error("Record with ID %s does not exist.", item_id)
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "error_message": f"Record with ID {item_id} does not exist.",
+                }
+            )
+            return context
+        except Exception as e:
+            logger.error("Soft delete of all dependencies failed: %s", str(e))
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "error_message": f"Soft delete of all dependencies failed: {str(e)}",
+                }
+            )
+            return context
+
+    def _soft_delete_item_with_dependencies(self, item_id, record_ids, selected_data):
+        """
+        Soft delete only the specified dependency of a single record; re-check
+        and return context for soft_delete_form.
+        """
+        try:
+            if isinstance(selected_data, int):
+                selected_data = [selected_data]
+            elif not isinstance(selected_data, (list, tuple)):
+                selected_data = []
+
+            if item_id not in selected_data:
+                selected_data.append(item_id)
+
+            record = self.model.objects.get(id=item_id)
+            dep_model_name = self.request.POST.get("dep_model_name")
+            related_objects = self.model._meta.related_objects
+
+            deleted_count = 0
+            for related in related_objects:
+                related_model = related.related_model
+                if related_model._meta.verbose_name_plural == dep_model_name:
+                    field_name = related.field.name
+                    filter_kwargs = {field_name: record}
+                    manager = getattr(
+                        related_model,
+                        "objects",
+                        getattr(related_model, "all_objects", None),
+                    )
+                    if manager is None:
+                        raise AttributeError(
+                            f"No manager ('objects' or 'all_objects') defined for {related_model.__name__}"
+                        )
+                    dependent_records = manager.filter(**filter_kwargs)
+
+                    for dep_record in dependent_records:
+                        RecycleBin.create_from_instance(
+                            dep_record, user=self.request.user
+                        )
+                        dep_record.delete()
+                        deleted_count += 1
+
+            cannot_delete, can_delete, _ = HorillaBulkDeleteMixin._check_dependencies(
+                self, selected_data
+            )
+
+            can_delete_count = len(can_delete)
+
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "cannot_delete": cannot_delete,
+                    "can_delete": can_delete,
+                    "cannot_delete_count": len(cannot_delete),
+                    "can_delete_count": can_delete_count,
+                    "success_message": f"Successfully soft deleted {deleted_count} '{dep_model_name}' dependencies of '{record}'.",
+                    "model_verbose_name": self.model._meta.verbose_name_plural,
+                }
+            )
+            return context
+
+        except self.model.DoesNotExist:
+            logger.error("Record with ID %s does not exist.", item_id)
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "error_message": f"Record with ID {item_id} does not exist.",
+                }
+            )
+            return context
+        except Exception as e:
+            logger.error("Soft delete of dependencies failed: %s", str(e))
+            self.object_list = self.get_queryset()
+            context = self.get_context_data()
+            context.update(
+                {
+                    "selected_ids": selected_data,
+                    "selected_ids_json": json.dumps(selected_data),
+                    "error_message": f"Soft delete of dependencies failed: {str(e)}",
                 }
             )
             return context

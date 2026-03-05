@@ -20,14 +20,11 @@
                 <input type="hidden" name="record_id" value="{{ record.id }}">
                 <input type="hidden" name="main_record_id" value="{{ main_record_id }}">
                 <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
-
                 <button type="submit"
                         hx-on::before-request="this.classList.add('opacity-50')"
                         hx-on::after-request="this.classList.remove('opacity-50')"
-                        class="text-sm px-1 py-2 bg-[#6b7280] text-white rounded-md hover:bg-[#4b5563]"
-                        style="width:80px;"
                         title="{% trans 'Set to Null' %}">
-                    {% trans 'Set Null' %}
+                    <img src="{% static 'assets/icons/null.svg' %}" alt="{% trans 'Set Null' %}" width="17" />
                 </button>
             </form>
         {% endif %}
