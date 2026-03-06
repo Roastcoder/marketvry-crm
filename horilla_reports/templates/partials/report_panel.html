@@ -1,5 +1,20 @@
 {% load reports_tags %}
 {% load static  i18n %}
+<style>
+    #aggregate-container .select2-container .select2-selection--single {
+        height: 26px !important;
+    }
+    #aggregate-container .select2-container--default .select2-selection--single {
+        height: 26px !important;
+    }
+    #aggregate-container .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px !important;
+    }
+    #aggregate-container .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 24px !important;
+        top: 0.5px !important;
+    }
+</style>
 <div id="panel" class="transition-all duration-300 w-[350px] bg-white [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] rounded-lg h-[calc(100vh-205px)] ms-4 flex flex-col">
     <div class="p-4 flex flex-col h-full overflow-hidden">
       <div class="mb-4 border-b border-[#dddddd] flex-shrink-0">
@@ -247,7 +262,7 @@
 
                   <!-- Remove Button -->
                   <button
-                    class="absolute right-2 top-4 text-xl leading-none text-gray-600 hover:text-red-600"
+                    class="absolute right-2 top-3 text-xl leading-none text-gray-600 hover:text-red-600"
                     hx-post="{% url 'horilla_reports:remove_aggregate_column' report.pk %}"
                     hx-vals='{"field_name": "{{ agg.field }}"}'
                     hx-target="#report-content"
@@ -265,7 +280,7 @@
                   </p>
 
                   <!-- Select Area -->
-                  <div class="w-auto h-auto">
+                  <div id="aggregate-container" class="w-auto h-auto">
                     <select
                       class="js-example-basic-single w-full h-full"
                       hx-post="{% url 'horilla_reports:update_aggregate_function' report.pk %}"
