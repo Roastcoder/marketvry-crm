@@ -7,10 +7,11 @@ from django.conf import settings
 from django.db import models
 from django.utils.html import format_html
 
-# First-party imports (Horilla)
 from horilla.core.exceptions import ValidationError
-from horilla.registry.feature import FEATURE_REGISTRY
+from horilla.registry.limiters import limit_content_types
 from horilla.registry.permission_registry import permission_exempt_model
+
+# First-party imports (Horilla)
 from horilla.urls import reverse_lazy
 from horilla.utils.choices import OPERATOR_CHOICES
 from horilla.utils.translation import gettext_lazy as _
@@ -21,20 +22,6 @@ from horilla_mail.models import HorillaMailConfiguration, HorillaMailTemplate
 from horilla_notifications.models import NotificationTemplate
 
 # Create your horilla_automations models here.
-
-
-def limit_content_types():
-    """
-    Limit ContentType choices to only models that have
-    'automation_includable = True' or are registered for automation.
-    """
-    includable_models = []
-    for model in FEATURE_REGISTRY.get("automation_models", []):
-        includable_models.append(model._meta.model_name.lower())
-
-    return models.Q(model__in=includable_models)
-
-
 CONDITIONS = [
     ("equal", _("Equal (==)")),
     ("notequal", _("Not Equal (!=)")),
@@ -70,7 +57,7 @@ class HorillaAutomation(HorillaCoreModel):
     model = models.ForeignKey(
         HorillaContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=limit_content_types,
+        limit_choices_to=limit_content_types("automation_models"),
         verbose_name=_("Module"),
     )
     mail_to = models.TextField(
