@@ -5,21 +5,22 @@ import mimetypes
 import re
 
 # Third party imports (Django)
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
 from django.template import engines
 
 from horilla.core.exceptions import ValidationError
 
-# First-party (Horilla)
+# First-party imports (Horilla)
+from horilla.db import models
+from horilla.registry.limiters import limit_content_types
 from horilla.urls import reverse_lazy
 from horilla.utils.translation import gettext_lazy as _
 from horilla.utils.upload import upload_path
+
+# First-party / Horilla apps
 from horilla_core.models import HorillaContentType, HorillaCoreModel
 from horilla_mail.encryption_utils import decrypt_password
 from horilla_mail.fields import EncryptedCharField
-from horilla_mail.methods import limit_content_types
 from horilla_utils.methods import has_xss, render_template
 from horilla_utils.middlewares import _thread_local
 
@@ -226,7 +227,7 @@ class HorillaMail(HorillaCoreModel):
     body = models.TextField(blank=True, null=True, verbose_name=_("Body"))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    related_to = GenericForeignKey("content_type", "object_id")
+    related_to = models.GenericForeignKey("content_type", "object_id")
     mail_status = models.CharField(
         max_length=20, choices=MAIL_STATUS_CHOICES, default="draft"
     )
@@ -410,7 +411,7 @@ class HorillaMailTemplate(HorillaCoreModel):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        limit_choices_to=limit_content_types,
+        limit_choices_to=limit_content_types("mail_template_models"),
         verbose_name=_("Related Model"),
     )
 
