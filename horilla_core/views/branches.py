@@ -9,15 +9,14 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponse
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, TemplateView
 
-from horilla.http import HorillaRefreshResponse, HttpNotFound
+from horilla.http import HttpNotFound, HttpResponse, RefreshResponse
 
-# Horilla first-party imports
+# First-party imports (Horilla)
 from horilla.urls import reverse_lazy
 from horilla.utils.decorators import (
     htmx_required,
@@ -30,6 +29,8 @@ from horilla_core.filters import CompanyFilter
 from horilla_core.forms import CompanyFormClassSingle, CompanyMultistepFormClass
 from horilla_core.models import Company
 from horilla_core.signals import company_created
+
+# First-party / Horilla apps
 from horilla_generics.views import (
     HorillaListView,
     HorillaMultiStepFormView,
@@ -211,7 +212,7 @@ class BranchDetailView(LoginRequiredMixin, DetailView):
         except Exception as e:
             if request.headers.get("HX-Request") == "true":
                 messages.error(self.request, e)
-                return HorillaRefreshResponse(request)
+                return RefreshResponse(request)
             raise HttpNotFound(e)
         return super().dispatch(request, *args, **kwargs)
 

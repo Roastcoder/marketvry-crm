@@ -6,11 +6,10 @@ This module defines the HorillaAttachment model,
 import logging
 
 # Django imports
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
 
 # First-party / Horilla imports
+from horilla.db import models
 from horilla.urls import reverse_lazy
 from horilla.utils.translation import gettext_lazy as _
 from horilla.utils.upload import upload_path
@@ -42,7 +41,7 @@ class HorillaAttachment(HorillaCoreModel):
         verbose_name=_("Related Object ID"),
         help_text=_("The ID of the object this attachment is related to."),
     )
-    related_object = GenericForeignKey("content_type", "object_id")
+    related_object = models.GenericForeignKey("content_type", "object_id")
     file = models.FileField(
         _("File"),
         upload_to=upload_path,
