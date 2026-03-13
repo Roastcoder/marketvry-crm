@@ -36,7 +36,7 @@ from horilla_generics.views import HorillaListView
 logger = logging.getLogger(__name__)
 
 
-class GetModelFieldsView(View):
+class GetModelFieldsView(LoginRequiredMixin, View):
     """HTMX view to get model fields when module is selected"""
 
     def get(self, request, *args, **kwargs):
@@ -135,7 +135,7 @@ class GetModelFieldsView(View):
     permission_required_or_denied("horilla_core.can_view_horilla_import"),
     name="dispatch",
 )
-class UpdateFieldStatusView(View):
+class UpdateFieldStatusView(LoginRequiredMixin, View):
     """HTMX view to update field mapping status"""
 
     def post(self, request, *args, **kwargs):
@@ -160,7 +160,7 @@ class UpdateFieldStatusView(View):
     permission_required_or_denied("horilla_core.can_view_horilla_import"),
     name="dispatch",
 )
-class GetUniqueValuesView(View):
+class GetUniqueValuesView(LoginRequiredMixin, View):
     """HTMX view to get unique values for a selected file header with auto-mapping"""
 
     def get(self, request, *args, **kwargs):
@@ -259,7 +259,7 @@ class GetUniqueValuesView(View):
     permission_required_or_denied("horilla_core.can_view_horilla_import"),
     name="dispatch",
 )
-class UpdateValueMappingStatusView(View):
+class UpdateValueMappingStatusView(LoginRequiredMixin, View):
     """View to update value mapping status"""
 
     def post(self, request, *args, **kwargs):
@@ -377,7 +377,6 @@ class ImportHistoryView(LoginRequiredMixin, HorillaListView):
     search_url = reverse_lazy("horilla_core:import_history_view")
     main_url = reverse_lazy("horilla_core:import_history_view")
     table_width = False
-    table_height = False
     table_height_as_class = "h-[58vh]"
 
     header_attrs = [
