@@ -10,12 +10,8 @@
             {% for item in main_section_menu %}
                 {% has_section_perm_url request.user item.section as perm_url %}
                 {% if perm_url %}
-                    <a href="{{ perm_url }}?section={{ item.section }}" class="nav-link group relative" id="{{ item.section }}">
-                        <img src="{% static item.icon %}" alt="{{ item.name }}" class="w-5 h-5" />
-                        <div
-                            class="absolute left-full ml-1 bg-[#000000] text-[.7rem] leading-[10px] rounded-[5px] px-2 py-1 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                            <p>{{ item.name }}</p>
-                        </div>
+                    <a href="{{ perm_url }}?section={{ item.section }}" class="nav-link" id="{{ item.section }}" title="{{ item.name }}" aria-label="{{ item.name }}" data-tooltip-placement="right">
+                        <img src="{% static item.icon %}" alt="" class="w-5 h-5" />
                     </a>
                 {% endif %}
             {% endfor %}
@@ -23,15 +19,22 @@
     </div>
     {% if floating_menu %}
         <div class="floating-menu bg-primary-600">
-            <input type="checkbox" name="floating-menu">
+            <input type="checkbox" name="floating-menu"
+                title="{% trans 'Quick actions' %}"
+                aria-label="{% trans 'Quick actions' %}"
+                data-tooltip-placement="right">
             <span class="plus-icon bg-primary-600">
                 <span class="fa fa-plus" aria-hidden="true"></span>
             </span>
             <ul class="floating-nav">
                 {% for menu in floating_menu %}
-                    <li hx-get="{{ menu.url }}?{{ request.GET.urlencode }}" {% for key, value in menu.items.items %} {{ key }}="{{ value }}" {% endfor %} class="bg-primary-600">
-                        <img src="{% static menu.icon %}" alt="{% trans 'Icon' %}" width="17" class="w-4 h-4 brightness-0 invert" />
-                        <span class="text">{{ menu.title }}</span>
+                    <li hx-get="{{ menu.url }}?{{ request.GET.urlencode }}" {% for key, value in menu.items.items %} {{ key }}="{{ value }}" {% endfor %} class="bg-primary-600"
+                        title="{{ menu.title }}"
+                        aria-label="{{ menu.title }}"
+                        data-tooltip-placement="right"
+                        role="button"
+                        tabindex="0">
+                        <img src="{% static menu.icon %}" alt="" width="17" class="w-4 h-4 brightness-0 invert" />
                     </li>
                 {% endfor %}
             </ul>

@@ -1,7 +1,10 @@
 {% load static i18n horilla_tags %}
 
 <div class="relative dropdown-wrapper" id="notificationWrapper">
-    <button class="flex justify-center items-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300 relative">
+    <button type="button"
+        title="{% trans 'Notifications' %}"
+        aria-label="{% trans 'Notifications' %}"
+        class="flex justify-center items-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300 relative">
         <i class="fas fa-bell transition duration-300 group-hover:text-white"></i>
         <span id="notification-count"
             class="notification-count absolute -top-2 -right-2 lg:-top-1 lg:-right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
@@ -20,7 +23,9 @@
                 class="cursor-pointer text-xs group text-primary-600 w-7 h-7 bg-primary-100 hover:bg-primary-600 hover:text-white rounded-full transition duration-300 flex items-center justify-center">
                 <i class="fa-solid fa-volume-high"></i>
             </span>
-            <button
+            <button type="button"
+                title="{% trans 'Mark all as read' %}"
+                aria-label="{% trans 'Mark all as read' %}"
                 hx-post="{% url 'horilla_notifications:mark_all_read' %}"
                 hx-target="#notificationWrapper"
                 hx-swap="outerHTML"
@@ -67,18 +72,22 @@
         </div>
         <div class="p-3 border-t border-t-dark-50 flex justify-center">
             <button
-                class="toggleSidemenu text-primary-600 text-xs flex justify-center font-semibold hover:text-[#ac3b2a] transition duration-300"
-                data-sidebar="sidebarModal3">{% trans "View all Notification" %}
+                type="button"
+                class="text-primary-600 text-xs flex justify-center font-semibold hover:text-[#ac3b2a] transition duration-300"
+                onclick="openSidebar('sidebarModal3')">
+                {% trans "View all Notification" %}
             </button>
         </div>
     </div>
 </div>
 
-<div class="sidebarModal hidden overflow-hidden overflow-y-auto" id="sidebarModal3">
+<div class="sidebarModal hidden overflow-hidden overflow-y-auto bg-white" id="sidebarModal3">
     <div class="">
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-semibold flex items-center gap-2">
-                <button class="closebtn closeSidemenu" data-sidebar="sidebarModal3"><i class="fa-solid fa-angle-right"></i></button>
+                <button type="button" class="closebtn" onclick="closeSidebar('sidebarModal3')">
+                    <i class="fa-solid fa-angle-right"></i>
+                </button>
                 {% trans "All Notifications" %}
             </h3>
             <button

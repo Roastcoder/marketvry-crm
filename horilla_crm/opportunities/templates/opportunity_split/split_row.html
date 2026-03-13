@@ -64,7 +64,9 @@
     <td class="py-3 px-8 text-center border border-[#e9e9e9]">
         <div class="flex tablebtn">
             <button type="button"
-                    class="delete-row-btn rounded-md group relative w-10 h-7 bg-dark-50 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                    class="delete-row-btn rounded-md w-10 h-7 bg-dark-50 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                    title="{% trans 'Delete' %}"
+                    aria-label="{% trans 'Delete' %}"
                     hx-on:click="
                         const row = this.closest('tr');
                         const form = document.getElementById('split-form-{{ split_type.id }}');
@@ -88,10 +90,7 @@
                         }, 100);
                     "
                     >
-                <img src="{% static "assets/icons/a4.svg" %}" alt="{% trans 'Delete' %}" width="16" class="">
-                <div class="min-w-max z-50 absolute h-auto py-[3px] px-[15px] right-[40px] top-0 bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <p>{% trans 'Delete' %}</p>
-                </div>
+                <img src="{% static "assets/icons/a4.svg" %}" alt="" width="16" class="">
             </button>
         </div>
     </td>

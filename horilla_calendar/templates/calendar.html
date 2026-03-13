@@ -25,9 +25,9 @@
             {% include "messages.html" %}
         <div class="bg-white px-5 border-b border-b-dark-50 fixed w-fill-available z-10">
             <div class="flex flex-nowrap overflow-hidden overflow-x-auto items-center gap-2 justify-between">
-                <div class="flex flex-col">
+                <div class="flex flex-col min-w-0">
                     <h3 class="text-md font-semibold">{% trans 'Calendar' %}</h3>
-                    <span class="text-sm" id="calendarTitle"></span>
+                    <span class="text-sm text-dark-400 font-medium truncate block min-h-[1.25rem]" id="calendarTitle"></span>
                 </div>
                 <div class="flex items-center gap-10 h-[70px]">
                     <div class="flex items-center gap-10">
@@ -258,9 +258,12 @@
 
                 const calendarEl = $("#calendar")[0];
                 if (!calendarEl) {
+                    window.calendarInitialized = false;
                     return;
-                  }
-                const titleEl = $("#calendarTitle")[0];
+                }
+                const titleEl = document.getElementById("calendarTitle");
+                // Restore saved view so initialView is always valid (undefined breaks title)
+                window.currentView = window.currentView || localStorage.getItem("calendarView") || "dayGridMonth";
                 const popup = $("#calendarPopup")[0];
                 const popupContent = $("#popupContent")[0];
 
@@ -336,7 +339,9 @@
                         .catch(error => failureCallback(error));
                     },
                     datesSet: function () {
-                        titleEl.textContent = calendar.view.title;
+                        if (titleEl && calendar.view && calendar.view.title) {
+                            titleEl.textContent = calendar.view.title;
+                        }
                         window.currentView = calendar.view.type;
                         localStorage.setItem('calendarView', window.currentView);
                     },
@@ -388,19 +393,23 @@
                                 ${ window.hasUnavailabilityChangeOwnPerm ? `
                                     <button type="button"
                                         onclick="editEvent('${safeEventIdJs}', '${safeEventUrlJs}')"
-                                        class="group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Edit' %}"
+                                        aria-label="{% trans 'Edit' %}"
+                                        data-tooltip-placement="top"
                                     >
-                                        <i class="fas fa-edit text-color-600 width="15" height="15"></i>
-                                        <div class="min-w-max z-40 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 py-[3px] px-[15px] bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap"><p>{% trans 'Edit' %}</p></div>
+                                        <i class="fas fa-edit text-color-600" style="font-size:15px"></i>
                                     </button>
                                     ` : ''}
                                     ${window.hasUnavailabilityDeletePerm ? `
                                     <button type="button"
                                         onclick="deleteEvent('${safeEventIdJs}', '${safeDeleteUrlJs}')"
-                                        class="group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Delete' %}"
+                                        aria-label="{% trans 'Delete' %}"
+                                        data-tooltip-placement="top"
                                     >
-                                        <img src="{% static 'assets/icons/a4.svg' %}" alt="{% trans 'Delete' %}" width="15" height="15" />
-                                        <div class="min-w-max z-40 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 py-[3px] px-[15px] bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap"><p>{% trans 'Delete' %}</p></div>
+                                        <img src="{% static 'assets/icons/a4.svg' %}" alt="" width="15" height="15" />
                                     </button>
                                     ` : '' }
                                 </div>
@@ -478,28 +487,34 @@
                                 ${window.hasActivityChangeOwnPerm ? `
                                     <button type="button"
                                         onclick="editEvent('${safeEventIdJs}', '${safeEventUrlJs}')"
-                                        class="group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Edit' %}"
+                                        aria-label="{% trans 'Edit' %}"
+                                        data-tooltip-placement="top"
                                     >
                                         <i class="fas fa-edit text-color-600"></i>
-                                        <div class="min-w-max z-40 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 py-[3px] px-[15px] bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap"><p>{% trans 'Edit' %}</p></div>
                                     </button>
                                     ` : '' }
                                     ${window.hasActivityDeletePerm ? `
                                     <button type="button"
                                         onclick="deleteEvent('${safeEventIdJs}', '${safeDeleteUrlJs}')"
-                                        class="group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Delete' %}"
+                                        aria-label="{% trans 'Delete' %}"
+                                        data-tooltip-placement="top"
                                     >
                                         <i class="fas fa-trash text-color-600"></i>
-                                        <div class="min-w-max z-40 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 py-[3px] px-[15px] bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap"><p>{% trans 'Delete' %}</p></div>
                                     </button>
                                     ` : '' }
                                     ${window.hasActivityViewOwnPerm ? `
                                     <button type="button"
                                         onclick="showEventInfo('${safeEventIdJs}', '${safeDetailUrlJs}')"
-                                        class="group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Info' %}"
+                                        aria-label="{% trans 'Info' %}"
+                                        data-tooltip-placement="top"
                                     >
                                         <i class="fas fa-info-circle text-color-600"></i>
-                                        <div class="min-w-max z-40 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 py-[3px] px-[15px] bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap"><p>{% trans 'Info' %}</p></div>
                                     </button>
                                     ` :  '' }
                                 </div>
@@ -565,6 +580,10 @@
                 });
 
                 calendar.render();
+                // datesSet can run async; set title immediately so range always shows
+                if (titleEl && calendar.view && calendar.view.title) {
+                    titleEl.textContent = calendar.view.title;
+                }
                 syncMasterCheckbox();
 
                 // Toolbar buttons

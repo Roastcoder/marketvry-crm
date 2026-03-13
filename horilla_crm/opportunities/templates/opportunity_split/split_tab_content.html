@@ -99,28 +99,25 @@
                             {% if split.user.id == opportunity.owner.id %}
                                 <div class="flex tablebtn">
                                     <button type="button"
-                                            class="rounded-md group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] cursor-not-allowed items-center"
+                                            class="rounded-md w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] cursor-not-allowed items-center"
                                             disabled
-                                           >
-                                        <img src="{% static "assets/icons/a4.svg" %}" alt="{% trans 'Delete' %}" width="16" class="opacity-50">
-                                        <div class="min-w-max z-50 absolute h-auto py-[3px] px-[15px] right-[40px] top-0 bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                            <p>{% trans 'Cannot delete opportunity owner' %}</p>
-                                        </div>
+                                            title="{% trans 'Cannot delete opportunity owner' %}"
+                                            aria-label="{% trans 'Cannot delete opportunity owner' %}">
+                                        <img src="{% static "assets/icons/a4.svg" %}" alt="" width="16" class="opacity-50">
                                     </button>
                                 </div>
                             {% else %}
                                 <div class="flex tablebtn">
                                     <button type="button"
-                                            class="rounded-md group relative w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                            class="rounded-md w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                            title="{% trans 'Delete' %}"
+                                            aria-label="{% trans 'Delete' %}"
                                             hx-delete="{% url 'opportunities:delete_split_row' split.id %}"
                                             hx-target="#split-form-{{ split_type.id }}"
                                             hx-swap="outerHTML"
                                             onclick="hxConfirm(this,'Are you sure you want to delete this split?')"
                                             hx-trigger="confirmed">
-                                        <img src="{% static "assets/icons/a4.svg" %}" alt="{% trans 'Delete' %}" width="16" class="">
-                                        <div class="min-w-max z-50 absolute h-auto py-[3px] px-[15px] right-[40px] top-0 bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                            <p>{% trans 'Delete' %}</p>
-                                        </div>
+                                        <img src="{% static "assets/icons/a4.svg" %}" alt="" width="16" class="">
                                     </button>
                                 </div>
                             {% endif %}

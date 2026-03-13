@@ -56,13 +56,10 @@
                 <label for="ch2" class="cursor-pointer text-sm font-medium text-[#666] italic">
                     {% trans "Let users add members to opportunity teams while editing splits" %}
                 </label>
-                <span class="group relative ml-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="cursor-pointer text-[#a19e9e]" width="15" height="15" viewBox="0 0 20 20">
+                <span class="ml-1 inline-flex cursor-pointer text-[#a19e9e]" title="{% trans 'When enabled, users can assign splits to any active user in the company,not just opportunity team members. This allows adding new members while editing splits.' %}" aria-label="{% trans 'When enabled, users can assign splits to any active user in the company,not just opportunity team members. This allows adding new members while editing splits.' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 20 20">
                         <path fill="currentColor" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07m12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32M9 11V9h2v6H9zm0-6h2v2H9z"/>
                     </svg>
-                    <div class="min-w-[200px] z-40 absolute h-max p-[10px] left-auto right-[1.5rem] top-0 bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                        <p>{% trans "When enabled, users can assign splits to any active user in the company,not just opportunity team members. This allows adding new members while editing splits." %}</p>
-                    </div>
                 </span>
             </div>
         </span>

@@ -1,8 +1,9 @@
 {% load static i18n horilla_tags %}
-<div class="h-[85px] flex justify-end md:justify-between items-center bg-[#fff] py-5 px-5 border-b border-b-primary-100 fixed w-[calc(100%-76px)] z-40">
+<div class="h-[85px] flex justify-end md:justify-between items-center bg-[#fff] py-5 px-5 border-b border-b-primary-100 fixed w-[calc(100%-76px)] z-[50]">
     <h1 class="hidden lg:block text-2xl font-semibold text-primary-800">{{ PAGE_HEADER }}</h1>
     <div class="relative hidden md:block">
-        <input id="header-search" type="text" name="q" placeholder="Search anything..." class="pl-10 pr-4 py-2 text-dark-400 rounded-lg border border-secondary-200 focus:outline-none focus:border-primary-300 w-64 placeholder:text-dark-50"
+        <input id="header-search" type="text" name="q" placeholder="Search anything..."
+        class="pl-10 pr-4 py-2 text-dark-400 rounded-lg border border-secondary-200 focus:outline-none focus:border-primary-300 w-64 placeholder:text-dark-50"
         hx-get="{% url 'horilla_generics:global_search' %}?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.filter %}filter={{ request.GET.filter }}&{% endif %}{% if request.GET.section %}section={{ request.GET.section }}&{% endif %}prev_url={{ request.get_full_path|remove_query_param:"section" }}"
         hx-target="#mainContent"
         hx-select="#mainContent"
@@ -21,6 +22,8 @@
                id="darkModeToggle"
                         type="button"
                         aria-pressed="false"
+                        title="{% trans 'Toggle theme' %}"
+                        aria-label="{% trans 'Toggle theme' %}"
                 class="group flex items-center justify-center text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-lg transition duration-300">
                 <i class="fa-solid fa-moon  transition duration-300 group-hover:text-white"></i>
             </button>
@@ -30,7 +33,10 @@
 
             {% has_perm "horilla_core.can_view_horilla_settings" as view_global_settings %}
             {% if view_global_settings %}
-                <button onclick="window.location.href='{% url 'horilla_core:settings_view' %}'"
+                <button type="button"
+                    onclick="window.location.href='{% url 'horilla_core:settings_view' %}'"
+                    title="{% trans 'Settings' %}"
+                    aria-label="{% trans 'Settings' %}"
                     class="group flex items-center justify-center text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-lg transition duration-300">
                     <i class="fas fa-cog transition duration-300 group-hover:text-white"></i>
                 </button>
@@ -38,7 +44,9 @@
 
             {% if request.user.is_authenticated %}
                 <div class="relative dropdown-wrapper">
-                    <button
+                    <button type="button"
+                    title="{% trans 'Recently viewed' %}"
+                    aria-label="{% trans 'Recently viewed' %}"
                     class="flex items-center justify-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-lg transition duration-300">
                     <i class="fas fa-history transition duration-300 group-hover:text-white"></i>
                     </button>
@@ -65,7 +73,10 @@
                 {% get_current_language as LANGUAGE_CODE %}
                 <!-- Language icon -->
                 <div class="relative dropdown-wrapper">
-                    <button class="flex items-center justify-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300">
+                    <button type="button"
+                    title="{% trans 'Language' %}"
+                    aria-label="{% trans 'Language' %}"
+                    class="flex items-center justify-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300">
                     <i class="fas fa-globe transition duration-300 group-hover:text-white"></i>
                     </button>
                     <div class="dropdown-content w-44 absolute z-10 bg-white border-primary-300 rounded-lg shadow-md py-2 md:right-0 -right-24">
@@ -100,7 +111,10 @@
             {% has_perm "horilla_core.can_switch_company" as can_switch_company %}
             {% if can_switch_company %}
                 <div class="relative dropdown-wrapper">
-                    <button class="flex items-center justify-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300">
+                    <button type="button"
+                    title="{% trans 'Switch company' %}"
+                    aria-label="{% trans 'Switch company' %}"
+                    class="flex items-center justify-center group text-primary-600 w-8 h-8 lg:w-12 lg:h-12 bg-primary-100 hover:bg-primary-600 rounded-md transition duration-300">
                     <i class="fas fa-th-large transition duration-300 group-hover:text-white"></i>
                     </button>
                     <div class="dropdown-content w-44 absolute z-10 bg-white border-primary-300 rounded-lg [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_8%)] py-2 right-0">
@@ -166,7 +180,8 @@
 
                 <!-- User Profile with Dropdown -->
                 <div class="relative dropdown-wrapper">
-                <button class="flex items-center gap-2 focus:outline-none">
+                <button type="button"
+                    class="flex items-center gap-2 focus:outline-none">
                     <div class="ps-4 flex gap-3">
                     <div class="relative flex items-center cursor-pointer w-max">
                         <img
@@ -384,35 +399,6 @@
             }
         }
 
-        document.body.addEventListener("htmx:afterSwap", function (event) {
-            if (event.target.id === "sidebarModal3") {
-            document.querySelectorAll(".closeSidemenu").forEach(button => {
-                button.addEventListener("click", () => {
-                const sidebar = document.getElementById(button.dataset.sidebar);
-                if (sidebar) closeSidebar(sidebar);
-                });
-            });
-            }
-
-            if (event.target.id === "notificationWrapper") {
-            // Re-bind OPEN
-            document.querySelectorAll(".toggleSidemenu").forEach(button => {
-                button.addEventListener("click", () => {
-                const sidebar = document.getElementById(button.dataset.sidebar);
-                if (sidebar) openSidebar(sidebar);
-                });
-            });
-
-            // Re-bind CLOSE
-            document.querySelectorAll(".closeSidemenu").forEach(button => {
-                button.addEventListener("click", () => {
-                const sidebar = document.getElementById(button.dataset.sidebar);
-                if (sidebar) closeSidebar(sidebar);
-                });
-            });
-            }
-        });
-
         function addToSidebarList(data, timesince) {
             const sidebarContent = document.querySelector("#sidebarModal3 > div");
             if (!sidebarContent) {
@@ -459,35 +445,25 @@
             }
         }
 
-        function openSidebar(sidebar) {
+        function openSidebar(id) {
+            const sidebar = document.getElementById(id);
+            if (!sidebar) return;
             sidebar.classList.remove("hidden");
             setTimeout(() => sidebar.classList.add("active"), 10);
             document.body.classList.add("overflow-hidden");
         }
 
-        function closeSidebar(sidebar) {
+        function closeSidebar(id) {
+            const sidebar = document.getElementById(id);
+            if (!sidebar) return;
             sidebar.classList.remove("active");
             document.body.classList.remove("overflow-hidden");
 
             sidebar.addEventListener("transitionend", function hideSidebar() {
-            sidebar.classList.add("hidden");
-            sidebar.removeEventListener("transitionend", hideSidebar);
+                sidebar.classList.add("hidden");
+                sidebar.removeEventListener("transitionend", hideSidebar);
             });
         }
-
-        document.querySelectorAll(".toggleSidemenu").forEach(button => {
-            button.addEventListener("click", () => {
-            const sidebar = document.getElementById(button.dataset.sidebar);
-            if (sidebar) openSidebar(sidebar);
-            });
-        });
-
-        document.querySelectorAll(".closeSidemenu").forEach(button => {
-            button.addEventListener("click", () => {
-            const sidebar = document.getElementById(button.dataset.sidebar);
-            if (sidebar) closeSidebar(sidebar);
-            });
-        });
 
         document.addEventListener("DOMContentLoaded", () => {
             const userId = {{ request.user.id|default:0 }};
@@ -538,29 +514,6 @@
             if ("Notification" in window && Notification.permission === "default") {
             Notification.requestPermission();
             }
-
-
-            document.querySelectorAll(".toggleSidemenu").forEach((button) => {
-            button.addEventListener("click", () => {
-                const sidebarId = button.getAttribute("data-sidebar");
-                const sidebar = document.getElementById(sidebarId);
-                if (sidebar) {
-                sidebar.classList.toggle("active");
-                document.body.classList.toggle("overflow-hidden");
-                }
-            });
-            });
-
-            document.querySelectorAll(".closeSidemenu").forEach((button) => {
-            button.addEventListener("click", () => {
-                const sidebarId = button.getAttribute("data-sidebar");
-                const sidebar = document.getElementById(sidebarId);
-                if (sidebar) {
-                sidebar.classList.remove("active");
-                document.body.classList.remove("overflow-hidden");
-                }
-            });
-            });
 
         });
 

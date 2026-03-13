@@ -228,7 +228,7 @@
 
                         <!-- For Closed column trend display -->
                         <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] p-3 text-center">
-                            <div class="relative group">
+                            <div class="relative" {% if forecast.closed_change_text %}title="{{ forecast.closed_change_text }}"{% endif %}>
                                 <button class="flex gap-2 items-center justify-center" data-modal-target="contentModal" data-modal-toggle="contentModal"
                                     hx-get="{% url 'forecast:forecast_opportunities' forecast.id 'closed' %}?forecast_type_id={{ forecast_type.id }}{% if request.GET.user_id %}&user_id={{ request.GET.user_id }}{% endif %}{% if request.GET.fiscal_year_id %}&fiscal_year_id={{ request.GET.fiscal_year_id }}{% endif %}"
                                     hx-target="#contentModalBox"
@@ -246,18 +246,13 @@
                                         <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                     {% endif %}
                                 </button>
-                                {% if forecast.closed_change_text %}
-                                <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <p>{{ forecast.closed_change_text }}</p>
-                                </div>
-                                {% endif %}
                             </div>
                         </td>
 
 
                         <!-- For Commit Forecast column trend display -->
                         <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3">
-                            <div class="relative group">
+                            <div class="relative" {% if forecast.commit_change_text %}title="{{ forecast.commit_change_text }}"{% endif %}>
                                 <button class="flex gap-2" data-modal-target="contentModal" data-modal-toggle="contentModal"
                                     hx-get="{% url 'forecast:forecast_opportunities' forecast.id 'committed' %}?forecast_type_id={{ forecast_type.id }}{% if request.GET.user_id %}&user_id={{ request.GET.user_id }}{% endif %}{% if request.GET.fiscal_year_id %}&fiscal_year_id={{ request.GET.fiscal_year_id }}{% endif %}"
                                     hx-target="#contentModalBox"
@@ -275,17 +270,12 @@
                                         <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                     {% endif %}
                                 </button>
-                                {% if forecast.commit_change_text %}
-                                <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <p>{{ forecast.commit_change_text }}</p>
-                                </div>
-                                {% endif %}
                             </div>
                         </td>
 
                         <!-- For Best Case column trend display -->
                         <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3">
-                            <div class="relative group">
+                            <div class="relative" {% if forecast.best_case_change_text %}title="{{ forecast.best_case_change_text }}"{% endif %}>
                                 <button class="flex gap-2" data-modal-target="contentModal" data-modal-toggle="contentModal"
                                     hx-get="{% url 'forecast:forecast_opportunities' forecast.id 'best_case' %}?forecast_type_id={{ forecast_type.id }}{% if request.GET.user_id %}&user_id={{ request.GET.user_id }}{% endif %}{% if request.GET.fiscal_year_id %}&fiscal_year_id={{ request.GET.fiscal_year_id }}{% endif %}"
                                     hx-target="#contentModalBox"
@@ -303,17 +293,12 @@
                                         <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                     {% endif %}
                                 </button>
-                                {% if forecast.best_case_change_text %}
-                                <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <p>{{ forecast.best_case_change_text }}</p>
-                                </div>
-                                {% endif %}
                             </div>
                         </td>
 
                         <!-- For Open Pipeline column trend display -->
                         <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3">
-                            <div class="relative group">
+                            <div class="relative" {% if forecast.pipeline_change_text %}title="{{ forecast.pipeline_change_text }}"{% endif %}>
                                 <button class="flex gap-2" data-modal-target="contentModal" data-modal-toggle="contentModal"
                                     hx-get="{% url 'forecast:forecast_opportunities' forecast.id 'open_pipeline' %}?forecast_type_id={{ forecast_type.id }}{% if request.GET.user_id %}&user_id={{ request.GET.user_id }}{% endif %}{% if request.GET.fiscal_year_id %}&fiscal_year_id={{ request.GET.fiscal_year_id }}{% endif %}"
                                     hx-target="#contentModalBox"
@@ -331,11 +316,6 @@
                                         <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                     {% endif %}
                                 </button>
-                                {% if forecast.pipeline_change_text %}
-                                <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <p>{{ forecast.pipeline_change_text }}</p>
-                                </div>
-                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -407,7 +387,7 @@
                                         hx-target="#contentModalBox"
                                         hx-trigger="click"
                                         onclick="openContentModal()">
-                                        <div class="relative group">
+                                        <div class="relative" {% if user_forecast.closed_change_text %}title="{{ user_forecast.closed_change_text }}"{% endif %}>
                                             <button class="flex gap-2 items-center justify-center">
                                                 {% if user_forecast.forecast_type.is_quantity_based %}
                                                     <p class="mb-0">{{ user_forecast.closed_quantity }} {% trans "deals" %}</p>
@@ -420,11 +400,6 @@
                                                     <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                                 {% endif %}
                                             </button>
-                                            {% if user_forecast.closed_change_text %}
-                                            <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p>{{ user_forecast.closed_change_text }}</p>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </td>
                                     <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3 bg-gray-50"
@@ -432,7 +407,7 @@
                                         hx-target="#contentModalBox"
                                         hx-trigger="click"
                                         onclick="openContentModal()">
-                                        <div class="relative group">
+                                        <div class="relative" {% if user_forecast.commit_change_text %}title="{{ user_forecast.commit_change_text }}"{% endif %}>
                                             <button class="flex gap-2">
                                                 {% if user_forecast.forecast_type.is_quantity_based %}
                                                     {{ user_forecast.commit_quantity }} {% trans "deals" %}
@@ -445,11 +420,6 @@
                                                     <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                                 {% endif %}
                                             </button>
-                                            {% if user_forecast.commit_change_text %}
-                                            <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p>{{ user_forecast.commit_change_text }}</p>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </td>
                                     <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3 bg-gray-50"
@@ -457,7 +427,7 @@
                                         hx-target="#contentModalBox"
                                         hx-trigger="click"
                                         onclick="openContentModal()">
-                                        <div class="relative group">
+                                        <div class="relative" {% if user_forecast.best_case_change_text %}title="{{ user_forecast.best_case_change_text }}"{% endif %}>
                                             <button class="flex gap-2">
                                                 {% if user_forecast.forecast_type.is_quantity_based %}
                                                     {{ user_forecast.best_case_quantity }} {% trans "deals" %}
@@ -470,11 +440,6 @@
                                                     <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                                 {% endif %}
                                             </button>
-                                            {% if user_forecast.best_case_change_text %}
-                                            <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p>{{ user_forecast.best_case_change_text }}</p>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </td>
                                     <td class="text-[13px] border-[1px] border-[solid] border-[#dddddd] text-left p-3 bg-gray-50"
@@ -482,7 +447,7 @@
                                         hx-target="#contentModalBox"
                                         hx-trigger="click"
                                         onclick="openContentModal()">
-                                        <div class="relative group">
+                                        <div class="relative" {% if user_forecast.pipeline_change_text %}title="{{ user_forecast.pipeline_change_text }}"{% endif %}>
                                             <button class="flex gap-2">
                                                 {% if user_forecast.forecast_type.is_quantity_based %}
                                                     {{ user_forecast.pipeline_quantity }} {% trans "deals" %}
@@ -495,11 +460,6 @@
                                                     <img src="{% static 'assets/icons/down-arrow.svg' %}" alt="{% trans 'Down trend' %}" width="15" />
                                                 {% endif %}
                                             </button>
-                                            {% if user_forecast.pipeline_change_text %}
-                                            <div class="right-0 bg-[#000000] w-[200px] text-[.7rem] absolute bottom-[25px] leading-[18px] rounded-[5px] p-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p>{{ user_forecast.pipeline_change_text }}</p>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
