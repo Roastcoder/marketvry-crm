@@ -177,4 +177,9 @@ urlpatterns = [
         views.ReportToDashboardForm.as_view(),
         name="report_to_dashboard",
     ),
+    path(
+        "chart-view-to-dashboard/",
+        views.ChartViewToDashboardForm.as_view(),
+        name="chart_view_to_dashboard",
+    ),
 ]

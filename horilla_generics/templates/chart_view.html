@@ -1,0 +1,188 @@
+{% load static i18n horilla_tags %}
+<style>
+  .htmx-indicator { display: none; pointer-events: none; }
+  .htmx-request .htmx-indicator,
+  .htmx-indicator.htmx-request { display: flex !important; pointer-events: none; }
+</style>
+{% with full_query=request.GET.urlencode %}
+<div id="{{ view_id|safe }}"
+     class="w-full relative"
+     style="position: relative;"
+     data-filter-reload-url="{% if filter_reload_url %}{{ filter_reload_url }}{% else %}{{ request.path }}{% if full_query %}?{{ full_query }}{% endif %}{% endif %}">
+{% endwith %}
+  <div id="loading-indicator" class="htmx-indicator tabloading" style="z-index: 30;">
+    <div class="flex justify-center items-center p-4">
+      <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+    </div>
+  </div>
+  {% include "messages.html" %}
+  <button id="reloadButton" hidden
+    hx-get="{{ request.path }}?{{ request.GET.urlencode }}"
+    hx-target="#{{ view_id|safe }}"
+    hx-trigger="click"
+    hx-swap="outerHTML"
+    hx-select="#{{ view_id|safe }}"
+    hx-indicator="#loading-indicator">click</button>
+
+  {% if filter_set_class %}
+    {% include "filterpanel.html" %}
+  {% endif %}
+
+  {% if chart_error %}
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+      {{ chart_error }}
+    </div>
+  {% else %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h3 class="text-sm font-semibold text-gray-700">{% trans "Chart view" %}</h3>
+      <div class="flex flex-wrap items-center gap-3">
+        {% if chart_dimension_choices %}
+        <div class="flex items-center gap-2 w-[200px]">
+          <label for="chartGroupBySelect" class="text-xs text-gray-500 whitespace-nowrap">{% trans "Group by" %}</label>
+          <select id="chartGroupBySelect"
+            name="{{ chart_group_by_param }}"
+            class="js-example-basic-single headselect w-full"
+            hx-get="{{ chart_htmx_url }}"
+            hx-target="#{{ view_id|safe }}"
+            hx-select="#{{ view_id|safe }}"
+            hx-swap="outerHTML"
+            hx-include="[name='search'], #filtercontainer input, #filtercontainer select, #chartTypeSelect{% if stack_dimension_choices %}, #chartStackBySelect{% endif %}"
+            hx-trigger="change"
+            hx-push-url="false">
+            {% for value, label in chart_dimension_choices %}
+              <option value="{{ value }}" {% if group_by_field == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        {% if stack_dimension_choices %}
+        <div class="flex items-center gap-2 w-[200px]">
+          <label for="chartStackBySelect" class="text-xs text-gray-500 whitespace-nowrap">{% trans "Stack by" %}</label>
+          <select id="chartStackBySelect"
+            name="{{ chart_stack_by_param }}"
+            class="js-example-basic-single headselect w-full"
+            hx-get="{{ chart_htmx_url }}"
+            hx-target="#{{ view_id|safe }}"
+            hx-select="#{{ view_id|safe }}"
+            hx-swap="outerHTML"
+            hx-include="[name='search'], #filtercontainer input, #filtercontainer select, #chartTypeSelect, #chartGroupBySelect"
+            hx-trigger="change"
+            hx-push-url="false">
+            {% if chart_type == 'radar' and chart_stack_by_single %}
+            <option value="{{ chart_stack_by_single }}" {% if not stack_by_field %}selected{% endif %}>{% trans "Single dimension" %}</option>
+            {% endif %}
+            {% for value, label in stack_dimension_choices %}
+              <option value="{{ value }}" {% if stack_by_field == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        <div class="flex items-center gap-2 w-[250px]">
+          <label for="chartTypeSelect" class="text-xs text-gray-500 whitespace-nowrap">{% trans "Chart type" %}</label>
+          <select id="chartTypeSelect"
+            name="chart_type"
+            class="js-example-basic-single headselect w-full"
+            hx-get="{{ chart_htmx_url }}"
+            hx-target="#{{ view_id|safe }}"
+            hx-select="#{{ view_id|safe }}"
+            hx-swap="outerHTML"
+            hx-include="[name='search'], #filtercontainer input, #filtercontainer select, #chartGroupBySelect{% if stack_dimension_choices %}, #chartStackBySelect{% endif %}"
+            hx-trigger="change"
+            hx-push-url="false">
+            {% for value, label in chart_type_choices %}
+              <option value="{{ value }}" {% if chart_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="[box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] bg-white rounded-lg p-3 h-[calc(100vh_-_250px)]">
+      <div class="flex justify-end items-center mb-2">
+        <div class="relative dropdown-wrapper">
+          <button id="chartViewActionsButton" type="button" class="flex w-[30px] justify-end" aria-haspopup="true" aria-expanded="false">
+            <img src="{% static 'assets/icons/down.svg' %}" alt="{% trans 'Actions' %}" width="15" />
+          </button>
+          <div class="dropdown-content absolute z-10 bg-white border-primary-300 rounded-lg [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_8%)] min-w-[150px] py-2 right-0">
+            <ul class="text-sm z-50 relative" aria-labelledby="chartViewActionsButton">
+              <li>
+                <a href="#" class="block px-3 py-1.5 hover:text-primary-600 transition duration-300 text-[.8rem]"
+                  onclick="exportChartAsPDF('{{ chart_dom_id }}', '{{ chart_export_filename }}')">{% trans "Export as PDF" %}</a>
+              </li>
+              <li>
+                <a href="#" class="block px-3 py-1.5 hover:text-primary-600 transition duration-300 text-[.8rem]"
+                  onclick="(function(){ var k='horilla-chart-view-{{ chart_dom_id }}'; var w=window.chartInstances&&window.chartInstances[k]; if(w&&w.instance) EChartsConfig.exportChart(w.instance, '{{ chart_export_filename }}', 'png'); })();">{% trans "Export as PNG" %}</a>
+              </li>
+              {% if chart_show_add_to_dashboard and chart_add_to_dashboard_url %}
+              <li>
+                <a href="#" class="block px-3 py-1.5 hover:text-primary-600 transition duration-300 text-[.8rem]"
+                  hx-get="{{ chart_add_to_dashboard_url }}"
+                  hx-on:click="openModal();"
+                  hx-target="#modalBox"
+                  hx-swap="innerHTML">{% trans "Add to Dashboard" %}</a>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-1">
+        <div id="{{ chart_dom_id }}" class="w-full" style="min-height: 480px;"></div>
+      </div>
+    </div>
+    <script src="{% static 'assets/js/horilla_charts.js' %}"></script>
+    <script>
+    (function() {
+      var chartDom = document.getElementById('{{ chart_dom_id }}');
+      if (!chartDom || typeof EChartsConfig === 'undefined' || typeof echarts === 'undefined') return;
+      var key = 'horilla-chart-view-{{ chart_dom_id }}';
+      if (window.chartInstances && window.chartInstances[key]) {
+        try { window.chartInstances[key].instance.dispose(); } catch (e) {}
+      }
+      var myChart = echarts.init(chartDom);
+      var config = {{ chart_config_json|safe }};
+      var option = EChartsConfig.getChartOption(config);
+      myChart.setOption(option);
+      if ((config.urls && config.urls.length) || config.type === 'treemap' || config.type === 'sankey'
+          || config.type === 'stacked_vertical' || config.type === 'stacked_horizontal' || config.type === 'heatmap'
+          || (config.type === 'radar' && config.stackedData && config.stackedData.series && config.stackedData.series.length)) {
+        EChartsConfig.attachClickHandler(myChart, config.urls || [], config);
+      }
+      if (typeof window.chartInstances === 'undefined') window.chartInstances = {};
+      window.chartInstances[key] = { instance: myChart, config: config };
+    })();
+    </script>
+    <script>
+    (function() {
+      if (typeof htmx !== 'undefined') {
+        ['chartGroupBySelect','chartStackBySelect','chartTypeSelect'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) htmx.process(el);
+        });
+      }
+      if (window.$ && $.fn.select2) {
+        $('#chartGroupBySelect, #chartStackBySelect, #chartTypeSelect').select2({
+          width: 'resolve',
+          minimumResultsForSearch: 10
+        }).on('select2:select', function() {
+          this.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }
+    })();
+    </script>
+    {% if chart_push_url_json and chart_push_url_json != "null" %}
+    <script>
+    (function() {
+      try {
+        var pushUrl = {{ chart_push_url_json|safe }};
+        if (!pushUrl || typeof pushUrl !== 'string') return;
+        var target = pushUrl.indexOf('http') === 0 ? pushUrl : (window.location.origin + pushUrl);
+        var cur = window.location.href.split('#')[0];
+        if (cur === target) return;
+        if (pushUrl.indexOf('layout=chart') === -1) return;
+        history.replaceState(null, '', target);
+      } catch (e) {}
+    })();
+    </script>
+    {% endif %}
+  {% endif %}
+</div>

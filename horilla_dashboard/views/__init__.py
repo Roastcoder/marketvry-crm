@@ -18,6 +18,7 @@ from horilla_dashboard.views.component import (
     ComponentDeleteView,
     AddToDashboardForm,
     ReportToDashboardForm,
+    ChartViewToDashboardForm,
     ReorderComponentsView,
 )
 
@@ -81,6 +82,7 @@ __all__ = [
     "ComponentDeleteView",
     "AddToDashboardForm",
     "ReportToDashboardForm",
+    "ChartViewToDashboardForm",
     "ReorderComponentsView",
     # folders
     "DashboardFolderCreate",

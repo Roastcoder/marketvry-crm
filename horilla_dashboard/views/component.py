@@ -5,18 +5,20 @@ import json
 import logging
 
 # Third-party imports (Django)
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.views.generic import View
+from django.views.generic.edit import FormView
 
 # First-party / Horilla imports
 from horilla.apps import apps
 from horilla.http import HttpResponse, JsonResponse
 from horilla.shortcuts import get_object_or_404, render
-from horilla.urls import reverse_lazy
+from horilla.urls import reverse, reverse_lazy
 from horilla.utils.decorators import (
     htmx_required,
     method_decorator,
@@ -31,10 +33,9 @@ from horilla_dashboard.models import (
     DashboardComponent,
     DefaultHomeLayoutOrder,
 )
-
-# Local imports
 from horilla_dashboard.utils import DATE_RANGE_CHOICES, apply_date_range_to_queryset
 from horilla_dashboard.views.dashboard_helper import apply_conditions, get_table_data
+from horilla_generics.forms.form_class_mixin import WIDGET_INPUT_CSS_CLASS_NO_PR
 from horilla_generics.views import (
     HorillaListView,
     HorillaSingleDeleteView,
@@ -389,7 +390,7 @@ class DashboardComponentFormView(LoginRequiredMixin, HorillaSingleFormView):
             if component.component_owner == request.user:
                 return super().get(request, *args, **kwargs)
 
-        return render(request, "error/403.html")
+        return render(request, "403.html")
 
     def form_valid(self, form):
         """Handle form submission and ensure proper file path"""
@@ -487,7 +488,7 @@ class AddToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
             if dashboard.dashboard_owner == request.user:
                 return super().get(request, *args, **kwargs)
 
-        return render(request, "error/403.html")
+        return render(request, "403.html")
 
     def form_valid(self, form):
         target_dashboard = form.cleaned_data["dashboard"]
@@ -554,9 +555,11 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
     def get(self, request, *args, **kwargs):
         """Check change_dashboard/add_dashboard or dashboard ownership; then show form or 403."""
         component_id = self.kwargs.get("component_id")
-        if request.user.has_perm(
-            "horilla_dashboard.change_dashboard"
-        ) or request.user.has_perm("horilla_dashboard.add_dashboard"):
+        if (
+            getattr(request.user, "is_superuser", False)
+            or request.user.has_perm("horilla_dashboard.change_dashboard")
+            or request.user.has_perm("horilla_dashboard.add_dashboard")
+        ):
             return super().get(request, *args, **kwargs)
 
         if component_id:
@@ -564,7 +567,7 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
             if dashboard.dashboard_owner == request.user:
                 return super().get(request, *args, **kwargs)
 
-        return render(request, "error/403.html")
+        return render(request, "403.html")
 
     def get_form(self, form_class=None):
         """Add widget attrs and restrict dashboard queryset for non-superusers."""
@@ -635,6 +638,162 @@ class ReportToDashboardForm(LoginRequiredMixin, HorillaSingleFormView):
             return HttpResponse(
                 "<script>$('#reloadButton').click();closeModal();</script>"
             )
+
+
+class _ChartViewDashboardPickForm(forms.Form):
+    """Form: component name + dashboard to add chart-view component to."""
+
+    name = forms.CharField(
+        max_length=255,
+        label=_("Component name"),
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                # Match single_form_view.html text inputs (form_class_mixin)
+                "class": WIDGET_INPUT_CSS_CLASS_NO_PR,
+                "placeholder": _("Enter component name"),
+            }
+        ),
+    )
+    dashboard = forms.ModelChoiceField(
+        queryset=Dashboard.objects.filter(is_active=True),
+        label=_("Dashboard"),
+        widget=forms.Select(attrs={"class": "js-example-basic-single"}),
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        # Only pass Django Form–supported kwargs (HorillaSingleFormView injects extras).
+        kwargs.pop("full_width_fields", None)
+        kwargs.pop("dynamic_create_fields", None)
+        kwargs.pop("condition_fields", None)
+        kwargs.pop("condition_model", None)
+        kwargs.pop("condition_field_choices", None)
+        kwargs.pop("condition_related_name", None)
+        kwargs.pop("condition_related_name_candidates", None)
+        kwargs.pop("hidden_fields", None)
+        kwargs.pop("condition_hx_include", None)
+        kwargs.pop("field_permissions", None)
+        kwargs.pop("duplicate_mode", None)
+        kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+        if user and not user.is_superuser:
+            self.fields["dashboard"].queryset = Dashboard.objects.filter(
+                dashboard_owner=user, is_active=True
+            )
+        # single_form_view.html expects form.instance.pk (ModelForm); plain Form has no instance.
+        self.instance = type("DummyInstance", (), {"pk": None})()
+
+
+@method_decorator(htmx_required, name="dispatch")
+class ChartViewToDashboardForm(LoginRequiredMixin, FormView):
+    """
+    Add current chart-view configuration as a dashboard chart component
+    (no Report required; uses module + grouping_field like get_chart_data).
+
+    Uses FormView instead of HorillaSingleFormView: no model, and the generic
+    single-form injects kwargs that plain forms.Form does not accept.
+    """
+
+    form_class = _ChartViewDashboardPickForm
+    template_name = "single_form_view.html"
+    view_id = "chart-view-to-dashboard"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not getattr(request.user, "is_superuser", False) and not (
+            request.user.has_perm("horilla_dashboard.change_dashboard")
+            or request.user.has_perm("horilla_dashboard.add_dashboard")
+        ):
+            return render(request, "403.html", {"modal": True})
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form_url = reverse("horilla_dashboard:chart_view_to_dashboard")
+        query_string = ""
+        if self.request.GET:
+            query_string = f"?{self.request.GET.urlencode()}"
+        context.update(
+            {
+                "form_title": _("Add to Dashboard"),
+                "view_id": self.view_id,
+                "header": True,
+                "modal_height": False,
+                "modal_height_class": None,
+                "full_width_fields": ["name", "dashboard"],
+                "condition_fields": [],
+                "field_permissions": {},
+                "duplicate_mode": False,
+                "multi_step_url": None,
+                "save_and_new": False,
+                "form_url": f"{form_url}{query_string}",
+                "hx_attrs": {
+                    "hx-post": f"{form_url}{query_string}",
+                    "hx-swap": "outerHTML",
+                    "hx-target": f"#{self.view_id}-container",
+                    "enctype": "multipart/form-data",
+                },
+            }
+        )
+        return context
+
+    def form_valid(self, form):
+        """Create DashboardComponent with module + grouping from GET params."""
+        module_id = self.request.GET.get("module_id")
+        grouping_field = self.request.GET.get("grouping_field")
+        chart_type = (self.request.GET.get("chart_type") or "column").lower()
+        secondary_grouping = (
+            self.request.GET.get("secondary_grouping")
+            or self.request.GET.get("chart_stack_by")
+            or ""
+        )
+
+        if not module_id or not grouping_field:
+            messages.error(
+                self.request,
+                _("Missing module or grouping field; reload the chart and try again."),
+            )
+            return HttpResponse(
+                "<script>$('#reloadButton').click();closeModal();</script>"
+            )
+
+        try:
+            content_type = HorillaContentType.objects.get(pk=module_id)
+        except HorillaContentType.DoesNotExist:
+            messages.error(self.request, _("Invalid module."))
+            return HttpResponse(
+                "<script>$('#reloadButton').click();closeModal();</script>"
+            )
+
+        valid_chart_types = [c[0] for c in DashboardComponent.CHART_TYPES]
+        if chart_type not in valid_chart_types:
+            chart_type = "column"
+
+        selected_dashboard = form.cleaned_data["dashboard"]
+        name = (form.cleaned_data.get("name") or "").strip()
+        if not name:
+            messages.error(self.request, _("Please enter a component name."))
+            return self.form_invalid(form)
+
+        DashboardComponent.objects.create(
+            dashboard=selected_dashboard,
+            name=name[:255],
+            component_type="chart",
+            chart_type=chart_type,
+            reports=None,
+            module=content_type,
+            grouping_field=grouping_field,
+            secondary_grouping=secondary_grouping or None,
+            component_owner=self.request.user,
+            company=getattr(self.request.user, "company", None),
+        )
+
+        messages.success(self.request, _("Chart added to dashboard successfully!"))
+        return HttpResponse("<script>$('#reloadButton').click();closeModal();</script>")
 
 
 @method_decorator(
