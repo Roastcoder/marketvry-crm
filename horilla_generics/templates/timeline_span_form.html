@@ -1,0 +1,56 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<form hx-post="{% url 'horilla_generics:timeline_settings' %}?{% if request.GET.exclude_fields %}exclude_fields={{ request.GET.exclude_fields }}&{% endif %}"
+    hx-target="#modalBox"
+    hx-swap="innerHTML">
+    {% csrf_token %}
+<div class="relative bg-white rounded-lg shadow-sm">
+    <div class="p-5">
+      <div class="flex justify-between items-center">
+        <h2 class="text-md font-semibold">{{ settings_title|default:_("Timeline settings") }}</h2>
+        <button type="button" onclick="closeModal()" class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+          <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+      </div>
+      {{ form.model_name }}
+      {{ form.app_label }}
+      {{ form.main_url }}
+      {{ form.preserve_qs }}
+      <div class="mt-4 space-y-4">
+        <div>
+          <label class="text-xs text-gray-600">{{ form.start_field.label_tag }}</label>
+          <div>
+            <select class="js-example-basic-single w-full" name="{{ form.start_field.name }}" id="{{ form.start_field.auto_id }}">
+              {% for value, label in form.fields.start_field.choices %}
+              <option value="{{ value }}" {% if value == form.start_field.value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-gray-600">{{ form.end_field.label_tag }}</label>
+          <div>
+            <select class="js-example-basic-single w-full" name="{{ form.end_field.name }}" id="{{ form.end_field.auto_id }}">
+              {% for value, label in form.fields.end_field.choices %}
+              <option value="{{ value }}" {% if value == form.end_field.value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      {% if form.errors %}
+      <div class="text-red-500 text-sm mt-2">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<p>{{ error }}</p>{% endfor %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="flex justify-end p-5">
+      <button type="submit" class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-white">
+        {% trans "Save" %}
+      </button>
+    </div>
+</div>
+</form>

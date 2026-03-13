@@ -18,7 +18,12 @@ from django_summernote.widgets import SummernoteInplaceWidget
 
 # Horilla application imports
 from horilla.utils.translation import gettext_lazy as _
-from horilla_core.models import HorillaAttachment, KanbanGroupBy, ListColumnVisibility
+from horilla_core.models import (
+    HorillaAttachment,
+    KanbanGroupBy,
+    ListColumnVisibility,
+    TimelineSpanBy,
+)
 from horilla_utils.middlewares import _thread_local
 
 logger = logging.getLogger(__name__)
@@ -100,9 +105,71 @@ class KanbanGroupByForm(forms.ModelForm):
 
         return cleaned_data
 
-    def validate_unique(self):
-        """Skip unique validation; group-by is validated in clean()."""
-        pass
+
+class TimelineSpanByForm(forms.ModelForm):
+    """Form for persisted timeline start/end date fields (per user + model)."""
+
+    main_url = forms.CharField(required=False, widget=forms.HiddenInput())
+    preserve_qs = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        """Meta class for time line model"""
+
+        model = TimelineSpanBy
+        fields = ["model_name", "app_label", "start_field", "end_field"]
+        widgets = {
+            "model_name": forms.HiddenInput(),
+            "app_label": forms.HiddenInput(),
+            "start_field": forms.Select(),
+            "end_field": forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.request = getattr(_thread_local, "request", None)
+        super().__init__(*args, **kwargs)
+
+        model_name = (
+            self.data.get("model_name")
+            or self.initial.get("model_name")
+            or getattr(self.instance, "model_name", None)
+        )
+        app_label = (
+            self.data.get("app_label")
+            or self.initial.get("app_label")
+            or getattr(self.instance, "app_label", None)
+        )
+
+        if model_name and app_label:
+            temp = TimelineSpanBy(model_name=model_name, app_label=app_label)
+            user = getattr(self.request, "user", None) if self.request else None
+            choices = temp.get_model_date_fields(user=user)
+            if not choices:
+                choices = [("", "---------")]
+            self.fields["start_field"].choices = choices
+            self.fields["end_field"].choices = choices
+        else:
+            self.fields["start_field"].choices = [("", "---------")]
+            self.fields["end_field"].choices = [("", "---------")]
+
+    def clean(self):
+        cleaned = super().clean()
+        model_name = cleaned.get("model_name")
+        app_label = cleaned.get("app_label")
+        start_field = cleaned.get("start_field")
+        end_field = cleaned.get("end_field")
+        if model_name and app_label and self.request and start_field and end_field:
+            temp = TimelineSpanBy(
+                model_name=model_name,
+                app_label=app_label,
+                start_field=start_field,
+                end_field=end_field,
+                user=self.request.user,
+            )
+            try:
+                temp.clean()
+            except Exception as e:
+                self.add_error("start_field", e)
+        return cleaned
 
 
 class ColumnSelectionForm(forms.Form):

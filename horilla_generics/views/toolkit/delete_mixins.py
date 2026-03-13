@@ -24,6 +24,7 @@ DEFAULT_EXCLUDED_DEPENDENCY_MODEL_LABELS = [
     "RecycleBin",
     "ActiveTab",
     "KanbanGroupBy",
+    "TimelineSpanBy",
     "ListColumnVisibility",
     "RecentlyViewed",
     "SavedFilterList",

@@ -37,6 +37,11 @@ urlpatterns = [
         name="create_kanban_group",
     ),
     path(
+        "timeline-settings/",
+        views.helpers.TimelineSettingsFormView.as_view(),
+        name="timeline_settings",
+    ),
+    path(
         "column-selector/",
         views.helpers.ListColumnSelectFormView.as_view(),
         name="column_selector",
