@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 # Third-party imports (Django)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.contenttypes.models import ContentType
 from django.utils.functional import cached_property  # type: ignore
 from django.views.generic import DetailView
 
@@ -25,9 +24,8 @@ from horilla.utils.decorators import (
 from horilla.utils.translation import gettext_lazy as _
 from horilla_activity.filters import ActivityFilter
 from horilla_activity.models import Activity
-
-# First-party / Horilla apps
 from horilla_activity.views.list_view import AllActivityListView
+from horilla_core.models import HorillaContentType
 from horilla_generics.mixins import RecentlyViewedMixin
 from horilla_generics.views import (
     HorillaDetailSectionView,
@@ -41,6 +39,84 @@ from horilla_generics.views import (
     HorillaView,
 )
 from horilla_utils.middlewares import _thread_local
+
+# One source of truth — mark each field with where it should appear
+ACTIVITY_TYPE_SPECIFIC_FIELDS = {
+    "meeting": [
+        ("title", "both"),
+        ("start_datetime", "both"),
+        ("end_datetime", "both"),
+        ("location", "tab"),
+        ("is_all_day", "tab"),
+        ("participants", "tab"),
+        ("meeting_host", "tab"),
+    ],
+    "event": [
+        ("title", "both"),
+        ("start_datetime", "both"),
+        ("end_datetime", "both"),
+        ("location", "tab"),
+        ("is_all_day", "tab"),
+        ("participants", "tab"),
+    ],
+    "task": [
+        ("owner", "both"),
+        ("task_priority", "both"),
+        ("due_datetime", "both"),
+    ],
+    "log_call": [
+        ("call_duration_display", "both"),
+        ("call_duration_seconds", "both"),
+        ("call_type", "tab"),
+        ("call_purpose", "tab"),
+        ("notes", "tab"),
+    ],
+}
+
+COMMON_FIELDS = [
+    "subject",
+    "activity_type",
+    "status",
+    "description",
+    "assigned_to",
+    "related_object",
+]
+
+
+def get_fields_for(activity_type, view="both"):
+    """
+    view="summary" → only fields marked "summary" or "both"
+    view="tab"     → only fields marked "tab" or "both"
+    """
+    fields = ACTIVITY_TYPE_SPECIFIC_FIELDS.get(activity_type, [])
+    return [field for field, scope in fields if scope == view or scope == "both"]
+
+
+def get_activity_detail_view_fields(activity_type):
+    """
+    Return the activity detail view fields
+    """
+    return [
+        "subject",
+        "activity_type",
+        "status",
+        "assigned_to",
+        *get_fields_for(activity_type, view="summary"),  # only "summary" + "both"
+    ]
+
+
+def get_activity_detail_tab_fields(activity_type):
+    """
+    Return the activity detail tab fields
+    """
+    return [
+        "activity_type",
+        "subject",
+        "status",
+        "description",
+        "assigned_to",
+        *get_fields_for(activity_type, view="tab"),  # "tab" + "both"
+    ]
 
 
 @method_decorator(htmx_required, name="dispatch")
@@ -104,7 +180,7 @@ class HorillaActivitySectionView(DetailView):
         context["object_id"] = pk
         context["model_name"] = self.model._meta.model_name
         context["app_label"] = self.model._meta.app_label
-        content_type = ContentType.objects.get_for_model(self.model)
+        content_type = HorillaContentType.objects.get_for_model(self.model)
         context["content_type_id"] = content_type.id
         context["add_task_button"] = self.add_task_button() or {}
         context["add_meetings_button"] = self.add_meetings_button() or {}
@@ -228,14 +304,6 @@ class ActivityDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDetailV
         (_("Schedule"), "horilla_activity:activity_view"),
         (_("Activities"), "horilla_activity:activity_view"),
     ]
-    body = [
-        "subject",
-        "activity_type",
-        (_("Related To"), "related_object"),
-        "status",
-        "owner",
-        "assigned_to",
-    ]
 
     excluded_fields = [
         "id",
@@ -247,6 +315,36 @@ class ActivityDetailView(RecentlyViewedMixin, LoginRequiredMixin, HorillaDetailV
     ]
 
     actions = AllActivityListView.actions
+
+    @classmethod
+    def get_available_fields_for_selector(cls, request, model):
+        """
+        Method to get the available fields
+        """
+        pk = request.GET.get("pk")
+        if not pk:
+            return None
+        try:
+            activity = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            return None
+
+        activity_type = activity.activity_type
+        default_header = get_activity_detail_view_fields(activity_type)
+        default_details = get_activity_detail_tab_fields(activity_type)
+
+        type_specific = [
+            field if isinstance(field, str) else field[0]
+            for field in ACTIVITY_TYPE_SPECIFIC_FIELDS.get(activity_type, [])
+        ]
+
+        allowed_fields = set(COMMON_FIELDS + type_specific)
+        return default_header, default_details, allowed_fields
+
+    def get_body(self):
+        """Arrange detail fields based on the activity type."""
+        self.body = get_activity_detail_view_fields(self.get_object().activity_type)
+        return super().get_body()
 
 
 @method_decorator(
@@ -266,51 +364,7 @@ class ActivityDetailTab(LoginRequiredMixin, HorillaDetailSectionView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-
-        # Base fields common to all activity types
-        base_fields = [
-            "activity_type",
-            "subject",
-            "status",
-            "description",
-            "assigned_to",
-        ]
-
-        # Activity type specific additional fields
-        type_fields_map = {
-            "meeting": [
-                "title",
-                "start_datetime",
-                "end_datetime",
-                "location",
-                "is_all_day",
-                "participants",
-                "meeting_host",
-            ],
-            "event": [
-                "title",
-                "start_datetime",
-                "end_datetime",
-                "location",
-                "is_all_day",
-                "participants",
-            ],
-            "task": [
-                "owner",
-                "task_priority",
-                "due_datetime",
-            ],
-            "log_call": [
-                "call_duration_display",
-                "call_duration_seconds",
-                "call_type",
-                "call_purpose",
-                "notes",
-            ],
-        }
-
-        # Combine base fields with type-specific fields
-        self.include_fields = base_fields + type_fields_map.get(obj.activity_type, [])
+        self.include_fields = get_activity_detail_tab_fields(obj.activity_type)
 
         context["body"] = self.body or self.get_default_body()
         return context
