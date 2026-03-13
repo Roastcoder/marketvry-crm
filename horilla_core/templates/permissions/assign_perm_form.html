@@ -79,7 +79,7 @@
                                     {% if model.is_managed %}
                                         <button
                                             type="button"
-                                            class="whitespace-nowrap text-left hover:text-primary-600"
+                                            class="whitespace-nowrap text-left hover:text-primary-600 text-sm"
                                             hx-get="{% url 'horilla_core:model_fields_modal_bulk' model.app_label model.model_name %}?context=bulk"
                                             hx-vals='js:{"selected_user_ids": getSelectedUserIds()}'
                                             hx-target="#modalBox"
@@ -89,13 +89,8 @@
                                             {{ model.verbose_name }}
                                         </button>
                                     {% else %}
-                                        <div class="relative group inline-block cursor-pointer">
-                                            <span class="whitespace-nowrap text-black ">
-                                                {{ model.verbose_name }}
-                                            </span>
-                                            <span class="min-w-max z-40 absolute h-auto py-[3px] px-[15px] left-[40px] top-0 bg-[#000000] text-[.7rem] rounded-[5px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                                {% trans 'Field permissions not available for this model' %}
-                                            </span>
+                                        <div class="inline-block cursor-pointer text-sm whitespace-nowrap text-black" title="{% trans 'Field permissions not available for this model' %}" aria-label="{% trans 'Field permissions not available for this model' %}">
+                                            {{ model.verbose_name }}
                                         </div>
                                     {% endif %}
                                 </div>
