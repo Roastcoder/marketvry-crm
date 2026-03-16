@@ -935,6 +935,4 @@ def assign_first_company_to_all_users(sender, instance, created, **kwargs):
     """Assign the first company created to all users"""
     if created:
         if Company.objects.count() == 1:
-            get_user_model().objects.filter(company__isnull=True).update(
-                company=instance
-            )
+            User.objects.filter(company__isnull=True).update(company=instance)
