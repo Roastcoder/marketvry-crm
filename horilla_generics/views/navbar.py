@@ -114,13 +114,9 @@ class HorillaNavView(TemplateView):
         context["search_push_url"] = "true" if self.search_push_url else "false"
         context["main_url"] = self.main_url or self.request.path
         context["kanban_url"] = self.kanban_url
-        context["kanban_view_url"] = self.kanban_url
         context["group_by_url"] = getattr(self, "group_by_url", None) or ""
-        context["group_by_view_url"] = getattr(self, "group_by_url", None) or ""
         context["card_url"] = getattr(self, "card_url", None) or ""
-        context["card_view_url"] = getattr(self, "card_url", None) or ""
         context["timeline_url"] = getattr(self, "timeline_url", None) or ""
-        # URL to open timeline settings modal with current GET preserved
         timeline_settings_url = ""
         if getattr(self, "timeline_url", None):
             try:
@@ -141,10 +137,8 @@ class HorillaNavView(TemplateView):
         context["timeline_settings_modal_url"] = timeline_settings_url
         split_url = getattr(self, "split_view_url", None)
         context["split_view_url"] = str(split_url) if split_url else ""
-        context["split_view_view_url"] = context["split_view_url"]
-        chart_u = getattr(self, "chart_url", None)
-        context["chart_url"] = str(chart_u) if chart_u else ""
-        context["chart_view_url"] = context["chart_url"]
+        chart_url = getattr(self, "chart_url", None)
+        context["chart_url"] = str(chart_url) if chart_url else ""
         context["actions"] = self.actions
         context["new_button"] = self.new_button or {}
         context["second_button"] = self.second_button or {}
