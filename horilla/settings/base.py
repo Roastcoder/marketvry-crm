@@ -29,7 +29,7 @@ env = environ.Env(
     ENVIRONMENT=(str, "development"),  # production/staging/development
     SECRET_KEY=(str, "django-insecure-default-key"),
     ALLOWED_HOSTS=(list, ["*"]),
-    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000"]),
+    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000", "https://crm.marketvry.com"]),
 )
 
 # Read from .env file if exists
