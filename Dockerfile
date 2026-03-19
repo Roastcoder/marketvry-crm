@@ -63,9 +63,6 @@ USER appuser
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/health/ || exit 1
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "horilla.asgi:application", \
      "--host", "0.0.0.0", \
