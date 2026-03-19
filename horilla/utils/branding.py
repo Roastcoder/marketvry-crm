@@ -10,7 +10,35 @@ DEFAULTS = {
     "LOGIN_WELCOME_LINE": _("Welcome to Marketvry"),
     "LOGIN_TAG_LINE": _("Please sign in to access your dashboard"),
     "SIGNUP_TAG_LINE": _("Please sign up to access Marketvry"),
-    "LOGO_PATH": "images/logo.png",
+    "LOGO_PATH": "assets/img/logo.svg",
     "FAVICON_PATH": "favicon.ico",
     "PAGE_HEADER": _("Marketvry"),
 }
+
+
+def load_branding():
+    """
+    Loads branding values from an optional module defined in settings.
+    Falls back to DEFAULTS when not defined.
+    """
+
+    branding = DEFAULTS.copy()
+
+    module_path = getattr(settings, "BRANDING_MODULE", None)
+    if not module_path:
+        return branding
+
+    try:
+        module = import_module(module_path)
+    except Exception:
+        return branding
+
+    module_dict = getattr(module, "BRANDING", None)
+    if isinstance(module_dict, dict):
+        branding.update(module_dict)
+
+    for key in DEFAULTS:
+        if hasattr(module, key):
+            branding[key] = getattr(module, key)
+
+    return branding
