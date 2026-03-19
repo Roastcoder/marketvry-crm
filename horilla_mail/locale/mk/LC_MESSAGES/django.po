@@ -1,0 +1,509 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:51+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;\n"
+
+msgid ""
+"Module for managing incoming and outgoing emails through mail servers and "
+"Outlook."
+msgstr ""
+
+msgid "Mail System"
+msgstr ""
+
+msgid "To Email"
+msgstr ""
+
+msgid "Enter email address to send test email"
+msgstr ""
+
+msgid "Enter the email address where you want to send the test email."
+msgstr ""
+
+msgid "Please enter a valid email address."
+msgstr ""
+
+msgid "Enter app password"
+msgstr ""
+
+msgid "Enter the app-specific password for your mail account."
+msgstr ""
+
+msgid "Enter the app-specific password  for your mail account."
+msgstr ""
+
+msgid "Enter client secret"
+msgstr ""
+
+msgid ""
+"Enter the client secret generated from your Microsoft Azure app "
+"registration. This secret is used to authenticate your Outlook integration "
+"securely."
+msgstr ""
+
+msgid "Related Model"
+msgstr ""
+
+msgid "Update Mail Template"
+msgstr ""
+
+msgid "Update Template"
+msgstr ""
+
+msgid "Create Mail Template"
+msgstr ""
+
+msgid "Save Template"
+msgstr ""
+
+msgid "Mail template \"{}\" updated successfully."
+msgstr ""
+
+msgid "Mail template \"{}\" created successfully."
+msgstr ""
+
+msgid "Token not refreshed, Login required"
+msgstr ""
+
+msgid "Token refreshed successfully"
+msgstr ""
+
+#, python-brace-format
+msgid "Token refresh failed: {error}. Please re-authenticate."
+msgstr ""
+
+#, python-brace-format
+msgid "Token refresh failed: {error}"
+msgstr ""
+
+msgid "Incoming Mail Configurations"
+msgstr ""
+
+msgid "Mail"
+msgstr ""
+
+msgid "Outgoing Mail Server"
+msgstr ""
+
+msgid "Incoming Mail Server"
+msgstr ""
+
+msgid "Mail Template"
+msgstr ""
+
+msgid "Outlook"
+msgstr ""
+
+msgid "Incoming"
+msgstr ""
+
+msgid "Outgoing"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Mail Channel"
+msgstr ""
+
+msgid ""
+"Specifies whether this configuration handles incoming,outgoing, or both "
+"types of emails."
+msgstr ""
+
+msgid "Host"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
+msgid "Default From Mail"
+msgstr ""
+
+msgid "Email Host Username"
+msgstr ""
+
+msgid "Display Name"
+msgstr ""
+
+msgid "Email Authentication Password"
+msgstr ""
+
+msgid "Use TLS"
+msgstr ""
+
+msgid "Use SSL"
+msgstr ""
+
+msgid "Fail Silently"
+msgstr ""
+
+msgid "Primary Mail Server"
+msgstr ""
+
+msgid "By enabling this the display name will take from who triggered the mail"
+msgstr ""
+
+msgid "Email Send Timeout (seconds)"
+msgstr ""
+
+msgid "Client ID"
+msgstr ""
+
+msgid "Client Secret"
+msgstr ""
+
+msgid "Tenant ID"
+msgstr ""
+
+msgid "Redirect URi"
+msgstr ""
+
+msgid "OAuth authorization endpoint"
+msgstr ""
+
+msgid "OAuth token endpoint"
+msgstr ""
+
+msgid "Microsoft Graph API endpoint"
+msgstr ""
+
+msgid "This field is required"
+msgstr ""
+
+msgid "Mail Configuration"
+msgstr ""
+
+msgid "Mail Configurations"
+msgstr ""
+
+msgid "Draft"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "Comma separated recipient email addresses"
+msgstr ""
+
+msgid "To"
+msgstr ""
+
+msgid "Cc"
+msgstr ""
+
+msgid "Bcc"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Body"
+msgstr ""
+
+msgid "When the mail should be sent (for scheduled mails)."
+msgstr ""
+
+msgid ""
+"Subject contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+
+msgid ""
+"Body contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+
+msgid "Mails"
+msgstr ""
+
+msgid "Mail Attachment"
+msgstr ""
+
+msgid "Mail Attachments"
+msgstr ""
+
+msgid "Template title"
+msgstr ""
+
+msgid "Mail Templates"
+msgstr ""
+
+msgid "Outgoing Mail Configurations"
+msgstr ""
+
+msgid "Mail sent successfully"
+msgstr ""
+
+msgid "Save Changes?"
+msgstr ""
+
+msgid "Do you want to save your changes as a draft or discard them?"
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "Save as Draft"
+msgstr ""
+
+msgid "No emails found for"
+msgstr ""
+
+msgid "Start typing to search emails..."
+msgstr ""
+
+msgid "Insert Fields"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Select fields to insert into your email template."
+msgstr ""
+
+msgid "Instance"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Request"
+msgstr ""
+
+msgid "Direct Fields"
+msgstr ""
+
+msgid "User Fields"
+msgstr ""
+
+msgid "Company Fields"
+msgstr ""
+
+msgid "Request Fields"
+msgstr ""
+
+msgid "Related Fields"
+msgstr ""
+
+msgid "Reverse Related Fields"
+msgstr ""
+
+msgid "No fields available for this model"
+msgstr ""
+
+msgid "Insert Selected Fields"
+msgstr ""
+
+msgid "Test Email Configuration"
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
+
+msgid "Send Test Email"
+msgstr ""
+
+msgid "Select Mail Server Type"
+msgstr ""
+
+msgid "Outlook Mail Server"
+msgstr ""
+
+msgid "Configure using Microsoft Azure/Office 365 OAuth authentication"
+msgstr ""
+
+msgid "Select Outlook"
+msgstr ""
+
+msgid "mail"
+msgstr ""
+
+msgid "Other Mail Servers"
+msgstr ""
+
+msgid "Configure SMTP, Gmail, Yahoo, or any other mail server"
+msgstr ""
+
+msgid "Select Other"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Mail Configuration Required"
+msgstr ""
+
+msgid "Cannot send email"
+msgstr ""
+
+msgid "Mail can only be sent after outgoing mail is configured."
+msgstr ""
+
+msgid "Configure Outgoing Mail"
+msgstr ""
+
+msgid "Please contact your administrator to configure outgoing mail settings."
+msgstr ""
+
+msgid "Send Mail"
+msgstr ""
+
+msgid "No mail server configured"
+msgstr ""
+
+msgid "Related to"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Mail Preview"
+msgstr ""
+
+msgid "Email Snapshot"
+msgstr ""
+
+msgid "From:"
+msgstr ""
+
+msgid "No sender configured"
+msgstr ""
+
+msgid "No subject"
+msgstr ""
+
+msgid "No message content"
+msgstr ""
+
+msgid "This is how your email will look when sent"
+msgstr ""
+
+msgid "Enter email subject (optional)"
+msgstr ""
+
+msgid "Select content type (optional)"
+msgstr ""
+
+msgid "Save as mail template"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Select Mail Template"
+msgstr ""
+
+msgid "Select Template"
+msgstr ""
+
+msgid "Email Template Preview"
+msgstr ""
+
+msgid "No content to preview"
+msgstr ""
+
+msgid "Schedule Email"
+msgstr ""
+
+msgid "Schedule Date"
+msgstr ""
+
+msgid "Schedule"
+msgstr ""
+
+msgid "Cannot send email. Outgoing mail must be configured first."
+msgstr ""
+
+msgid "To email is required"
+msgstr ""
+
+msgid "From mail configuration is required"
+msgstr ""
+
+msgid ""
+"Both model_name and object_id are required to send mail related to an object."
+msgstr ""
+
+msgid ""
+"Cannot send mail: model information is missing. Please try again from the "
+"opportunity page."
+msgstr ""
+
+msgid "Failed to send mail: "
+msgstr ""
+
+msgid "Error sending mail: "
+msgstr ""
+
+msgid "Draft saved successfully"
+msgstr ""
+
+msgid "Error saving draft: "
+msgstr ""
+
+msgid "Draft discarded"
+msgstr ""
+
+msgid "Error discarding draft: "
+msgstr ""
+
+msgid "Schedule time is required"
+msgstr ""
+
+msgid "Scheduled time must be in the future"
+msgstr ""
+
+msgid "Invalid date/time format"
+msgstr ""
+
+msgid "Scheduled mail not found or you don't have permission"
+msgstr ""
+
+msgid "Mail rescheduled successfully for "
+msgstr ""
+
+msgid "Invalid mail configuration selected"
+msgstr ""
+
+msgid "Mail scheduled successfully for "
+msgstr ""
+
+msgid "Error scheduling mail: "
+msgstr ""

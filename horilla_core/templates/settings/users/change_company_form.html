@@ -1,0 +1,161 @@
+{% load static %} {% load i18n %} {% load horilla_tags %}
+
+<div id="{{ view_id|safe }}-container" class="relative bg-white rounded-lg shadow-sm">
+    <form id="{{ view_id|safe }}" method="post"
+          hx-post="{{ form_url }}?{{ request.GET.urlencode }}"
+          hx-target="#{{ view_id|safe }}-container"
+          hx-swap="outerHTML"
+          enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="p-5">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-md font-semibold">{{ form_title|escape }}</h2>
+                <button type="button" onclick="closeModal()" class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+                    <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+                </button>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-500 px-4 py-3 rounded-lg text-sm mb-4">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Render all hidden fields -->
+            {% for field in form %}
+                {% if field.is_hidden %}
+                    {{ field }}
+                {% endif %}
+            {% endfor %}
+
+            <!-- Hidden field for user_pk to include in HTMX requests -->
+            {% if user_pk %}
+                <input type="hidden" name="user_pk" id="id_user_pk" value="{{ user_pk }}">
+            {% endif %}
+
+            <!-- Display errors for hidden fields -->
+            {% for field in form %}
+                {% if field.is_hidden and field.errors %}
+                    <div class="flex gap-1 bg-red-50 text-red-500 px-4 py-3 rounded-lg text-sm mb-4">
+                        <strong>
+                            {% if field.label %}
+                                {{ field.label }}
+                            {% else %}
+                                {{ field.name|title }}
+                            {% endif %}:
+                        </strong>
+                        {% for error in field.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="overflow-hidden overflow-y-auto pe-2 custom-scroll">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                    <!-- Company Field (first row, first column) -->
+                    {% for field in form %}
+                        {% if field.name == 'company' and not field.is_hidden %}
+                            <div id="{{ field.name }}_container" class="flex flex-col">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label for="{{ field.id_for_label }}" class="text-xs text-color-600">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                    <div class="bg-red-50 text-red-500 px-3 py-2 rounded text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Role Field (first row, second column) - Will be updated by HTMX -->
+                    <div id="role_container" class="flex flex-col">
+                        {% for field in form %}
+                            {% if field.name == 'role' and not field.is_hidden %}
+                                <div class="flex justify-between items-center mb-1">
+                                    <label for="{{ field.id_for_label }}" class="text-xs text-color-600">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    {{ field }}
+                                </div>
+                                {% if field.errors %}
+                                    <div class="bg-red-50 text-red-500 px-3 py-2 rounded text-xs mt-1">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Company Related Fields Container (Department, Currency) - Second Row -->
+                    <div id="company-related-fields" class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for field in form %}
+                            {% if field.name == 'department' or field.name == 'currency' %}
+                                {% if not field.is_hidden %}
+                                    <div id="{{ field.name }}_container" class="flex flex-col">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label for="{{ field.id_for_label }}" class="text-xs text-color-600">
+                                                {{ field.label }}
+                                                {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            {{ field }}
+                                        </div>
+                                        {% if field.errors %}
+                                            <div class="bg-red-50 text-red-500 px-3 py-2 rounded text-xs mt-1">
+                                                {% for error in field.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end p-5 pt-0 gap-2">
+            <button type="submit" class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
+                {% trans "Save" %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Re-initialize Select2 after HTMX swap for company-related fields
+    document.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'company-related-fields' || event.target.closest('#company-related-fields')) {
+            // Re-initialize Select2 for the new select elements
+            setTimeout(function() {
+                $('#id_role, #id_department, #id_currency').select2();
+            }, 100);
+        }
+    });
+
+    // Initialize Select2 on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#id_company, #id_role, #id_department, #id_currency').select2();
+    });
+</script>

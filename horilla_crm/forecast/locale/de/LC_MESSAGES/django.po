@@ -1,0 +1,339 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Forecast"
+msgstr "Prognose"
+
+msgid "Update Target"
+msgstr "Ziel aktualisieren"
+
+msgid "Deal Revenue Amount"
+msgstr "Umsatzbetrag des Geschäfts"
+
+msgid "Deal Revenue Expected Amount"
+msgstr "Erwarteter Umsatzbetrag des Geschäfts"
+
+msgid "Deal Quantity"
+msgstr "Geschäftsmenge"
+
+msgid "Forecast Type Name"
+msgstr "Name des Prognosetyps"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Forecast Type"
+msgstr "Prognosetyp"
+
+msgid "Include Pipeline"
+msgstr "Pipeline einbeziehen"
+
+msgid "Include Best Case"
+msgstr "Besten Fall einbeziehen"
+
+msgid "Include Commit"
+msgstr "Commit einbeziehen"
+
+msgid "Include Closed"
+msgstr "Abgeschlossene einbeziehen"
+
+msgid "Forecast Types"
+msgstr "Prognosetypen"
+
+msgid "Field Name"
+msgstr "Feldname"
+
+msgid "Operator"
+msgstr "Operator"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "Logical Operator"
+msgstr "Logischer Operator"
+
+msgid "Order"
+msgstr "Reihenfolge"
+
+msgid "Forecast Condition"
+msgstr "Prognosebedingung"
+
+msgid "Forecast Conditions"
+msgstr "Prognosebedingungen"
+
+msgid "Draft"
+msgstr "Entwurf"
+
+msgid "Submitted"
+msgstr "Eingereicht"
+
+msgid "Approved"
+msgstr "Genehmigt"
+
+msgid "Rejected"
+msgstr "Abgelehnt"
+
+msgid "Forecast Name"
+msgstr "Prognosename"
+
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "Quarter"
+msgstr "Quartal"
+
+msgid "Fiscal Year"
+msgstr "Geschäftsjahr"
+
+msgid "Forecast Owner"
+msgstr "Prognosebesitzer"
+
+msgid "Target Amount"
+msgstr "Zielbetrag"
+
+msgid "Pipeline Amount"
+msgstr "Pipeline-Betrag"
+
+msgid "Best Case Amount"
+msgstr "Betrag des besten Falls"
+
+msgid "Commit Amount"
+msgstr "Commit-Betrag"
+
+msgid "Closed Amount"
+msgstr "Abgeschlossener Betrag"
+
+msgid "Actual Amount"
+msgstr "Tatsächlicher Betrag"
+
+msgid "Target Quantity"
+msgstr "Zielmenge"
+
+msgid "Pipeline Quantity"
+msgstr "Pipeline-Menge"
+
+msgid "Best Case Quantity"
+msgstr "Menge des besten Falls"
+
+msgid "Commit Quantity"
+msgstr "Commit-Menge"
+
+msgid "Closed Quantity"
+msgstr "Abgeschlossene Menge"
+
+msgid "Actual Quantity"
+msgstr "Tatsächliche Menge"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Submitted At"
+msgstr "Eingereicht am"
+
+msgid "Approved At"
+msgstr "Genehmigt am"
+
+msgid "Approved By"
+msgstr "Genehmigt von"
+
+msgid "Notes"
+msgstr "Notizen"
+
+msgid "Forecasts"
+msgstr "Prognosen"
+
+msgid "Assigned User"
+msgstr "Zugewiesener Benutzer"
+
+msgid "Role"
+msgstr "Rolle"
+
+msgid "Forecast Period"
+msgstr "Prognosezeitraum"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Target amount (revenue or quantity)"
+msgstr "Zielbetrag (Umsatz oder Menge)"
+
+msgid "Currency"
+msgstr "Währung"
+
+msgid "Currency code (e.g., USD, EUR, INR)"
+msgstr "Währungscode (z. B. USD, EUR, INR)"
+
+msgid "Current Achievement"
+msgstr "Aktuelle Leistung"
+
+msgid "Current achieved amount (auto-calculated)"
+msgstr "Aktuell erreichter Betrag (automatisch berechnet)"
+
+msgid "Forecast Target"
+msgstr "Prognoseziel"
+
+msgid "Forecast Targets"
+msgstr "Prognoseziele"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "User Revenue Target"
+msgstr "Umsatzziel des Benutzers"
+
+msgid "Individual revenue target for this user"
+msgstr "Individuelles Umsatzziel für diesen Benutzer"
+
+msgid "User Quantity Target"
+msgstr "Mengenziel des Benutzers"
+
+msgid "Individual quantity target for this user"
+msgstr "Individuelles Mengenziel für diesen Benutzer"
+
+msgid "Current Revenue Achieved"
+msgstr "Aktuell erzielter Umsatz"
+
+msgid "Current achieved revenue for this user"
+msgstr "Aktuell erzielter Umsatz für diesen Benutzer"
+
+msgid "Current Quantity Achieved"
+msgstr "Aktuell erreichte Menge"
+
+msgid "Current achieved quantity for this user"
+msgstr "Aktuell erreichte Menge für diesen Benutzer"
+
+msgid "Is Active"
+msgstr "Ist aktiv"
+
+msgid "Forecast Target User"
+msgstr "Prognoseziel-Benutzer"
+
+msgid "Forecast Target Users"
+msgstr "Prognoseziel-Benutzer"
+
+msgid "My Forecast"
+msgstr "Meine Prognose"
+
+msgid "All Users"
+msgstr "Alle Benutzer"
+
+msgid "Select Fiscal Year"
+msgstr "Geschäftsjahr auswählen"
+
+msgid "- Current"
+msgstr "- Aktuell"
+
+#, fuzzy
+#| msgid "Closed"
+msgid "Close"
+msgstr "Abgeschlossen"
+
+msgid "deals"
+msgstr "Deals"
+
+msgid "Total:"
+msgstr "Gesamt:"
+
+msgid "opportunities"
+msgstr "Chancen"
+
+msgid "Total Quantity:"
+msgstr "Gesamtmenge:"
+
+msgid "Total Amount:"
+msgstr "Gesamtbetrag:"
+
+msgid "Select User"
+msgstr "Benutzer auswählen"
+
+msgid "Select Period"
+msgstr "Zeitraum auswählen"
+
+msgid "Select Forecast Type"
+msgstr "Prognosetyp auswählen"
+
+msgid "Remove"
+msgstr ""
+
+msgid "Conditions"
+msgstr "Bedingungen"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Activate company"
+msgstr ""
+
+msgid "Please create or activate your company."
+msgstr "Bitte erstellen oder aktivieren Sie Ihr Unternehmen."
+
+msgid "Not found"
+msgstr ""
+
+msgid "No Forecast Type set. Set it from settings."
+msgstr "Kein Prognosetyp festgelegt. Bitte in den Einstellungen festlegen."
+
+msgid "Go To Forecast Type"
+msgstr "Zum Prognosetyp gehen"
+
+msgid "Achievement"
+msgstr "Erreichter Wert"
+
+msgid "Gap"
+msgstr "Lücke"
+
+msgid "Closed"
+msgstr "Abgeschlossen"
+
+msgid "Commit Forecast"
+msgstr "Verpflichtete Prognose"
+
+msgid "Best Case"
+msgstr "Bestes Szenario"
+
+msgid "Open Pipeline"
+msgstr "Offene Pipeline"
+
+msgid "Total"
+msgstr "Gesamt"
+
+msgid "Periods"
+msgstr "Zeiträume"
+
+msgid "Up trend"
+msgstr ""
+
+msgid "Down trend"
+msgstr ""
+
+msgid "Loading more users for"
+msgstr "Lade weitere Benutzer für"
+
+msgid "No forecast data available for this period"
+msgstr "Keine Prognosedaten für diesen Zeitraum verfügbar"
+
+msgid "Forecast Type:"
+msgstr "Prognosetyp:"
+
+msgid "Permission Denied"
+msgstr "Zugriff verweigert"
+
+msgid "You do not have permission to view this page."
+msgstr "Sie haben keine Berechtigung, diese Seite anzusehen."

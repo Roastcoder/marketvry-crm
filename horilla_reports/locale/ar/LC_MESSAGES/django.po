@@ -1,0 +1,314 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Module for creating and customizing reports across all system modules."
+msgstr "وحدة لإنشاء التقارير وتخصيصها عبر جميع وحدات النظام."
+
+msgid "Reports"
+msgstr "التقارير"
+
+msgid "Analytics"
+msgstr "التحليلات"
+
+msgid "Folder Name"
+msgstr "اسم المجلد"
+
+msgid "Folder"
+msgstr "المجلد"
+
+msgid "Folder Owner"
+msgstr "مالك المجلد"
+
+msgid "Report Folder"
+msgstr "مجلد التقرير"
+
+msgid "Report Folders"
+msgstr "مجلدات التقارير"
+
+msgid "Column Chart"
+msgstr "مخطط الأعمدة"
+
+msgid "Line Chart"
+msgstr "مخطط خطي"
+
+msgid "Pie Chart"
+msgstr "مخطط دائري"
+
+msgid "Funnel"
+msgstr "مخطط قمعي"
+
+msgid "Bar Chart"
+msgstr "مخطط شريطي"
+
+msgid "Donut"
+msgstr "مخطط حلقي"
+
+msgid "Stacked Vertical Chart"
+msgstr "مخطط عمودي مكدس"
+
+msgid "Stacked Horizontal Chart"
+msgstr "مخطط أفقي مكدس"
+
+msgid "Scatter Chart"
+msgstr "مخطط مبعثر"
+
+msgid "Report Owner"
+msgstr "مالك التقرير"
+
+msgid "Report Name"
+msgstr "اسم التقرير"
+
+msgid "Module"
+msgstr "الوحدة"
+
+msgid "Chart Field"
+msgstr "حقل المخطط"
+
+msgid "Secondary Field"
+msgstr "الحقل الثانوي"
+
+msgid "Report"
+msgstr "تقرير"
+
+msgid " All Reports"
+msgstr " جميع التقارير"
+
+msgid "Folders"
+msgstr "المجلدات"
+
+msgid "All Folders"
+msgstr "جميع المجلدات"
+
+msgid "Favourites"
+msgstr "المفضلة"
+
+msgid "All Reports"
+msgstr "جميع التقارير"
+
+msgid "You are already selected this field"
+msgstr "لقد قمت باختيار هذا الحقل بالفعل"
+
+msgid "No matching columns found"
+msgstr "لم يتم العثور على أعمدة مطابقة"
+
+msgid "No fields found matching your search"
+msgstr "لم يتم العثور على حقول تطابق بحثك"
+
+msgid "R"
+msgstr "R"
+
+msgid "C"
+msgstr "C"
+
+msgid "A"
+msgstr "A"
+
+msgid "Down"
+msgstr ""
+
+msgid "Add to Dashboard"
+msgstr "إضافة إلى لوحة التحكم"
+
+msgid "Record Count"
+msgstr "عدد السجلات"
+
+msgid "Is"
+msgstr "يساوي"
+
+msgid "Contains"
+msgstr "يحتوي على"
+
+msgid "Greater than"
+msgstr "أكبر من"
+
+msgid "Less than"
+msgstr "أقل من"
+
+msgid "Greater or equal"
+msgstr "أكبر من أو يساوي"
+
+msgid "Less or equal"
+msgstr "أقل من أو يساوي"
+
+msgid "Close"
+msgstr ""
+
+msgid "AND"
+msgstr "و"
+
+msgid "OR"
+msgstr "أو"
+
+msgid "Summary Report"
+msgstr "تقرير ملخص"
+
+msgid "Total Count"
+msgstr "إجمالي العدد"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Subtotal"
+msgstr "المجموع الفرعي"
+
+msgid "Grand Total"
+msgstr "المجموع الكلي"
+
+msgid "Count"
+msgstr "العدد"
+
+msgid "Overall Grand Total"
+msgstr "الإجمالي الكلي العام"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Configuration not supported"
+msgstr "الإعداد غير مدعوم"
+
+msgid "Columns"
+msgstr "الأعمدة"
+
+msgid "Grouping"
+msgstr "التجميع"
+
+msgid "Filter"
+msgstr "التصفية"
+
+msgid "Search"
+msgstr ""
+
+msgid "Selected Columns"
+msgstr "الأعمدة المحددة"
+
+msgid "Grouped Columns"
+msgstr "الأعمدة المجمعة"
+
+msgid "Row Groups"
+msgstr "مجموعات الصفوف"
+
+msgid "Column Groups"
+msgstr "مجموعات الأعمدة"
+
+msgid "Aggregate Columns"
+msgstr "الأعمدة المجمعة"
+
+msgid "Sum"
+msgstr "المجموع"
+
+msgid "Avg"
+msgstr "المتوسط"
+
+msgid "Max"
+msgstr "الحد الأقصى"
+
+msgid "Min"
+msgstr "الحد الأدنى"
+
+msgid "Seacrch"
+msgstr ""
+
+msgid "Apply Filters"
+msgstr "تطبيق عوامل التصفية"
+
+msgid "Report:"
+msgstr "التقرير:"
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Edit"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "You have unsaved changes. Click"
+msgstr "لديك تغييرات غير محفوظة. انقر"
+
+msgid "to keep your changes or"
+msgstr "للاحتفاظ بتغييراتك أو"
+
+msgid "Discard"
+msgstr "تجاهل"
+
+msgid "to revert."
+msgstr "للرجوع."
+
+msgid "Detail table"
+msgstr "جدول تفصيلي"
+
+msgid "Pivot table"
+msgstr "جدول محوري"
+
+msgid "Report Chart"
+msgstr "مخطط التقرير"
+
+msgid "Change Chart"
+msgstr "تغيير المخطط"
+
+msgid "Change Field"
+msgstr "تغيير الحقل"
+
+msgid "Export as PDF"
+msgstr ""
+
+msgid "Export as PNG"
+msgstr ""
+
+msgid "Record Count:"
+msgstr "عدد السجلات:"
+
+msgid "Move"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Select Default Reports"
+msgstr "تحديد التقارير الافتراضية"
+
+msgid "Select All"
+msgstr "تحديد الكل"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "No reports found."
+msgstr "لم يتم العثور على تقارير."
+
+msgid "New Report"
+msgstr "تقرير جديد"
+
+msgid "Load Default Reports"
+msgstr "تحميل التقارير الافتراضية"
+
+msgid "New Folder"
+msgstr "مجلد جديد"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "Type"
+msgstr "النوع"

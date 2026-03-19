@@ -1,0 +1,535 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:51+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid ""
+"Module for managing incoming and outgoing emails through mail servers and "
+"Outlook."
+msgstr ""
+"Modul zur Verwaltung eingehender und ausgehender E-Mails über Mailserver und "
+"Outlook."
+
+msgid "Mail System"
+msgstr "E-Mail-System"
+
+msgid "To Email"
+msgstr "An E-Mail"
+
+msgid "Enter email address to send test email"
+msgstr "Geben Sie die E-Mail-Adresse für den Testversand ein"
+
+msgid "Enter the email address where you want to send the test email."
+msgstr ""
+"Geben Sie die E-Mail-Adresse ein, an die Sie die Test-E-Mail senden möchten."
+"Geben Sie die E-Mail-Adresse ein, an die die Test-E-Mail gesendet werden "
+"soll."
+
+msgid "Please enter a valid email address."
+msgstr "Bitte geben Sie eine gültige E-Mail-Adresse ein."
+
+msgid "Enter app password"
+msgstr "App-Passwort eingeben"
+
+msgid "Enter the app-specific password for your mail account."
+msgstr "Geben Sie das app-spezifische Passwort für Ihr E-Mail-Konto ein."
+
+msgid "Enter the app-specific password  for your mail account."
+msgstr "Geben Sie das app-spezifische Passwort für Ihr E-Mail-Konto ein."
+
+msgid "Enter client secret"
+msgstr "Client-Geheimnis eingeben"
+
+msgid ""
+"Enter the client secret generated from your Microsoft Azure app "
+"registration. This secret is used to authenticate your Outlook integration "
+"securely."
+msgstr ""
+"Geben Sie das Client-Geheimnis ein, das bei der Registrierung Ihrer "
+"Microsoft Azure-App erstellt wurde. Dieses Geheimnis wird für die sichere "
+"Authentifizierung der Outlook-Integration verwendet."
+
+msgid "Related Model"
+msgstr "Verknüpftes Modell"
+
+msgid "Update Mail Template"
+msgstr "E-Mail-Vorlage aktualisieren"
+
+msgid "Update Template"
+msgstr "Vorlage aktualisieren"
+
+msgid "Create Mail Template"
+msgstr "E-Mail-Vorlage erstellen"
+
+msgid "Save Template"
+msgstr "Vorlage speichern"
+
+msgid "Mail template \"{}\" updated successfully."
+msgstr "E-Mail-Vorlage „{}“ erfolgreich aktualisiert."
+
+msgid "Mail template \"{}\" created successfully."
+msgstr "E-Mail-Vorlage „{}“ erfolgreich erstellt."
+
+msgid "Token not refreshed, Login required"
+msgstr "Token nicht aktualisiert, Anmeldung erforderlich"
+
+msgid "Token refreshed successfully"
+msgstr "Token erfolgreich aktualisiert"
+
+#, python-brace-format
+msgid "Token refresh failed: {error}. Please re-authenticate."
+msgstr "Token-Aktualisierung fehlgeschlagen: {error}. Bitte authentifizieren Sie sich erneut."
+
+#, python-brace-format
+msgid "Token refresh failed: {error}"
+msgstr "Token-Aktualisierung fehlgeschlagen: {error}"
+
+msgid "Incoming Mail Configurations"
+msgstr "Einstellungen für eingehende E-Mails"
+
+msgid "Mail"
+msgstr "E-Mail"
+
+msgid "Outgoing Mail Server"
+msgstr "Ausgehender Mail-Server"
+
+msgid "Incoming Mail Server"
+msgstr "Eingehender Mail-Server"
+
+msgid "Mail Template"
+msgstr "E-Mail-Vorlage"
+
+msgid "Outlook"
+msgstr "Outlook"
+
+msgid "Incoming"
+msgstr "Eingehend"
+
+msgid "Outgoing"
+msgstr "Ausgehend"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Mail Channel"
+msgstr "Mail-Kanal"
+
+msgid ""
+"Specifies whether this configuration handles incoming,outgoing, or both "
+"types of emails."
+msgstr ""
+"Legt fest, ob diese Konfiguration eingehende, ausgehende oder beide Arten "
+"von E-Mails verarbeitet."
+
+msgid "Host"
+msgstr "Host"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Default From Mail"
+msgstr "Standardabsender"
+
+msgid "Email Host Username"
+msgstr "Benutzername des E-Mail-Servers"
+
+msgid "Display Name"
+msgstr "Anzeigename"
+
+msgid "Email Authentication Password"
+msgstr "E-Mail-Authentifizierungspasswort"
+
+msgid "Use TLS"
+msgstr "TLS verwenden"
+
+msgid "Use SSL"
+msgstr "SSL verwenden"
+
+msgid "Fail Silently"
+msgstr "Fehler stillschweigend behandeln"
+
+msgid "Primary Mail Server"
+msgstr "Primärer Mail-Server"
+
+msgid "By enabling this the display name will take from who triggered the mail"
+msgstr ""
+"Wenn dies aktiviert ist, wird der Anzeigename von der Person übernommen, die "
+"die E-Mail ausgelöst hatWenn aktiviert, wird der Anzeigename von dem "
+"Benutzer übernommen, der die E-Mail ausgelöst hat."
+
+msgid "Email Send Timeout (seconds)"
+msgstr "E-Mail-Sende-Timeout (Sekunden)"
+
+msgid "Client ID"
+msgstr "Client-ID"
+
+msgid "Client Secret"
+msgstr "Client-Geheimnis"
+
+msgid "Tenant ID"
+msgstr "Mandanten-ID"
+
+msgid "Redirect URi"
+msgstr "Weiterleitungs-URI"
+
+msgid "OAuth authorization endpoint"
+msgstr "OAuth-Autorisierungs-Endpunkt"
+
+msgid "OAuth token endpoint"
+msgstr "OAuth-Token-Endpunkt"
+
+msgid "Microsoft Graph API endpoint"
+msgstr "Microsoft Graph API-Endpunkt"
+
+msgid "This field is required"
+msgstr "Dieses Feld ist erforderlich"
+
+msgid "Mail Configuration"
+msgstr "E-Mail-Konfiguration"
+
+msgid "Mail Configurations"
+msgstr "E-Mail-Konfigurationen"
+
+msgid "Draft"
+msgstr "Entwurf"
+
+msgid "Scheduled"
+msgstr "Geplant"
+
+msgid "Sent"
+msgstr "Gesendet"
+
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+msgid "From"
+msgstr "Von"
+
+msgid "Comma separated recipient email addresses"
+msgstr "Empfänger-E-Mail-Adressen, durch Komma getrennt"
+
+msgid "To"
+msgstr "An"
+
+msgid "Cc"
+msgstr "Cc"
+
+msgid "Bcc"
+msgstr "Bcc"
+
+msgid "Subject"
+msgstr "Betreff"
+
+msgid "Body"
+msgstr "Inhalt"
+
+msgid "When the mail should be sent (for scheduled mails)."
+msgstr "Wann die E-Mail gesendet werden soll (für geplante E-Mails)."
+
+msgid ""
+"Subject contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+"Der Betreff enthält potenziell gefährliche Inhalte (XSS erkannt). "
+"Bitte entfernen Sie alle Skripte oder bösartigen Code."
+
+msgid ""
+"Body contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+"Der Nachrichtentext enthält potenziell gefährliche Inhalte (XSS erkannt). "
+"Bitte entfernen Sie alle Skripte oder bösartigen Code."
+
+msgid "Mails"
+msgstr "E-Mails"
+
+msgid "Mail Attachment"
+msgstr "E-Mail-Anhang"
+
+msgid "Mail Attachments"
+msgstr "E-Mail-Anhänge"
+
+msgid "Template title"
+msgstr "Vorlagentitel"
+
+msgid "Mail Templates"
+msgstr "E-Mail-Vorlagen"
+
+msgid "Outgoing Mail Configurations"
+msgstr "إعدادات البريد الصادر"
+
+msgid "Mail sent successfully"
+msgstr "E-Mail erfolgreich gesendet"
+
+msgid "Save Changes?"
+msgstr "Änderungen speichern?"
+
+msgid "Do you want to save your changes as a draft or discard them?"
+msgstr "Möchten Sie Ihre Änderungen als Entwurf speichern oder verwerfen?"
+
+msgid "Discard"
+msgstr "Verwerfen"
+
+msgid "Save as Draft"
+msgstr "Als Entwurf speichern"
+
+msgid "No emails found for"
+msgstr "Keine E-Mails gefunden für"
+
+msgid "Start typing to search emails..."
+msgstr "Beginnen Sie mit der Eingabe, um E-Mails zu durchsuchen..."
+
+msgid "Insert Fields"
+msgstr "Felder einfügen"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Select fields to insert into your email template."
+msgstr ""
+"Wählen Sie Felder aus, die in Ihre E-Mail-Vorlage eingefügt werden sollen."
+"Wählen Sie die Felder aus, die in die E-Mail-Vorlage eingefügt werden sollen."
+
+msgid "Instance"
+msgstr "Instanz"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "Company"
+msgstr "Firma"
+
+msgid "Request"
+msgstr "Anfrage"
+
+msgid "Direct Fields"
+msgstr "Direkte Felder"
+
+msgid "User Fields"
+msgstr "Benutzerfelder"
+
+msgid "Company Fields"
+msgstr "Firmenfelder"
+
+msgid "Request Fields"
+msgstr "Anfragefelder"
+
+msgid "Related Fields"
+msgstr "Verknüpfte Felder"
+
+msgid "Reverse Related Fields"
+msgstr "Umgekehrte verknüpfte Felder"
+
+msgid "No fields available for this model"
+msgstr "Keine Felder für dieses Modell verfügbar"
+
+msgid "Insert Selected Fields"
+msgstr "Ausgewählte Felder einfügen"
+
+msgid "Test Email Configuration"
+msgstr "Test-E-Mail-Konfiguration"
+
+msgid "Loading..."
+msgstr "Wird geladen..."
+
+msgid "Send Test Email"
+msgstr "Test-E-Mail senden"
+
+msgid "Select Mail Server Type"
+msgstr "Mail-Server-Typ auswählen"
+
+msgid "Outlook Mail Server"
+msgstr "Outlook-Mail-Server"
+
+msgid "Configure using Microsoft Azure/Office 365 OAuth authentication"
+msgstr "Konfigurieren mit Microsoft Azure/Office 365 OAuth-Authentifizierung"
+
+msgid "Select Outlook"
+msgstr "Outlook auswählen"
+
+msgid "mail"
+msgstr "E-Mail"
+
+msgid "Other Mail Servers"
+msgstr "Andere Mail-Server"
+
+msgid "Configure SMTP, Gmail, Yahoo, or any other mail server"
+msgstr "Konfigurieren Sie SMTP, Gmail, Yahoo oder einen anderen Mail-Server"
+
+msgid "Select Other"
+msgstr "Andere auswählen"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "Login"
+msgstr "Anmelden"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Mail Configuration Required"
+msgstr "E-Mail-Konfiguration erforderlich"
+
+msgid "Cannot send email"
+msgstr "E-Mail kann nicht gesendet werden"
+
+msgid "Mail can only be sent after outgoing mail is configured."
+msgstr ""
+"E-Mail kann nur gesendet werden, nachdem ausgehende E-Mail konfiguriert "
+"wurde."
+
+msgid "Configure Outgoing Mail"
+msgstr "Ausgehende E-Mail konfigurieren"
+
+msgid "Please contact your administrator to configure outgoing mail settings."
+msgstr ""
+"Bitte kontaktieren Sie Ihren Administrator, um die Einstellungen für "
+"ausgehende E-Mail zu konfigurieren."
+
+msgid "Send Mail"
+msgstr "E-Mail senden"
+
+msgid "No mail server configured"
+msgstr "Kein Mail-Server konfiguriert"
+
+msgid "Related to"
+msgstr "Verknüpft mit"
+
+msgid "Message"
+msgstr "Nachricht"
+
+msgid "Mail Preview"
+msgstr "E-Mail-Vorschau"
+
+msgid "Email Snapshot"
+msgstr "E-Mail-Schnappschuss"
+
+msgid "From:"
+msgstr "Von:"
+
+msgid "No sender configured"
+msgstr "Kein Absender konfiguriert"
+
+msgid "No subject"
+msgstr "Kein Betreff"
+
+msgid "No message content"
+msgstr "Kein Nachrichteninhalt"
+
+msgid "This is how your email will look when sent"
+msgstr "So wird Ihre E-Mail beim Senden aussehen"
+
+msgid "Enter email subject (optional)"
+msgstr "E-Mail-Betreff eingeben (optional)"
+
+msgid "Select content type (optional)"
+msgstr "Inhaltstyp auswählen (optional)"
+
+msgid "Save as mail template"
+msgstr "Als E-Mail-Vorlage speichern"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Select Mail Template"
+msgstr "E-Mail-Vorlage auswählen"
+
+msgid "Select Template"
+msgstr "Vorlage auswählen"
+
+msgid "Email Template Preview"
+msgstr "E-Mail-Vorlagen-Vorschau"
+
+msgid "No content to preview"
+msgstr "Kein Inhalt zur Vorschau"
+
+msgid "Schedule Email"
+msgstr "E-Mail planen"
+
+msgid "Schedule Date"
+msgstr "Planungsdatum"
+
+msgid "Schedule"
+msgstr "Planen"
+
+msgid "Cannot send email. Outgoing mail must be configured first."
+msgstr ""
+"E-Mail kann nicht gesendet werden. Ausgehende E-Mail muss zuerst "
+"konfiguriert werden."
+
+msgid "To email is required"
+msgstr "E-Mail-Adresse (An) ist erforderlich"
+
+msgid "From mail configuration is required"
+msgstr "E-Mail-Konfiguration (Von) ist erforderlich"
+
+msgid ""
+"Both model_name and object_id are required to send mail related to an object."
+msgstr ""
+"Sowohl model_name als auch object_id sind erforderlich, um eine E-Mail zu einem Objekt zu senden."
+
+msgid ""
+"Cannot send mail: model information is missing. Please try again from the "
+"opportunity page."
+msgstr ""
+"E-Mail kann nicht gesendet werden: Modellinformationen fehlen. Bitte versuchen Sie es erneut von der Opportunity-Seite."
+
+msgid "Failed to send mail: "
+msgstr "Fehler beim Senden der E-Mail: "
+
+msgid "Error sending mail: "
+msgstr "Fehler beim Senden der E-Mail: "
+
+msgid "Draft saved successfully"
+msgstr "Entwurf erfolgreich gespeichert"
+
+msgid "Error saving draft: "
+msgstr "Fehler beim Speichern des Entwurfs: "
+
+msgid "Draft discarded"
+msgstr "Entwurf verworfen"
+
+msgid "Error discarding draft: "
+msgstr "Fehler beim Verwerfen des Entwurfs: "
+
+msgid "Schedule time is required"
+msgstr "Planungszeit ist erforderlich"
+
+msgid "Scheduled time must be in the future"
+msgstr "Die geplante Zeit muss in der Zukunft liegen"
+
+msgid "Invalid date/time format"
+msgstr "Ungültiges Datums-/Zeitformat"
+
+msgid "Scheduled mail not found or you don't have permission"
+msgstr "Geplante E-Mail nicht gefunden oder Sie haben keine Berechtigung"
+
+msgid "Mail rescheduled successfully for "
+msgstr "E-Mail erfolgreich neu geplant für "
+
+msgid "Invalid mail configuration selected"
+msgstr "Ungültige E-Mail-Konfiguration ausgewählt"
+
+msgid "Mail scheduled successfully for "
+msgstr "E-Mail erfolgreich geplant für "
+
+msgid "Error scheduling mail: "
+msgstr "Fehler beim Planen der E-Mail: "

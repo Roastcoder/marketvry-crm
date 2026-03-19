@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-13 10:49+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
+
+msgid "Module for managing calendar events and schedules."
+msgstr ""
+
+msgid "Calendar"
+msgstr ""
+
+msgid "Schedule"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Meeting"
+msgstr ""
+
+msgid "Un Availability"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Calendar Type"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Is Selected"
+msgstr ""
+
+msgid "User Calendar Preference"
+msgstr ""
+
+msgid "User Calendar Preferences"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "To"
+msgstr ""
+
+msgid "Reason"
+msgstr ""
+
+msgid "User Unavailability"
+msgstr ""
+
+msgid "User Unavailabilities"
+msgstr ""
+
+msgid "Mark Unavailable"
+msgstr ""
+
+msgid "previous"
+msgstr ""
+
+msgid "Today"
+msgstr ""
+
+msgid "next"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Week"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Year"
+msgstr ""
+
+msgid "Start Date"
+msgstr ""
+
+msgid "End Date"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Assigned to"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Mark as Complete"
+msgstr ""
+
+msgid "Info"
+msgstr ""
+
+msgid "New Activity"
+msgstr ""
+
+msgid "Mark as Unavailable"
+msgstr ""
+
+msgid "My Calendars"
+msgstr ""
+
+msgid "Dropdown"
+msgstr ""
+
+msgid "Display This Only"
+msgstr ""
+
+msgid "Tasks"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid "Meetings"
+msgstr ""
+
+msgid "Unavailability"
+msgstr ""
+
+msgid "Preferences saved successfully"
+msgstr ""
+
+msgid "Marked as completed successfully."
+msgstr ""
+
+msgid "Mark Unavailability"
+msgstr ""

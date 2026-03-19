@@ -1,0 +1,205 @@
+"""HTMX-friendly views to load and create default reports provided by installed apps."""
+
+# Standard library
+import json
+from pathlib import Path
+
+# Django / third-party imports
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView, View
+
+# First-party (Horilla) imports
+from horilla.apps import apps
+from horilla.http import HttpResponse
+from horilla.utils.decorators import htmx_required, method_decorator
+from horilla_core.models import HorillaContentType
+from horilla_reports.models import Report, ReportFolder
+
+
+@method_decorator(htmx_required, name="dispatch")
+class LoadDefaultReportsModalView(LoginRequiredMixin, TemplateView):
+    """Modal view that lists default reports provided by installed apps."""
+
+    template_name = "reports/load_default_reports.html"
+
+    def get_context_data(self, **kwargs):
+        """Build context with default reports from all installed apps report files."""
+        context = super().get_context_data(**kwargs)
+
+        all_reports = []
+
+        # Iterate through all installed apps
+        for app_config in apps.get_app_configs():
+            # Check if app has report_files attribute
+            if hasattr(app_config, "report_files"):
+                report_files = app_config.report_files
+                app_path = Path(app_config.path)
+
+                for report_file in report_files:
+                    json_path = app_path / report_file
+
+                    if json_path.exists():
+                        try:
+                            with open(json_path, "r", encoding="utf-8") as f:
+                                data = json.load(f)
+
+                                reports = [
+                                    {
+                                        "name": entry["fields"]["name"],
+                                        "folder": entry["fields"].get("folder"),
+                                        "module": app_config.verbose_name
+                                        or app_config.label,
+                                        "app_label": app_config.label,
+                                        "source_file": report_file,
+                                    }
+                                    for entry in data
+                                    if entry["model"] == "horilla_reports.report"
+                                ]
+                                all_reports.extend(reports)
+                        except Exception as e:
+                            print(f"Error loading {json_path}: {e}")
+
+        context["reports"] = all_reports
+        return context
+
+
+@method_decorator(htmx_required, name="dispatch")
+class CreateSelectedDefaultReportsView(LoginRequiredMixin, View):
+    """Create Report instances for user-selected default reports discovered in installed apps."""
+
+    def post(self, request, *args, **kwargs):
+        """Create selected default reports by reading report JSON files from installed apps and creating Report instances."""
+        selected_reports = request.POST.getlist("selected_reports")
+
+        # Collect all data from all apps
+        all_data = []
+
+        for app_config in apps.get_app_configs():
+            if hasattr(app_config, "report_files"):
+                report_files = app_config.report_files
+                app_path = Path(app_config.path)
+
+                for report_file in report_files:
+                    json_path = app_path / report_file
+
+                    if json_path.exists():
+                        try:
+                            with open(json_path, "r", encoding="utf-8") as f:
+                                data = json.load(f)
+                                all_data.extend(data)
+                        except Exception as e:
+                            print(f"Error loading {json_path}: {e}")
+
+        # Process reports
+        all_reports = [
+            entry["fields"]
+            for entry in all_data
+            if entry["model"] == "horilla_reports.report"
+        ]
+        folder_lookup = {
+            entry["pk"]: entry["fields"]
+            for entry in all_data
+            if entry["model"] == "horilla_reports.reportfolder"
+        }
+
+        created_reports = []
+        skipped_reports = []
+
+        for report_data in all_reports:
+            report_name = report_data["name"]
+            if report_name not in selected_reports:
+                continue
+
+            # Check if report already exists
+            if Report.objects.filter(name=report_name).exists():
+                skipped_reports.append(report_name)
+                continue
+
+            folder = None
+            folder_pk = report_data.get("folder")
+            if folder_pk:
+                folder_data = folder_lookup.get(folder_pk)
+                if folder_data:
+                    folder = self._ensure_folder(folder_data, folder_lookup, request)
+
+            # Resolve module dynamically
+            module_info = report_data.get("module")
+            module_ct = None
+            if isinstance(module_info, dict):
+                app_label = module_info.get("app_label")
+                model_name = module_info.get("model")
+                if app_label and model_name:
+                    try:
+                        module_ct = HorillaContentType.objects.get(
+                            app_label=app_label, model=model_name
+                        )
+                    except HorillaContentType.DoesNotExist:
+                        print(
+                            f"HorillaContentType not found for {app_label}.{model_name}"
+                        )
+                        continue  # skip if module not installed
+
+            if module_ct:
+                Report.objects.create(
+                    name=report_name,
+                    folder=folder,
+                    company=getattr(
+                        request,
+                        "active_company",
+                        getattr(request.user, "company", None),
+                    ),
+                    created_by=request.user,
+                    updated_by=request.user,
+                    report_owner=request.user,
+                    is_active=True,
+                    module=module_ct,
+                    selected_columns=report_data.get("selected_columns", ""),
+                    row_groups=report_data.get("row_groups", ""),
+                    column_groups=report_data.get("column_groups", ""),
+                    aggregate_columns=report_data.get("aggregate_columns", ""),
+                    filters=report_data.get("filters", ""),
+                    chart_type=report_data.get("chart_type", ""),
+                    chart_field=report_data.get("chart_field", ""),
+                    chart_field_stacked=report_data.get("chart_field_stacked", ""),
+                )
+                created_reports.append(report_name)
+
+        # Show messages
+        if created_reports and skipped_reports:
+            message = f"{len(created_reports)} report(s) loaded successfully. {len(skipped_reports)} report(s) already exist and were skipped."
+            messages.success(self.request, message)
+        elif created_reports:
+            messages.success(self.request, "Reports loaded successfully")
+        elif skipped_reports:
+            messages.warning(self.request, "All selected reports already exist")
+        else:
+            messages.info(self.request, "No reports were processed")
+
+        return HttpResponse("<script>$('#reloadButton').click();closeModal();</script>")
+
+    def _ensure_folder(self, folder_data, folder_lookup, request):
+        """Create folder and parent if not exists."""
+        folder_name = folder_data["name"]
+        parent = None
+        parent_pk = folder_data.get("parent")
+
+        if parent_pk:
+            parent_data = folder_lookup.get(parent_pk)
+            if parent_data:
+                parent = self._ensure_folder(parent_data, folder_lookup, request)
+
+        folder, _created = ReportFolder.objects.get_or_create(
+            name=folder_name,
+            defaults={
+                "company": getattr(
+                    request, "active_company", getattr(request.user, "company", None)
+                ),
+                "created_by": request.user,
+                "updated_by": request.user,
+                "report_folder_owner": request.user,
+                "is_active": True,
+                "parent": parent,
+            },
+        )
+        return folder

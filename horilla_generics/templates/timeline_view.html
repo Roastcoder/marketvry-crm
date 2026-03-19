@@ -1,0 +1,1531 @@
+{% load static horilla_tags %}
+{% load i18n %}
+
+{# Minimal CSS only where Tailwind cannot target (htmx, select2). Timeline layout uses Tailwind classes for theme/dark. #}
+<style>
+    /*
+     * Timeline axis labels are injected via JS. Windows often shows them faint/missing
+     * (ClearType, DPI, missing Tailwind on dynamic nodes). Force Ubuntu-like contrast
+     * with explicit colors + font stack so Windows matches Linux.
+     */
+    .js-timeline-container [id^="timeline-axis-labels-"].flex > span {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        font-family: system-ui, "Segoe UI", Ubuntu, "Ubuntu Sans", Cantarell, "Noto Sans", sans-serif !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        line-height: 1.25 !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .js-timeline-container [id^="timeline-axis-labels-"].flex > span > div:first-child {
+        color: #374151 !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+    }
+
+    .js-timeline-container [id^="timeline-axis-labels-"].flex > span > div:last-child {
+        color: #111827 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+
+    .dark .js-timeline-container [id^="timeline-axis-labels-"].flex > span {
+        background-color: #030712 !important;
+        color: #f3f4f6 !important;
+    }
+
+    .dark .js-timeline-container [id^="timeline-axis-labels-"].flex > span > div:first-child {
+        color: #d1d5db !important;
+    }
+
+    .dark .js-timeline-container [id^="timeline-axis-labels-"].flex > span > div:last-child {
+        color: #f9fafb !important;
+    }
+
+    /*
+     * Grid lines were bg-secondary-* / border-secondary-* (session palette = red on Windows).
+     * Use neutral gray so timeline grid matches Ubuntu-like subtle lines on all OS.
+     */
+    .js-timeline-container .timeline-grid-line {
+        background-color: #e5e7eb !important; /* gray-200 */
+    }
+
+    .dark .js-timeline-container .timeline-grid-line {
+        background-color: #4b5563 !important; /* gray-600 */
+    }
+
+    .js-timeline-container .timeline-axis-cell {
+        border-left-color: #e5e7eb !important;
+    }
+
+    .dark .js-timeline-container .timeline-axis-cell {
+        border-left-color: #4b5563 !important;
+    }
+
+    .htmx-indicator {
+        display: none;
+        pointer-events: none;
+    }
+
+    .htmx-request .htmx-indicator {
+        display: flex !important;
+        pointer-events: auto;
+    }
+
+    .htmx-request.htmx-indicator {
+        display: flex !important;
+        pointer-events: none;
+    }
+
+    .timeline-toolbar .select2-container {
+        min-width: 210px;
+        width: 210px !important;
+    }
+</style>
+
+{% csrf_token %}
+<div
+    id="{{ view_id|safe }}"
+    class="js-timeline-container custom-scroll overflow-hidden overflow-x-auto h-[calc(100vh-200px)] relative"
+>
+    <div
+        id="timeline-loading-{{ view_id|safe }}"
+        class="htmx-indicator absolute inset-0 z-[9999] hidden items-center justify-center bg-white/80 dark:bg-gray-900/80 pointer-events-none"
+    >
+        <div class="flex justify-center items-center p-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+    </div>
+
+    {% if filter_set_class %}
+        {% include "filterpanel.html" %}
+    {% endif %}
+
+    <button
+        id="reloadButton"
+        hidden
+        hx-get="{{ request.path }}?{{ request.GET.urlencode }}"
+        hx-target="#{{ view_id|safe }}"
+        hx-trigger="click"
+        hx-swap="outerHTML"
+        hx-select="#{{ view_id|safe }}"
+        hx-indicator="#timeline-loading-{{ view_id|safe }}"
+    >
+        click
+    </button>
+
+    {% if timeline_error %}
+        <div class="p-4 mb-4 text-sm text-red-600 bg-red-50 rounded-lg text-center">
+            {{ timeline_error }}
+        </div>
+    {% elif timeline_items %}
+        <div class="timeline-toolbar flex items-center gap-8 mb-2.5 flex-wrap">
+            {% if timeline_group_by_choices %}
+                <form
+                    id="timeline-group-by-form-{{ view_id|safe }}"
+                    class="flex items-center gap-2"
+                    method="get"
+                    action="{{ request.path }}"
+                >
+                    {% for k, v in request.GET.items %}
+                        {% if k != 'timeline_group_by' and k != 'group_by' %}
+                            <input type="hidden" name="{{ k }}" value="{{ v }}">
+                        {% endif %}
+                    {% endfor %}
+
+                    <label
+                        for="timeline-group-by-select-{{ view_id|safe }}"
+                        class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap"
+                    >
+                        {% trans "Group by" %}:
+                    </label>
+
+                    <select
+                        id="timeline-group-by-select-{{ view_id|safe }}"
+                        name="timeline_group_by"
+                        class="js-example-basic-single headselect min-w-[210px] w-[210px]"
+                        hx-get="{{ request.path }}"
+                        hx-trigger="change"
+                        hx-include="#timeline-group-by-form-{{ view_id|safe }}"
+                        hx-target="#{{ view_id|safe }}"
+                        hx-swap="outerHTML"
+                        hx-select="#{{ view_id|safe }}"
+                        hx-push-url="true"
+                        hx-indicator="#timeline-loading-{{ view_id|safe }}"
+                    >
+                        {% for value, label in timeline_group_by_choices %}
+                            <option value="{{ value }}" {% if current_timeline_group_by == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            {% endif %}
+
+            {% if timeline_scale_choices %}
+                <form
+                    id="timeline-scale-form-{{ view_id|safe }}"
+                    class="flex items-center gap-2"
+                    method="get"
+                    action="{{ request.path }}"
+                >
+                    {% for k, v in request.GET.items %}
+                        {% if k != 'timeline_scale' %}
+                            <input type="hidden" name="{{ k }}" value="{{ v }}">
+                        {% endif %}
+                    {% endfor %}
+
+                    <label
+                        for="timeline-scale-select-{{ view_id|safe }}"
+                        class="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap"
+                    >
+                        {% trans "View" %}:
+                    </label>
+
+                    <select
+                        id="timeline-scale-select-{{ view_id|safe }}"
+                        name="timeline_scale"
+                        class="js-example-basic-single headselect min-w-[140px] w-[160px]"
+                        hx-get="{{ request.path }}"
+                        hx-trigger="change"
+                        hx-include="#timeline-scale-form-{{ view_id|safe }}"
+                        hx-target="#{{ view_id|safe }}"
+                        hx-swap="outerHTML"
+                        hx-select="#{{ view_id|safe }}"
+                        hx-push-url="true"
+                        hx-indicator="#timeline-loading-{{ view_id|safe }}"
+                    >
+                        {% for value, label in timeline_scale_choices %}
+                            <option value="{{ value }}" {% if timeline_scale == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            {% endif %}
+        </div>
+
+        <div
+            class="flex flex-col mt-2 h-[calc(100vh-250px)] min-h-[400px] bg-white dark:bg-gray-950 rounded-lg overflow-hidden border border-primary-300"
+        >
+            <div class="flex flex-1 min-h-0">
+                <div class="w-60 min-w-60 flex flex-col border-r border-primary-300 bg-white dark:bg-gray-950 shrink-0">
+                    <div
+                        class="timeline-header-left min-h-[52px] box-border flex flex-col justify-center px-3 pl-5 py-1.5 font-bold text-xs text-primary border-b border-primary-300 bg-white dark:bg-gray-950 gap-0.5"
+                    >
+                        <span class="block leading-tight">
+                            {% if timeline_range_start and timeline_range_end %}
+                                {{ timeline_range_start|date:"d M Y" }} – {{ timeline_range_end|date:"d M Y" }}
+                            {% else %}
+                                {% trans "Timeline" %}
+                            {% endif %}
+                        </span>
+
+                        {% if timeline_span_caption %}
+                            <span
+                                class="block text-[10px] font-normal text-primary leading-tight pt-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                                title="{{ timeline_span_caption }} — {% trans 'Timeline bar start and end are taken from these record fields.' %}"
+                            >
+                                {{ timeline_span_caption }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto min-h-0">
+                        {% for row in timeline_group_rows %}
+                            <div
+                                class="flex items-center h-11 min-h-11 pl-5 pr-2 font-semibold text-xs shrink-0 overflow-hidden js-timeline-left-group cursor-pointer {% if forloop.first %}text-primary-600{% else %}text-slate-600 dark:text-slate-400{% endif %}"
+                                data-group-index="{{ forloop.counter0 }}"
+                            >
+                                <span class="overflow-hidden text-ellipsis whitespace-nowrap">
+                                    {{ row.group.label }} ({{ row.group.count }})
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="flex-1 min-w-0 overflow-auto bg-white dark:bg-gray-950" id="timeline-scroll-{{ view_id|safe }}">
+                    <div
+                        class="timeline-inner js-timeline-inner flex flex-col min-h-full"
+                        id="timeline-inner-{{ view_id|safe }}"
+                    >
+                        <div
+                            class="timeline-axis-sticky shrink-0 bg-white dark:bg-gray-950 sticky top-0 z-[5] min-h-[52px] flex flex-col items-stretch overflow-visible"
+                            id="timeline-axis-{{ view_id|safe }}"
+                        >
+                            <div
+                                class="timeline-axis-labels-root flex items-center box-border bg-white dark:bg-gray-950 flex-1 min-h-[52px] w-full text-gray-900 dark:text-gray-100"
+                                id="timeline-axis-labels-{{ view_id|safe }}"
+                                style="font-size:12px;"
+                            ></div>
+
+                            {# Header bottom border only — primary-300; width set in JS to match scroll width #}
+                            <div
+                                id="timeline-axis-underline-{{ view_id|safe }}"
+                                class="border border-primary-300"
+                                aria-hidden="true"
+                            ></div>
+                        </div>
+
+                        <div
+                            class="relative min-h-[200px] js-timeline-track bg-white dark:bg-gray-950"
+                            id="timeline-track-{{ view_id|safe }}"
+                            data-range-start="{{ timeline_range_start|date:'Y-m-d' }}"
+                            data-range-end="{{ timeline_range_end|date:'Y-m-d' }}"
+                            data-scale="{{ timeline_scale|default:'months' }}"
+                        >
+                            {% for row in timeline_group_rows %}
+                                <div
+                                    class="js-timeline-group-block"
+                                    data-group-index="{{ forloop.counter0 }}"
+                                    {% if not forloop.first %}style="display: none;"{% endif %}
+                                >
+                                    {% for item in row.items %}
+                                        <div class="relative h-11 bg-white dark:bg-gray-950">
+                                            <div class="absolute top-1.5 bottom-1.5 left-0 right-0 overflow-visible">
+                                                <div
+                                                    class="timeline-bar absolute top-0 left-0 z-[2] h-full min-w-[56px] rounded-md text-xs px-2 flex items-center whitespace-nowrap shadow-sm cursor-pointer transition-shadow hover:shadow-md overflow-hidden bg-primary-300 text-primary-600"
+                                                    data-start="{{ item.start_iso }}"
+                                                    data-end="{{ item.end_iso }}"
+                                                    title="{{ item.title|escape }}"
+                                                >
+                                                    {% if item.detail_url %}
+                                                        <a
+                                                            href="{{ item.detail_url }}"
+                                                            class="text-inherit no-underline overflow-hidden text-ellipsis min-w-0"
+                                                            hx-get="{{ item.detail_url }}?{{request.GET.urlencode}}"
+                                                            hx-target="#mainContent"
+                                                            hx-select="#mainContent"
+                                                            hx-swap="outerHTML"
+                                                            hx-push-url="true"
+                                                        >
+                                                            {{ item.title }}
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="overflow-hidden text-ellipsis min-w-0">
+                                                            {{ item.title }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            {# Grid above row bg — pointer-events-none; width set in JS #}
+                            {# w-full so month/quarter % grid lines span track; days/weeks set width in JS #}
+                            <div
+                                class="pointer-events-none absolute inset-0 z-[1] w-full min-w-full"
+                                id="timeline-grid-{{ view_id|safe }}"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2">
+            {% include "messages.html" %}
+        </div>
+    {% else %}
+        <div class="flex justify-between items-center h-20"></div>
+
+        <img
+            src="{% static 'assets/img/not-found.svg' %}"
+            alt="404"
+            class="w-60 m-auto mb-4 mt-5"
+        />
+
+        <p class="text-sm text-center mb-3">
+            {% if no_record_add_button.message %}
+                {{ no_record_add_button.message }}
+            {% else %}
+                {% trans "Nothing to show yet. Please add your" %} {{ model_verbose_name }}.
+            {% endif %}
+        </p>
+
+        {% if no_record_add_button.url %}
+            <button
+                hx-get="{{ no_record_add_button.url }}"
+                hx-target="{{ no_record_add_button.target|default:'#modalBox' }}"
+                hx-swap="{{ no_record_add_button.swap|default:'innerHTML' }}"
+                onclick="{{ no_record_add_button.onclick|default:'openModal()' }}"
+                class="{{ no_record_add_button.class|default:'text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white] m-auto flex' }}"
+                {% if no_record_add_button.attrs %}{{ no_record_add_button.attrs|safe }}{% endif %}
+            >
+                {{ no_record_add_button.title|default:_("Add New") }}
+            </button>
+        {% endif %}
+    {% endif %}
+</div>
+
+{% if timeline_items and timeline_group_rows %}
+    <script>
+        (function () {
+            if (window._timelineGroupSelectDelegation) return;
+            window._timelineGroupSelectDelegation = true;
+
+            function setActiveGroup(container, index) {
+                var blocks = container.querySelectorAll(".js-timeline-group-block");
+                var rows = container.querySelectorAll(".js-timeline-left-group");
+                var activeIndex = parseInt(index, 10);
+
+                if (isNaN(activeIndex) || activeIndex < 0) {
+                    activeIndex = 0;
+                }
+
+                blocks.forEach(function (block, i) {
+                    block.style.display = i === activeIndex ? "" : "none";
+                });
+
+                rows.forEach(function (row, i) {
+                    if (i === activeIndex) {
+                        row.classList.add("text-primary-600");
+                        row.classList.remove("text-slate-600", "dark:text-slate-400");
+                    } else {
+                        row.classList.remove("text-primary-600");
+                        if (!row.classList.contains("text-slate-600")) {
+                            row.classList.add("text-slate-600", "dark:text-slate-400");
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener("click", function (e) {
+                var leftRow = e.target.closest(".js-timeline-left-group");
+                if (!leftRow) return;
+
+                var container = leftRow.closest(".js-timeline-container");
+                if (!container) return;
+
+                var index = leftRow.getAttribute("data-group-index");
+                if (index === null) return;
+
+                setActiveGroup(container, index);
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                var container = document.getElementById("{{ view_id|safe }}");
+                if (!container) return;
+                setActiveGroup(container, 0);
+            });
+        })();
+    </script>
+{% endif %}
+
+{% if timeline_items %}
+    <script>
+        (function () {
+            /* Tailwind classes for injected nodes — must appear in source so purge keeps them (dark: variants for theme) */
+            var TL = {
+                /* Grid lines use mainSession palette (secondary) — bg stays white; only line colour matches session */
+                /* Neutral gray grid — secondary-* follows brand (red); gray matches Ubuntu-like subtle lines */
+                gridLine:
+                    "timeline-grid-line pointer-events-none absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600",
+                gridLinePct:
+                    "timeline-grid-line pointer-events-none absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-600",
+                /* timeline-axis-* classes + scoped CSS above — cross-OS parity (Windows = Ubuntu-like) */
+                daySpan:
+                    "timeline-axis-cell box-border border-l border-gray-200 dark:border-gray-600 text-center py-0.5 px-0.5 flex flex-col justify-start bg-white dark:bg-gray-950",
+                dayMonth:
+                    "timeline-axis-day-month leading-tight whitespace-nowrap overflow-hidden text-ellipsis",
+                dayNum: "timeline-axis-day-num leading-tight",
+                weekSpan:
+                    "timeline-axis-cell shrink-0 box-border text-center py-1.5 px-0.5 leading-tight overflow-hidden text-ellipsis whitespace-nowrap bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-gray-600 flex items-center justify-center",
+                monthSpan:
+                    "flex-1 min-w-[96px] text-center py-0 px-1.5 box-border border-l border-gray-200 dark:border-gray-600",
+                quarterSpan:
+                    "flex-1 min-w-[120px] text-center py-0 px-1.5 box-border border-l border-gray-200 dark:border-gray-600",
+            };
+
+            function positionTimelineBars(viewId) {
+                var track = document.getElementById("timeline-track-" + viewId);
+                var axisLabels = document.getElementById("timeline-axis-labels-" + viewId);
+                if (!track || !axisLabels) return;
+
+                function clearTimelineWidths() {
+                    var ids = [
+                        "timeline-axis-" + viewId,
+                        "timeline-axis-underline-" + viewId,
+                        "timeline-inner-" + viewId,
+                        "timeline-track-" + viewId,
+                        "timeline-axis-labels-" + viewId,
+                        "timeline-grid-" + viewId,
+                    ];
+
+                    ids.forEach(function (id) {
+                        var el = document.getElementById(id);
+                        if (!el) return;
+                        el.style.minWidth = "";
+                        el.style.width = "";
+                    });
+                }
+
+                clearTimelineWidths();
+
+                function parseYmdLocal(ymd) {
+                    if (!ymd || typeof ymd !== "string") return null;
+                    var part = ymd.split("T")[0];
+                    var p = part.split("-");
+                    if (p.length !== 3) return null;
+
+                    var y = parseInt(p[0], 10);
+                    var m = parseInt(p[1], 10) - 1;
+                    var d = parseInt(p[2], 10);
+                    if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+
+                    return new Date(y, m, d, 0, 0, 0, 0);
+                }
+
+                function exclusiveEndAfterLastDay(ymdLocalMidnight) {
+                    if (!ymdLocalMidnight) return null;
+                    var x = new Date(ymdLocalMidnight.getTime());
+                    x.setDate(x.getDate() + 1);
+                    return x;
+                }
+
+                var rangeStartDate = parseYmdLocal(track.dataset.rangeStart || "");
+                var rangeEndDate = parseYmdLocal(track.dataset.rangeEnd || "");
+
+                if (!rangeStartDate || !rangeEndDate || rangeEndDate < rangeStartDate) {
+                    var t = new Date();
+                    rangeStartDate = new Date(t.getFullYear(), t.getMonth(), t.getDate() - 90, 0, 0, 0, 0);
+                    rangeEndDate = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 30, 0, 0, 0, 0);
+                }
+
+                var rangeStart = rangeStartDate;
+                var rangeEndExclusive = exclusiveEndAfterLastDay(rangeEndDate);
+                var totalMs = rangeEndExclusive - rangeStart;
+                if (totalMs <= 0) return;
+
+                var scale = track.dataset.scale || "months";
+                var dayMs = 24 * 60 * 60 * 1000;
+                var totalDays = Math.max(1, Math.round(totalMs / dayMs));
+
+                var DAY_COL_PX = 56;
+                var WEEK_COL_PX = 120;
+                var MONTH_MIN_PX = 96;
+
+                function fmtYmd(d) {
+                    return (
+                        d.getFullYear() +
+                        "-" +
+                        String(d.getMonth() + 1).padStart(2, "0") +
+                        "-" +
+                        String(d.getDate()).padStart(2, "0")
+                    );
+                }
+
+                function countDaysInclusive(startD, endD) {
+                    var n = 0;
+                    var d = new Date(startD.getFullYear(), startD.getMonth(), startD.getDate());
+                    var end = new Date(endD.getFullYear(), endD.getMonth(), endD.getDate());
+
+                    while (d <= end) {
+                        n++;
+                        d.setDate(d.getDate() + 1);
+                    }
+
+                    return Math.max(1, n);
+                }
+
+                var rangeEndInclusiveForCount = new Date(rangeEndExclusive.getTime());
+                rangeEndInclusiveForCount.setDate(rangeEndInclusiveForCount.getDate() - 1);
+
+                var axisTotalPx;
+                var usePixelBars = false;
+                var weekColPx = WEEK_COL_PX;
+                var weekColumnLayout = null;
+
+                if (scale === "days") {
+                    var dayCountForAxis = countDaysInclusive(rangeStart, rangeEndInclusiveForCount);
+                    var nominalDayPx = dayCountForAxis * DAY_COL_PX;
+                    var scrollElDay = document.getElementById("timeline-scroll-" + viewId);
+                    var viewportWDay = scrollElDay ? scrollElDay.clientWidth : 0;
+                    if (viewportWDay < 80 && scrollElDay) {
+                        viewportWDay = scrollElDay.getBoundingClientRect().width;
+                    }
+
+                    /* Few days → stretch to viewport so no empty strip at right (same as weeks/months/quarters) */
+                    axisTotalPx = viewportWDay > nominalDayPx ? viewportWDay : nominalDayPx;
+                    usePixelBars = true;
+                } else if (scale === "weeks") {
+                    var w0 = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        rangeStart.getDate()
+                    );
+                    var wEnd = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        rangeEndInclusiveForCount.getDate()
+                    );
+                    var weekCount = 0;
+                    var ws = new Date(w0.getTime());
+
+                    while (ws <= wEnd) {
+                        weekCount++;
+                        ws.setDate(ws.getDate() + 7);
+                    }
+
+                    weekCount = Math.max(weekCount, 1);
+
+                    var scrollElWeek = document.getElementById("timeline-scroll-" + viewId);
+                    var viewportW = scrollElWeek ? scrollElWeek.clientWidth : 0;
+                    if (viewportW < 80 && scrollElWeek) {
+                        viewportW = scrollElWeek.getBoundingClientRect().width;
+                    }
+
+                    var nominalWeekPx = weekCount * WEEK_COL_PX;
+                    axisTotalPx = viewportW > nominalWeekPx ? viewportW : nominalWeekPx;
+                    weekColPx = axisTotalPx / weekCount;
+                    usePixelBars = true;
+
+                    /**
+                     * Week columns: same as axis — equal width per week bucket from rangeStart, +7 days each.
+                     * Bars must use this layout or linear time misaligns (same class of bug as months).
+                     */
+                    weekColumnLayout = [];
+
+                    var wStartBuild = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        rangeStart.getDate()
+                    );
+                    var rangeEndInclusiveWBuild = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        rangeEndInclusiveForCount.getDate()
+                    );
+                    var wkBuild = 0;
+                    var wsCount = new Date(wStartBuild.getTime());
+
+                    while (wsCount <= rangeEndInclusiveWBuild) {
+                        wkBuild++;
+                        wsCount.setDate(wsCount.getDate() + 7);
+                    }
+
+                    wkBuild = Math.max(wkBuild, 1);
+
+                    var baseWBuild = Math.floor(axisTotalPx / wkBuild);
+                    var remWBuild = axisTotalPx - baseWBuild * wkBuild;
+                    var cumWBuild = 0;
+                    wStartBuild = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        rangeStart.getDate()
+                    );
+                    var wiBuild = 0;
+
+                    while (wStartBuild <= rangeEndInclusiveWBuild) {
+                        var wEndBuild = new Date(
+                            wStartBuild.getFullYear(),
+                            wStartBuild.getMonth(),
+                            wStartBuild.getDate() + 6
+                        );
+                        if (wEndBuild > rangeEndInclusiveWBuild) {
+                            wEndBuild = new Date(rangeEndInclusiveWBuild.getTime());
+                        }
+
+                        var colWB = baseWBuild + (wiBuild < remWBuild ? 1 : 0);
+                        var spanDaysW = countDaysInclusive(wStartBuild, wEndBuild);
+                        weekColumnLayout.push({
+                            start: new Date(wStartBuild.getTime()),
+                            end: new Date(wEndBuild.getTime()),
+                            left: cumWBuild,
+                            width: colWB,
+                            spanDays: spanDaysW,
+                        });
+
+                        cumWBuild += colWB;
+                        wStartBuild.setDate(wStartBuild.getDate() + 7);
+                        wiBuild++;
+                    }
+                } else if (scale === "quarters") {
+                    var qCount = 0;
+                    var qq = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+                    var qEnd = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        1
+                    );
+
+                    while (qq <= qEnd) {
+                        qCount++;
+                        qq.setMonth(qq.getMonth() + 3);
+                    }
+
+                    qCount = Math.max(qCount, 1);
+
+                    var QUARTER_COL_PX = 120;
+                    var nominalQPx = qCount * QUARTER_COL_PX;
+                    var scrollElQ = document.getElementById("timeline-scroll-" + viewId);
+                    var viewportWQ = scrollElQ ? scrollElQ.clientWidth : 0;
+                    if (viewportWQ < 80 && scrollElQ) {
+                        viewportWQ = scrollElQ.getBoundingClientRect().width;
+                    }
+
+                    /* Few quarters → stretch to viewport so no empty strip at right (same as weeks) */
+                    axisTotalPx = viewportWQ > nominalQPx ? viewportWQ : nominalQPx;
+                    usePixelBars = true;
+                } else {
+                    var m0 = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+                    var mEnd = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        1
+                    );
+                    var monthCount = 0;
+                    var mm = new Date(m0.getTime());
+
+                    while (mm <= mEnd) {
+                        monthCount++;
+                        mm.setMonth(mm.getMonth() + 1);
+                    }
+
+                    monthCount = Math.max(monthCount, 1);
+
+                    var nominalMPx = monthCount * MONTH_MIN_PX;
+                    var scrollElM = document.getElementById("timeline-scroll-" + viewId);
+                    var viewportWM = scrollElM ? scrollElM.clientWidth : 0;
+                    if (viewportWM < 80 && scrollElM) {
+                        viewportWM = scrollElM.getBoundingClientRect().width;
+                    }
+
+                    axisTotalPx = viewportWM > nominalMPx ? viewportWM : nominalMPx;
+                    usePixelBars = true;
+                }
+
+                /**
+                 * Months (and quarters) axis uses equal-width columns per calendar month/quarter.
+                 * Bar geometry must use the same coordinate system — linear time ratios would place
+                 * e.g. March 11 under February because February has fewer days but equal column width.
+                 */
+                var monthColumnLayout = null;
+                var quarterColumnLayout = null;
+
+                if (scale === "months" && usePixelBars && axisTotalPx > 0) {
+                    monthColumnLayout = [];
+                    var mBuild = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+                    var rangeEndInclusiveMBuild = new Date(rangeEndExclusive.getTime());
+                    rangeEndInclusiveMBuild.setDate(rangeEndInclusiveMBuild.getDate() - 1);
+                    var mkBuild = 0;
+                    var mCount = new Date(mBuild.getTime());
+
+                    while (mCount <= rangeEndInclusiveMBuild) {
+                        mkBuild++;
+                        mCount.setMonth(mCount.getMonth() + 1);
+                    }
+
+                    mkBuild = Math.max(mkBuild, 1);
+
+                    var baseMBuild = Math.floor(axisTotalPx / mkBuild);
+                    var remMBuild = axisTotalPx - baseMBuild * mkBuild;
+                    var cumMBuild = 0;
+                    mBuild = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+
+                    while (mBuild <= rangeEndInclusiveMBuild) {
+                        var colMB = baseMBuild + (monthColumnLayout.length < remMBuild ? 1 : 0);
+                        var yB = mBuild.getFullYear();
+                        var moB = mBuild.getMonth();
+                        var dimB = new Date(yB, moB + 1, 0).getDate();
+
+                        monthColumnLayout.push({
+                            y: yB,
+                            m: moB,
+                            left: cumMBuild,
+                            width: colMB,
+                            daysInMonth: dimB,
+                        });
+
+                        cumMBuild += colMB;
+                        mBuild.setMonth(mBuild.getMonth() + 1);
+                    }
+                }
+
+                if (scale === "quarters" && usePixelBars && axisTotalPx > 0) {
+                    quarterColumnLayout = [];
+                    var qBuild = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+                    var rangeEndInclusiveQBuild = new Date(rangeEndExclusive.getTime());
+                    rangeEndInclusiveQBuild.setDate(rangeEndInclusiveQBuild.getDate() - 1);
+                    var qkBuild = 0;
+                    var qCount = new Date(qBuild.getTime());
+
+                    while (qCount <= rangeEndInclusiveQBuild) {
+                        qkBuild++;
+                        qCount.setMonth(qCount.getMonth() + 3);
+                    }
+
+                    qkBuild = Math.max(qkBuild, 1);
+
+                    var baseQBuild = Math.floor(axisTotalPx / qkBuild);
+                    var remQBuild = axisTotalPx - baseQBuild * qkBuild;
+                    var cumQBuild = 0;
+                    qBuild = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+
+                    while (qBuild <= rangeEndInclusiveQBuild) {
+                        var colQB = baseQBuild + (quarterColumnLayout.length < remQBuild ? 1 : 0);
+                        var qEndInner = new Date(qBuild.getTime());
+                        qEndInner.setMonth(qEndInner.getMonth() + 3);
+                        qEndInner.setDate(0);
+                        var qStart = new Date(qBuild.getTime());
+                        var qDays = Math.max(
+                            1,
+                            Math.round((qEndInner - qStart) / dayMs) + 1
+                        );
+
+                        quarterColumnLayout.push({
+                            start: new Date(qBuild.getTime()),
+                            left: cumQBuild,
+                            width: colQB,
+                            daysApprox: qDays,
+                        });
+
+                        cumQBuild += colQB;
+                        qBuild.setMonth(qBuild.getMonth() + 3);
+                    }
+                }
+
+                function dateToPxMonths(d) {
+                    if (!monthColumnLayout || monthColumnLayout.length === 0) return null;
+
+                    var y = d.getFullYear();
+                    var mo = d.getMonth();
+                    var day = d.getDate();
+
+                    for (var i = 0; i < monthColumnLayout.length; i++) {
+                        var c = monthColumnLayout[i];
+                        if (c.y === y && c.m === mo) {
+                            return c.left + ((day - 1) / c.daysInMonth) * c.width;
+                        }
+                    }
+
+                    var first = monthColumnLayout[0];
+                    var firstOfFirst = new Date(first.y, first.m, 1);
+                    if (d < firstOfFirst) return first.left;
+
+                    var last = monthColumnLayout[monthColumnLayout.length - 1];
+                    return last.left + last.width;
+                }
+
+                function dateToPxQuarters(d) {
+                    if (!quarterColumnLayout || quarterColumnLayout.length === 0) return null;
+
+                    for (var i = 0; i < quarterColumnLayout.length; i++) {
+                        var c = quarterColumnLayout[i];
+                        var qEnd = new Date(c.start.getTime());
+                        qEnd.setMonth(qEnd.getMonth() + 3);
+
+                        if (d >= c.start && d < qEnd) {
+                            var daysFromStart = Math.max(
+                                0,
+                                Math.round((d - c.start) / dayMs)
+                            );
+                            return c.left + (daysFromStart / c.daysApprox) * c.width;
+                        }
+                    }
+
+                    var lastQ = quarterColumnLayout[quarterColumnLayout.length - 1];
+                    return lastQ.left + lastQ.width;
+                }
+
+                function dateToPxWeeks(d) {
+                    if (!weekColumnLayout || weekColumnLayout.length === 0) return null;
+
+                    var d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+                    for (var i = 0; i < weekColumnLayout.length; i++) {
+                        var seg = weekColumnLayout[i];
+                        var s0 = new Date(
+                            seg.start.getFullYear(),
+                            seg.start.getMonth(),
+                            seg.start.getDate()
+                        );
+                        var e0 = new Date(
+                            seg.end.getFullYear(),
+                            seg.end.getMonth(),
+                            seg.end.getDate()
+                        );
+
+                        if (d0 >= s0 && d0 <= e0) {
+                            var n = countDaysInclusive(s0, d0);
+                            var span = Math.max(1, seg.spanDays);
+                            return seg.left + ((n - 1) / span) * seg.width;
+                        }
+                    }
+
+                    var firstW = weekColumnLayout[0];
+                    if (
+                        d0 <
+                        new Date(
+                            firstW.start.getFullYear(),
+                            firstW.start.getMonth(),
+                            firstW.start.getDate()
+                        )
+                    ) {
+                        return firstW.left;
+                    }
+
+                    var lastW = weekColumnLayout[weekColumnLayout.length - 1];
+                    return lastW.left + lastW.width;
+                }
+
+                function setBarGeometry(bar, start, endExclusive) {
+                    var leftPx;
+                    var widthPx;
+
+                    if (scale === "weeks" && weekColumnLayout && weekColumnLayout.length > 0) {
+                        var startPxW = dateToPxWeeks(start);
+                        if (startPxW == null) startPxW = 0;
+
+                        var endDateInclusiveW = new Date(endExclusive.getTime());
+                        endDateInclusiveW.setDate(endDateInclusiveW.getDate() - 1);
+                        if (endDateInclusiveW < start) {
+                            endDateInclusiveW = new Date(start.getTime());
+                        }
+
+                        var d0e = new Date(
+                            endDateInclusiveW.getFullYear(),
+                            endDateInclusiveW.getMonth(),
+                            endDateInclusiveW.getDate()
+                        );
+                        var endPxW = dateToPxWeeks(endDateInclusiveW);
+
+                        for (var iw = 0; iw < weekColumnLayout.length; iw++) {
+                            var segw = weekColumnLayout[iw];
+                            var s0e = new Date(
+                                segw.start.getFullYear(),
+                                segw.start.getMonth(),
+                                segw.start.getDate()
+                            );
+                            var e0e = new Date(
+                                segw.end.getFullYear(),
+                                segw.end.getMonth(),
+                                segw.end.getDate()
+                            );
+
+                            if (d0e >= s0e && d0e <= e0e) {
+                                var nEnd = countDaysInclusive(s0e, d0e);
+                                var spanEnd = Math.max(1, segw.spanDays);
+                                endPxW = segw.left + (nEnd / spanEnd) * segw.width;
+                                break;
+                            }
+                        }
+
+                        leftPx = startPxW;
+                        widthPx = Math.max(endPxW - leftPx, 0);
+                    } else if (
+                        scale === "months" &&
+                        monthColumnLayout &&
+                        monthColumnLayout.length > 0
+                    ) {
+                        var startPx = dateToPxMonths(start);
+                        if (startPx == null) startPx = 0;
+
+                        var endDateInclusive = new Date(endExclusive.getTime());
+                        endDateInclusive.setDate(endDateInclusive.getDate() - 1);
+                        if (endDateInclusive < start) {
+                            endDateInclusive = new Date(start.getTime());
+                        }
+
+                        var endPx = dateToPxMonths(endDateInclusive);
+                        var yE = endDateInclusive.getFullYear();
+                        var moE = endDateInclusive.getMonth();
+
+                        for (var ie = 0; ie < monthColumnLayout.length; ie++) {
+                            var ce = monthColumnLayout[ie];
+                            if (ce.y === yE && ce.m === moE) {
+                                endPx =
+                                    ce.left +
+                                    (endDateInclusive.getDate() / ce.daysInMonth) * ce.width;
+                                break;
+                            }
+                        }
+
+                        leftPx = startPx;
+                        widthPx = Math.max(endPx - leftPx, 0);
+                    } else if (
+                        scale === "quarters" &&
+                        quarterColumnLayout &&
+                        quarterColumnLayout.length > 0
+                    ) {
+                        var startPxQ = dateToPxQuarters(start);
+                        var endDateInclusiveQ = new Date(endExclusive.getTime());
+                        endDateInclusiveQ.setDate(endDateInclusiveQ.getDate() - 1);
+                        if (endDateInclusiveQ < start) {
+                            endDateInclusiveQ = new Date(start.getTime());
+                        }
+
+                        var endPxQ = dateToPxQuarters(endDateInclusiveQ);
+                        endPxQ += (1 / 96) * (axisTotalPx / quarterColumnLayout.length);
+                        leftPx = startPxQ;
+                        widthPx = Math.max(endPxQ - leftPx, 0);
+                    } else {
+                        var leftRatio = (start - rangeStart) / totalMs;
+                        var widthRatio = (endExclusive - start) / totalMs;
+                        if (widthRatio < 0) widthRatio = 0;
+                        if (leftRatio < 0) {
+                            widthRatio += leftRatio;
+                            leftRatio = 0;
+                        }
+                        if (leftRatio + widthRatio > 1) {
+                            widthRatio = 1 - leftRatio;
+                        }
+
+                        leftPx = leftRatio * axisTotalPx;
+                        widthPx = widthRatio * axisTotalPx;
+                    }
+
+                    if (usePixelBars && axisTotalPx > 0) {
+                        /* Weeks: readable min; months/quarters: min so label can show */
+                        var minPx;
+                        if (scale === "weeks") {
+                            minPx = Math.max(20, Math.round(weekColPx / 6));
+                        } else if (scale === "days") {
+                            minPx = Math.max(
+                                20,
+                                Math.round(axisTotalPx / Math.max(totalDays, 1) / 6)
+                            );
+                        } else if (scale === "months" || scale === "quarters") {
+                            minPx = Math.max(56, Math.round(axisTotalPx / 80));
+                        } else {
+                            minPx = 3;
+                        }
+
+                        if (widthPx < minPx) widthPx = minPx;
+                        bar.style.left = leftPx + "px";
+                        bar.style.width = widthPx + "px";
+                    } else {
+                        var leftRatio2 = (start - rangeStart) / totalMs;
+                        var widthRatio2 = (endExclusive - start) / totalMs;
+                        if (widthRatio2 < 0) widthRatio2 = 0;
+                        if (leftRatio2 < 0) {
+                            widthRatio2 += leftRatio2;
+                            leftRatio2 = 0;
+                        }
+                        if (leftRatio2 + widthRatio2 > 1) {
+                            widthRatio2 = 1 - leftRatio2;
+                        }
+
+                        var leftPct = leftRatio2 * 100;
+                        var widthPct = Math.max(widthRatio2 * 100, 0.5);
+                        if (widthPct < 3) widthPct = 3;
+                        bar.style.left = leftPct + "%";
+                        bar.style.width = widthPct + "%";
+                    }
+                }
+
+                var bars = track.querySelectorAll(".timeline-bar");
+                bars.forEach(function (bar) {
+                    var start = parseYmdLocal(bar.dataset.start || "");
+                    var endDateInner = parseYmdLocal(bar.dataset.end || "");
+
+                    if (!start) start = rangeStart;
+                    if (!endDateInner) endDateInner = start;
+                    if (endDateInner < start) endDateInner = start;
+
+                    var endExclusive = exclusiveEndAfterLastDay(endDateInner);
+                    setBarGeometry(bar, start, endExclusive);
+                });
+
+                var axisHtml = "";
+                var gridHtml = "";
+
+                if (scale === "days") {
+                    /* Collect each day in range, then equal-width columns so stretched layout aligns with bars */
+                    var dayLabels = [];
+                    var d = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        rangeStart.getDate()
+                    );
+                    var rangeEndInclusive = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        rangeEndInclusiveForCount.getDate()
+                    );
+                    var prevMonth = -1;
+                    var prevYear = -1;
+
+                    while (d <= rangeEndInclusive) {
+                        var showMonth =
+                            d.getMonth() !== prevMonth || d.getFullYear() !== prevYear;
+                        prevMonth = d.getMonth();
+                        prevYear = d.getFullYear();
+
+                        var monthLine = showMonth
+                            ? d.toLocaleDateString(undefined, {
+                                  month: "short",
+                                  year: "numeric",
+                              })
+                            : "\u00a0";
+
+                        dayLabels.push({
+                            title: fmtYmd(d),
+                            monthLine: monthLine,
+                            dayNum: d.getDate(),
+                        });
+
+                        d.setDate(d.getDate() + 1);
+                    }
+
+                    var dk = dayLabels.length;
+                    if (dk === 0) {
+                        dayLabels.push({ title: "", monthLine: "\u00a0", dayNum: "" });
+                        dk = 1;
+                    }
+
+                    var baseD = Math.floor(axisTotalPx / dk);
+                    var remD = axisTotalPx - baseD * dk;
+                    var cumD = 0;
+
+                    for (var di = 0; di < dk; di++) {
+                        var colW = baseD + (di < remD ? 1 : 0);
+                        gridHtml +=
+                            '<div class="' +
+                            TL.gridLine +
+                            '" style="left:' +
+                            cumD +
+                            'px"></div>';
+
+                        var dl = dayLabels[di];
+                        axisHtml +=
+                            '<span class="' +
+                            TL.daySpan +
+                            '" style="flex:0 0 ' +
+                            colW +
+                            "px;width:" +
+                            colW +
+                            "px;min-width:" +
+                            colW +
+                            "px;max-width:" +
+                            colW +
+                            'px" title="' +
+                            dl.title +
+                            '">' +
+                            '<div class="' +
+                            TL.dayMonth +
+                            '">' +
+                            dl.monthLine +
+                            "</div>" +
+                            '<div class="' +
+                            TL.dayNum +
+                            '">' +
+                            dl.dayNum +
+                            "</div>" +
+                            "</span>";
+
+                        cumD += colW;
+                    }
+
+                    gridHtml +=
+                        '<div class="' +
+                        TL.gridLine +
+                        '" style="left:' +
+                        cumD +
+                        'px"></div>';
+                    axisLabels.classList.add("flex-nowrap", "items-stretch");
+                } else if (scale === "weeks") {
+                    var wStart = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        rangeStart.getDate()
+                    );
+                    var rangeEndInclusiveW = new Date(
+                        rangeEndInclusiveForCount.getFullYear(),
+                        rangeEndInclusiveForCount.getMonth(),
+                        rangeEndInclusiveForCount.getDate()
+                    );
+                    var weekLabels = [];
+
+                    while (wStart <= rangeEndInclusiveW) {
+                        var wEnd = new Date(
+                            wStart.getFullYear(),
+                            wStart.getMonth(),
+                            wStart.getDate() + 6
+                        );
+                        if (wEnd > rangeEndInclusiveW) {
+                            wEnd = new Date(rangeEndInclusiveW.getTime());
+                        }
+
+                        var label =
+                            wStart.getDate() +
+                            " " +
+                            wStart.toLocaleDateString(undefined, { month: "short" });
+                        var titleRange = fmtYmd(wStart) + " – " + fmtYmd(wEnd);
+
+                        weekLabels.push({ label: label, title: titleRange });
+                        wStart.setDate(wStart.getDate() + 7);
+                    }
+
+                    var wk = weekLabels.length;
+                    if (wk === 0) {
+                        weekLabels.push({ label: "\u00a0", title: "" });
+                        wk = 1;
+                    }
+
+                    var baseW = Math.floor(axisTotalPx / wk);
+                    var rem = axisTotalPx - baseW * wk;
+                    var cum = 0;
+
+                    for (var wi = 0; wi < wk; wi++) {
+                        var colW2 = baseW + (wi < rem ? 1 : 0);
+                        gridHtml +=
+                            '<div class="' +
+                            TL.gridLine +
+                            '" style="left:' +
+                            cum +
+                            'px"></div>';
+
+                        var wl = weekLabels[wi];
+                        axisHtml +=
+                            '<span class="' +
+                            TL.weekSpan +
+                            '" style="flex:0 0 ' +
+                            colW2 +
+                            "px;width:" +
+                            colW2 +
+                            "px;min-width:" +
+                            colW2 +
+                            "px;max-width:" +
+                            colW2 +
+                            'px" title="' +
+                            wl.title +
+                            '">' +
+                            wl.label +
+                            "</span>";
+
+                        cum += colW2;
+                    }
+
+                    gridHtml +=
+                        '<div class="' +
+                        TL.gridLine +
+                        '" style="left:' +
+                        cum +
+                        'px"></div>';
+                    axisLabels.classList.add("flex-nowrap", "items-stretch");
+                } else if (scale === "quarters") {
+                    var QUARTER_COL_PX2 = 120;
+                    var qLabels = [];
+                    var q = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        1
+                    );
+                    var rangeEndInclusiveQ = new Date(rangeEndExclusive.getTime());
+                    rangeEndInclusiveQ.setDate(rangeEndInclusiveQ.getDate() - 1);
+
+                    while (q <= rangeEndInclusiveQ) {
+                        var month = q.getMonth();
+                        var quarter = Math.floor(month / 3) + 1;
+                        qLabels.push("Q" + quarter + " " + q.getFullYear().toString().slice(-2));
+                        q.setMonth(q.getMonth() + 3);
+                    }
+
+                    if (qLabels.length === 0) qLabels.push("\u00a0");
+
+                    var qk = qLabels.length;
+                    var baseQ = Math.floor(axisTotalPx / qk);
+                    var remQ = axisTotalPx - baseQ * qk;
+                    var cumQ = 0;
+
+                    for (var qi = 0; qi < qk; qi++) {
+                        var colQ = baseQ + (qi < remQ ? 1 : 0);
+                        gridHtml +=
+                            '<div class="' +
+                            TL.gridLine +
+                            '" style="left:' +
+                            cumQ +
+                            'px"></div>';
+                        axisHtml +=
+                            '<span class="' +
+                            TL.weekSpan +
+                            '" style="flex:0 0 ' +
+                            colQ +
+                            "px;width:" +
+                            colQ +
+                            "px;min-width:" +
+                            colQ +
+                            "px;max-width:" +
+                            colQ +
+                            'px">' +
+                            qLabels[qi] +
+                            "</span>";
+                        cumQ += colQ;
+                    }
+
+                    gridHtml +=
+                        '<div class="' +
+                        TL.gridLine +
+                        '" style="left:' +
+                        cumQ +
+                        'px"></div>';
+                    axisLabels.classList.add("flex-nowrap", "items-stretch");
+                } else {
+                    /* Months: equal-width columns + pixel grid — header lines align with body (same as weeks) */
+                    var monthLabels = [];
+                    var mInner = new Date(
+                        rangeStart.getFullYear(),
+                        rangeStart.getMonth(),
+                        1
+                    );
+                    var rangeEndInclusiveM = new Date(rangeEndExclusive.getTime());
+                    rangeEndInclusiveM.setDate(rangeEndInclusiveM.getDate() - 1);
+
+                    while (mInner <= rangeEndInclusiveM) {
+                        monthLabels.push(
+                            mInner.toLocaleDateString(undefined, {
+                                month: "short",
+                                year: "numeric",
+                            })
+                        );
+                        mInner.setMonth(mInner.getMonth() + 1);
+                    }
+
+                    if (monthLabels.length === 0) monthLabels.push("\u00a0");
+
+                    var mk = monthLabels.length;
+                    var baseM = Math.floor(axisTotalPx / mk);
+                    var remM = axisTotalPx - baseM * mk;
+                    var cumM = 0;
+
+                    for (var mi = 0; mi < mk; mi++) {
+                        var colM = baseM + (mi < remM ? 1 : 0);
+                        gridHtml +=
+                            '<div class="' +
+                            TL.gridLine +
+                            '" style="left:' +
+                            cumM +
+                            'px"></div>';
+                        axisHtml +=
+                            '<span class="' +
+                            TL.weekSpan +
+                            '" style="flex:0 0 ' +
+                            colM +
+                            "px;width:" +
+                            colM +
+                            "px;min-width:" +
+                            colM +
+                            "px;max-width:" +
+                            colM +
+                            'px">' +
+                            monthLabels[mi] +
+                            "</span>";
+                        cumM += colM;
+                    }
+
+                    gridHtml +=
+                        '<div class="' +
+                        TL.gridLine +
+                        '" style="left:' +
+                        cumM +
+                        'px"></div>';
+                    axisLabels.classList.add("flex-nowrap", "items-stretch");
+                }
+
+                axisLabels.innerHTML = axisHtml;
+                axisLabels.classList.add("flex");
+
+                if (
+                    scale !== "days" &&
+                    scale !== "weeks" &&
+                    scale !== "months" &&
+                    scale !== "quarters"
+                ) {
+                    axisLabels.classList.remove("flex-nowrap", "items-stretch");
+                }
+
+                var innerEl = document.getElementById("timeline-inner-" + viewId);
+                if (usePixelBars && axisTotalPx > 0) {
+                    axisLabels.style.minWidth = axisTotalPx + "px";
+                    axisLabels.style.width = axisTotalPx + "px";
+
+                    var axisSticky = document.getElementById("timeline-axis-" + viewId);
+                    if (axisSticky) {
+                        axisSticky.style.minWidth = axisTotalPx + "px";
+                        axisSticky.style.width = axisTotalPx + "px";
+                    }
+
+                    var axisUnderline = document.getElementById(
+                        "timeline-axis-underline-" + viewId
+                    );
+                    if (axisUnderline) {
+                        axisUnderline.style.width = axisTotalPx + "px";
+                        axisUnderline.style.minWidth = axisTotalPx + "px";
+                    }
+
+                    if (innerEl) {
+                        innerEl.style.minWidth = axisTotalPx + "px";
+                        innerEl.style.width = axisTotalPx + "px";
+                    }
+
+                    track.style.minWidth = axisTotalPx + "px";
+                    track.style.width = axisTotalPx + "px";
+                } else {
+                    axisLabels.style.minWidth = "";
+                    axisLabels.style.width = "";
+
+                    var axisStickyClear = document.getElementById(
+                        "timeline-axis-" + viewId
+                    );
+                    if (axisStickyClear) {
+                        axisStickyClear.style.minWidth = "";
+                        axisStickyClear.style.width = "";
+                    }
+
+                    var axisUnderlineClear = document.getElementById(
+                        "timeline-axis-underline-" + viewId
+                    );
+                    if (axisUnderlineClear) {
+                        axisUnderlineClear.style.width = "";
+                        axisUnderlineClear.style.minWidth = "";
+                    }
+
+                    var trackWidthFallback = Math.max(totalDays * 10, 800);
+
+                    if (axisStickyClear) {
+                        axisStickyClear.style.minWidth = trackWidthFallback + "px";
+                    }
+
+                    if (axisUnderlineClear) {
+                        axisUnderlineClear.style.width = trackWidthFallback + "px";
+                        axisUnderlineClear.style.minWidth = trackWidthFallback + "px";
+                    }
+
+                    if (innerEl) {
+                        innerEl.style.minWidth = trackWidthFallback + "px";
+                        innerEl.style.width = "";
+                    }
+
+                    track.style.minWidth = trackWidthFallback + "px";
+                    track.style.width = "";
+                }
+
+                var gridEl = document.getElementById("timeline-grid-" + viewId);
+                if (gridEl) {
+                    gridEl.innerHTML = gridHtml;
+                    if (usePixelBars && axisTotalPx > 0) {
+                        gridEl.style.width = axisTotalPx + "px";
+                        gridEl.style.minWidth = axisTotalPx + "px";
+                    } else {
+                        /* Month/quarter bars use % — grid must fill track width or % lines collapse */
+                        gridEl.style.width = "100%";
+                        gridEl.style.minWidth = "100%";
+                    }
+
+                    function sizeGridToTrack() {
+                        var h = track.scrollHeight || track.offsetHeight;
+                        if (h > 0) gridEl.style.minHeight = h + "px";
+                    }
+
+                    sizeGridToTrack();
+                    requestAnimationFrame(function () {
+                        sizeGridToTrack();
+                        setTimeout(sizeGridToTrack, 0);
+                    });
+                }
+
+                var scrollElForRetry = document.getElementById(
+                    "timeline-scroll-" + viewId
+                );
+                if (scrollElForRetry && scrollElForRetry.clientWidth < 80) {
+                    [0, 50, 150, 300, 600].forEach(function (ms) {
+                        setTimeout(function () {
+                            positionTimelineBars(viewId);
+                        }, ms);
+                    });
+                }
+
+                var scrollEl = document.getElementById("timeline-scroll-" + viewId);
+                if (scrollEl) {
+                    if (usePixelBars && axisTotalPx > 0) {
+                        var earliestLeftPx = axisTotalPx;
+                        bars.forEach(function (bar) {
+                            var leftStr = bar.style.left || "";
+                            if (leftStr.indexOf("px") !== -1) {
+                                var leftPx = parseFloat(leftStr);
+                                if (!isNaN(leftPx) && leftPx < earliestLeftPx) {
+                                    earliestLeftPx = leftPx;
+                                }
+                            } else {
+                                var leftPct2 = parseFloat(leftStr);
+                                if (!isNaN(leftPct2)) {
+                                    var leftPx2 = (leftPct2 / 100) * axisTotalPx;
+                                    if (leftPx2 < earliestLeftPx) {
+                                        earliestLeftPx = leftPx2;
+                                    }
+                                }
+                            }
+                        });
+
+                        scrollEl.scrollLeft = Math.max(earliestLeftPx - 40, 0);
+                    } else {
+                        var trackWidthFallback2 = Math.max(totalDays * 10, 800);
+                        var earliestLeftPct = 100;
+
+                        bars.forEach(function (bar) {
+                            var leftStr = (bar.style.left || "").replace("%", "");
+                            var leftVal = parseFloat(leftStr);
+                            if (!isNaN(leftVal) && leftVal < earliestLeftPct) {
+                                earliestLeftPct = leftVal;
+                            }
+                        });
+
+                        scrollEl.scrollLeft = Math.max(
+                            (earliestLeftPct / 100) * trackWidthFallback2 - 40,
+                            0
+                        );
+                    }
+                }
+            }
+
+            var viewId = "{{ view_id|safe }}";
+
+            if (document.readyState === "complete") {
+                setTimeout(function () {
+                    positionTimelineBars(viewId);
+                }, 0);
+            } else {
+                window.addEventListener("load", function () {
+                    setTimeout(function () {
+                        positionTimelineBars(viewId);
+                    }, 0);
+                });
+            }
+
+            if (
+                typeof document.body.addEventListener === "function" &&
+                !window._timelineBarPositionRegistered
+            ) {
+                window._timelineBarPositionRegistered = true;
+                document.body.addEventListener("htmx:afterSwap", function (evt) {
+                    var target = evt.detail && evt.detail.target;
+                    if (!target) return;
+
+                    var container =
+                        target.classList &&
+                        target.classList.contains("js-timeline-container")
+                            ? target
+                            : typeof target.querySelector === "function"
+                              ? target.querySelector(".js-timeline-container")
+                              : null;
+
+                    if (!container || !container.id) return;
+
+                    var cid = container.id;
+                    positionTimelineBars(cid);
+                    [0, 50, 150, 300].forEach(function (ms) {
+                        setTimeout(function () {
+                            positionTimelineBars(cid);
+                        }, ms);
+                    });
+                });
+            }
+        })();
+    </script>
+{% endif %}

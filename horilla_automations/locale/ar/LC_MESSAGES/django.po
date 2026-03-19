@@ -1,0 +1,180 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid ""
+"Module for automating mail and notifications based on model events and "
+"conditions."
+msgstr ""
+"وحدة لأتمتة البريد والإشعارات بناءً على أحداث النموذج والشروط."
+
+msgid "Automations"
+msgstr "الأتمتة"
+
+msgid "Mail & Notifications"
+msgstr "البريد والإشعارات"
+
+msgid "Equal (==)"
+msgstr "يساوي (==)"
+
+msgid "Not Equal (!=)"
+msgstr "لا يساوي (!=)"
+
+msgid "Less Than (<)"
+msgstr "أقل من (<)"
+
+msgid "Greater Than (>)"
+msgstr "أكبر من (>)"
+
+msgid "Less Than or Equal To (<=)"
+msgstr "أقل من أو يساوي (<=)"
+
+msgid "Greater Than or Equal To (>=)"
+msgstr "أكبر من أو يساوي (>=)"
+
+msgid "Contains"
+msgstr "يحتوي على"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "Method Title"
+msgstr "عنوان الطريقة"
+
+msgid "Module"
+msgstr "الوحدة"
+
+msgid "Mail to/Notify to"
+msgstr "إرسال البريد إلى / إشعار إلى"
+
+msgid ""
+"Specify recipients for email/notifications. Supports:\n"
+"- Direct email: user@example.com\n"
+"- Self: 'self' (person who triggered)\n"
+"- Instance fields: 'instance.owner.email', 'instance.created_by', 'instance."
+"owner'\n"
+"- Multiple: comma-separated (e.g., 'self, instance.owner.email, "
+"admin@example.com')\n"
+"\n"
+"For notifications: Use user fields directly (e.g., 'instance.owner') or "
+"email addresses.\n"
+"The system will find users by email if an email address is provided."
+msgstr ""
+"حدد المستلمين للبريد الإلكتروني/الإشعارات. يدعم:\n"
+"- البريد الإلكتروني المباشر: user@example.com\n"
+"- النفس: 'self' (الشخص الذي أطلق الحدث)\n"
+"- حقول النموذج: 'instance.owner.email'، 'instance.created_by'، 'instance.owner'\n"
+"- متعدد: مفصول بفواصل (مثل: 'self, instance.owner.email, admin@example.com')\n"
+"\n"
+"للإشعارات: استخدم حقول المستخدم مباشرةً (مثل: 'instance.owner') أو عناوين البريد الإلكتروني.\n"
+"سيجد النظام المستخدمين عبر البريد الإلكتروني إذا تم توفير عنوان بريد إلكتروني."
+
+msgid "Also Send to"
+msgstr "إرسال أيضاً إلى"
+
+msgid "Mail Detail Choice"
+msgstr "اختيار تفاصيل البريد"
+
+msgid "Trigger"
+msgstr "المشغّل"
+
+msgid "Mail Template"
+msgstr "قالب البريد"
+
+msgid "Notification Template"
+msgstr "قالب الإشعار"
+
+msgid "Outgoing Mail Server"
+msgstr "خادم البريد الصادر"
+
+msgid ""
+"Select the mail server to use for sending emails. If not selected, the "
+"primary mail server will be used."
+msgstr ""
+"حدد خادم البريد المراد استخدامه لإرسال الرسائل. إذا لم يتم التحديد، سيتم استخدام الخادم الأساسي."
+
+msgid "Choose Delivery Channel"
+msgstr "اختر قناة التسليم"
+
+msgid "Mail and Notification"
+msgstr "البريد والإشعار"
+
+msgid "Mail and Notifications"
+msgstr "البريد والإشعارات"
+
+msgid "Automation"
+msgstr "الأتمتة"
+
+msgid "Field Name"
+msgstr "اسم الحقل"
+
+msgid "Operator"
+msgstr "المعامل"
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "AND"
+msgstr "و"
+
+msgid "OR"
+msgstr "أو"
+
+msgid "Logical Operator"
+msgstr "المعامل المنطقي"
+
+msgid "Order"
+msgstr "الترتيب"
+
+msgid "Automation Condition"
+msgstr "شرط الأتمتة"
+
+msgid "Automation Conditions"
+msgstr "شروط الأتمتة"
+
+msgid "Load Automation"
+msgstr "تحميل الأتمتة"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Mail Server"
+msgstr "خادم البريد"
+
+msgid "Select mail server"
+msgstr "اختر خادم البريد"
+
+msgid "Add an outgoing mail server in Mail to load automations."
+msgstr "أضف خادم بريد صادر في البريد لتحميل الأتمتة."
+
+msgid "Select All"
+msgstr "تحديد الكل"
+
+msgid "Create"
+msgstr "إنشاء"
+
+msgid "No default automations found."
+msgstr "لم يتم العثور على أتمتة افتراضية."
+
+msgid "Add an outgoing mail server to load automations."
+msgstr "أضف خادم بريد صادر لتحميل الأتمتة."
+
+msgid "Condition"
+msgstr "الشرط"

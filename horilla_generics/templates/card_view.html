@@ -1,0 +1,105 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<style>
+    .htmx-indicator { display: none; pointer-events: none; }
+    .htmx-request .htmx-indicator { display: flex !important; pointer-events: none; }
+    .htmx-request.htmx-indicator { display: flex !important; pointer-events: none; }
+</style>
+{% with full_query=request.GET.urlencode %}
+<div id="{{ view_id|safe }}"
+     style="position: relative;"
+     data-filter-reload-url="{% if filter_reload_url %}{{ filter_reload_url }}{% else %}{{ request.path }}{% if full_query %}?{{ full_query }}{% endif %}{% endif %}">
+{% endwith %}
+    <div id="loading-indicator" class="htmx-indicator tabloading" style="z-index: 30;">
+        <div class="flex justify-center items-center p-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+    </div>
+    {% include "messages.html" %}
+    <button id="reloadButton" hidden
+        hx-get="{{ request.path }}?{{ request.GET.urlencode }}"
+        hx-target="#{{ view_id|safe }}"
+        hx-trigger="click"
+        hx-swap="outerHTML"
+        hx-select="#{{ view_id|safe }}"
+        hx-indicator="#loading-indicator">click</button>
+
+    {% if filter_set_class %}
+        {% include "filterpanel.html" %}
+    {% endif %}
+    {% if enable_quick_filters %}
+        {% include "partials/quick_filters_bar.html" %}
+    {% endif %}
+
+    {% if queryset %}
+        <div id="card-scroll-container-{{ view_id }}" class="custom-scroll relative overflow-y-auto h-[calc(100vh_-_210px)] bg-white rounded-lg z-0" style="overflow-anchor: auto;">
+            <div id="data-container-{{ view_id }}"
+                 class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-[#e9edf0ba]"
+                 data-view-id="{{ view_id }}">
+                {% include "partials/card_view_cards.html" %}
+            </div>
+            <div id="loadingIndicator" class="pagination-indicator htmx-indicator" style="pointer-events: none;">
+                <div class="flex justify-center items-center p-4 w-full" style="pointer-events: none;">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% if no_record_section %}
+            <div class="flex justify-between items-center h-20"></div>
+            <img src="{% static no_found_img|default:'assets/img/not-found.svg' %}"
+                alt="404"
+                class="w-60 m-auto mb-4 mt-5" />
+            {% if view_type|slice:":11" == "saved_list_" %}
+                <p class="text-sm text-center pb-3">
+                    {% blocktrans with model=model_verbose_name view=saved_list_name %}
+                    Nothing to show yet. The {{ view }} list doesn't have any data.
+                    {% endblocktrans %}
+                </p>
+            {% else %}
+                <p class="text-sm text-center pb-3">
+                    {% if no_record_msg %}
+                        {{ no_record_msg }}
+                    {% else %}
+                        {% trans 'Nothing to show yet. Please add your' %} {{ model_verbose_name }}.
+                    {% endif %}
+                </p>
+            {% endif %}
+            {% if view_type|slice:":11" == "saved_list_" and saved_list_is_owner %}
+                <button class="text-xs px-4 py-2 bg-white rounded-md transition duration-300 bg-primary-600 text-white m-auto flex"
+                    id="delete-list-btn"
+                    hx-post="{% url 'horilla_generics:delete_saved_list' %}?{{ request.GET.urlencode }}"
+                    hx-vals='{"saved_list_id": "{{ view_type|slice:"11:" }}","main_url": "{{ main_url|escapejs }}","model_name": "{{ model_name|urlencode }}"}'
+                    hx-target="#mainContent"
+                    hx-select="#mainContent"
+                    hx-swap="outerHTML"
+                    hx-push-url="true"
+                    hx-trigger="confirmed"
+                    hx-on:click="hxConfirm(this,'Are you sure you want to delete this saved list?');">
+                    <i class="fa-solid fa-trash pe-1"></i>
+                    {% trans 'Delete List' %}
+                </button>
+            {% elif view_type|slice:":11" != "saved_list_" %}
+                {% if no_record_add_button.url %}
+                    <button
+                        hx-get="{{ no_record_add_button.url }}"
+                        hx-target="{{ no_record_add_button.target|default:'#modalBox' }}"
+                        hx-swap="{{ no_record_add_button.swap|default:'innerHTML' }}"
+                        onclick="{{ no_record_add_button.onclick|default:'openModal()' }}"
+                        class="{{ no_record_add_button.class|default:'text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white] m-auto flex' }}"
+                        {% if no_record_add_button.attrs %}{{ no_record_add_button.attrs|safe }}{% endif %}>
+                        {{ no_record_add_button.title|default:_("Add New") }}
+                    </button>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    <script src="{% static 'assets/js/filter_reload.js' %}"></script>
+    <script>
+        document.addEventListener('htmx:historyRestore', function() {
+            window.location.reload();
+        });
+    </script>
+</div>

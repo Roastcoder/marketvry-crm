@@ -1,0 +1,60 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+{% for data in queryset %}
+{% with first_cell=columns|first %}
+{% if first_cell %}
+    {% with col_attrs_for_field=col_attrs|lookup:first_cell.1 %}
+    {% if col_attrs_for_field.permission or col_attrs_for_field.own_permission %}
+        {% filter_actions_by_permission col_attrs_for_field|wrap_in_list data as allowed_col_attrs %}
+    {% endif %}
+    {% endwith %}
+{% endif %}
+{% endwith %}
+<div class="split-view-tile py-3 px-4 transition-colors cursor-pointer hover:bg-primary-50"
+     data-id="{{ data.id }}"
+    {% with first_cell=columns|first %}
+    {% if first_cell %}
+        {% with col_attrs_for_field=col_attrs|lookup:first_cell.1 %}
+        {% if col_attrs_for_field|get_item:'hx-get' %}
+            {% if col_attrs_for_field.permission or col_attrs_for_field.own_permission %}
+                {% filter_actions_by_permission col_attrs_for_field|wrap_in_list data as allowed_col_attrs %}
+                {% if allowed_col_attrs %}
+                    {% for attr_name, attr_value in col_attrs_for_field.items %}
+                        {% if attr_name != 'class' and attr_name != 'style' and attr_name != 'permission' and attr_name != 'own_permission' and attr_name != 'owner_field' and attr_name != 'owner_method' %}
+                            {{ attr_name }}="{{ attr_value|format:data }}"
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                {% for attr_name, attr_value in col_attrs_for_field.items %}
+                    {% if attr_name != 'class' and attr_name != 'style' %}
+                        {{ attr_name }}="{{ attr_value|format:data }}"
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+        {% endwith %}
+    {% endif %}
+    {% endwith %}>
+    {% with first_cell=columns|first %}
+    <div class="flex flex-col gap-1">
+        <span class="split-view-tile-name font-semibold text-color-800 text-sm leading-tight">{{ data|get_field:first_cell.1|default:"N/A"|truncatechars:45 }}</span>
+        {% if columns|length > 1 %}
+            {% with second_cell=columns|slice:":2"|last %}
+            <span class="text-xs text-color-700">{{ data|get_field:second_cell.1|default:""|truncatechars:45 }}</span>
+            {% endwith %}
+        {% endif %}
+    </div>
+    {% endwith %}
+</div>
+{% endfor %}
+{% if has_next %}
+<div class="htmx-sentinel split-view-sentinel" style="height:1px;padding:0;margin:0;border:none;"
+    hx-get="{{ request.path }}?{{ search_params }}&page={{ next_page }}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-select=".split-view-tile, .split-view-sentinel"
+    hx-trigger="intersect once"
+    hx-indicator="#splitViewLoadMore"></div>
+{% endif %}

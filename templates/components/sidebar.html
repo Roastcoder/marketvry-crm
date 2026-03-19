@@ -1,0 +1,43 @@
+{% load static i18n horilla_tags %}
+
+<div class="fixed inset-y-0 left-0 w-auto bg-white border-r border-r-primary-100 z-40">
+    <div class="p-4">
+        <div class="flex items-center justify-center gap-2 mb-8">
+            <img src="{% static LOGO_PATH %}" alt="{% trans 'Logo' %}" class="w-8 h-8" />
+        </div>
+
+        <nav class="relative space-y-2">
+            {% for item in main_section_menu %}
+                {% has_section_perm_url request.user item.section as perm_url %}
+                {% if perm_url %}
+                    <a href="{{ perm_url }}?section={{ item.section }}" class="nav-link" id="{{ item.section }}" title="{{ item.name }}" aria-label="{{ item.name }}" data-tooltip-placement="right">
+                        <img src="{% static item.icon %}" alt="" class="w-5 h-5" />
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+    {% if floating_menu %}
+        <div class="floating-menu bg-primary-600">
+            <input type="checkbox" name="floating-menu"
+                title="{% trans 'Quick actions' %}"
+                aria-label="{% trans 'Quick actions' %}"
+                data-tooltip-placement="right">
+            <span class="plus-icon bg-primary-600">
+                <span class="fa fa-plus" aria-hidden="true"></span>
+            </span>
+            <ul class="floating-nav">
+                {% for menu in floating_menu %}
+                    <li hx-get="{{ menu.url }}?{{ request.GET.urlencode }}" {% for key, value in menu.items.items %} {{ key }}="{{ value }}" {% endfor %} class="bg-primary-600"
+                        title="{{ menu.title }}"
+                        aria-label="{{ menu.title }}"
+                        data-tooltip-placement="right"
+                        role="button"
+                        tabindex="0">
+                        <img src="{% static menu.icon %}" alt="" width="17" class="w-4 h-4 brightness-0 invert" />
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>

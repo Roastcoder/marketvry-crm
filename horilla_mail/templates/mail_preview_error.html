@@ -1,0 +1,12 @@
+{% load static i18n %}
+<div class="p-5">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-red-600">{% trans "Preview Error" %}</h2>
+        <button onclick="closeContentModal()" class="text-gray-500 hover:text-red-500">
+            <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+    </div>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+        <p class="text-red-800">{% trans "Error generating preview:" %} {{ error_message }}</p>
+    </div>
+</div>

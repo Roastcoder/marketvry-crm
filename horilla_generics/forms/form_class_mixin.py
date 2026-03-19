@@ -1,0 +1,281 @@
+"""
+Shared base and mixins for Horilla model forms.
+
+Provides common field-permission removal, readonly enforcement, and
+widget/initial configuration used by both HorillaModelForm and HorillaMultiStepForm.
+"""
+
+# Third-party imports (Django)
+from django import forms
+
+# First-party / Horilla imports
+from horilla.db import models
+from horilla.urls import reverse_lazy
+from horilla.utils.translation import gettext_lazy as _
+
+# Shared widget CSS classes (single-step and multi-step use the same styling)
+WIDGET_INPUT_CSS_CLASS = (
+    "text-color-600 p-2 placeholder:text-xs pr-[40px] w-full border border-dark-50 "
+    "rounded-md mt-1 focus-visible:outline-0 placeholder:text-dark-100 text-sm "
+    "[transition:.3s] focus:border-primary-600"
+)
+WIDGET_INPUT_CSS_CLASS_NO_PR = (
+    "text-color-600 p-2 placeholder:text-xs w-full border border-dark-50 rounded-md "
+    "mt-1 focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] "
+    "focus:border-primary-600"
+)
+WIDGET_TIME_CSS_CLASS = (
+    "text-color-600 p-2 placeholder:text-xs pr-[40px] w-full border border-dark-50 "
+    "rounded-md mt-1 focus-visible:outline-0 placeholder:text-dark-100 text-sm "
+    "transition duration-300 focus:border-primary-600"
+)
+SELECT_READONLY_CLASS_SUFFIX = " bg-gray-100 cursor-not-allowed opacity-60"
+
+
+class HorillaFormMixin:
+    """
+    Mixin with shared logic for HorillaModelForm and HorillaMultiStepForm:
+    - Removing fields based on field_permissions (hidden/readonly)
+    - Enforcing readonly in clean() by restoring original values and adding errors
+    """
+
+    def _remove_fields_by_permission(
+        self,
+        skip_field_names=(),
+        duplicate_mode=False,
+        skip_hidden_widget=False,
+    ):
+        """
+        Remove form fields based on field_permissions (hidden, readonly).
+        In create/duplicate mode, mandatory fields are never removed.
+
+        Args:
+            skip_field_names: Field names to never remove (e.g. condition_fields, hidden_fields).
+            duplicate_mode: If True, treat like create mode for mandatory checks (HorillaModelForm).
+            skip_hidden_widget: If True, skip fields that already use HiddenInput (HorillaMultiStepForm).
+        """
+        field_permissions = getattr(self, "field_permissions", None) or {}
+        if not field_permissions:
+            return
+
+        is_create_mode = not (self.instance and self.instance.pk)
+        is_duplicate_mode = getattr(self, "duplicate_mode", False) or duplicate_mode
+        fields_to_remove = []
+
+        for field_name, field in list(self.fields.items()):
+            if field_name in skip_field_names:
+                continue
+            if skip_hidden_widget and isinstance(field.widget, forms.HiddenInput):
+                continue
+
+            permission = field_permissions.get(field_name, "readwrite")
+
+            if permission == "hidden":
+                if is_create_mode or is_duplicate_mode:
+                    is_mandatory = self._is_field_mandatory(field_name, field)
+                    if not is_mandatory:
+                        fields_to_remove.append(field_name)
+                else:
+                    fields_to_remove.append(field_name)
+            elif permission == "readonly" and (is_create_mode or is_duplicate_mode):
+                is_mandatory = self._is_field_mandatory(field_name, field)
+                if not is_mandatory:
+                    fields_to_remove.append(field_name)
+
+        for field_name in fields_to_remove:
+            if field_name in self.fields:
+                del self.fields[field_name]
+
+    def _is_field_mandatory(self, field_name, field):
+        """Return True if the field is required (not null and not blank on model, or field.required)."""
+        try:
+            model_field = self._meta.model._meta.get_field(field_name)
+            return not model_field.null and not model_field.blank
+        except Exception:
+            return getattr(field, "_original_required", field.required)
+
+    def _enforce_readonly_in_cleaned_data(self, cleaned_data):
+        """
+        Enforce readonly field permissions in edit mode: restore original values
+        for readonly fields and add validation errors if the user changed them.
+        Modifies cleaned_data in place and adds errors to self.
+        """
+        field_permissions = getattr(self, "field_permissions", None) or {}
+        if not field_permissions or not (self.instance and self.instance.pk):
+            return
+
+        for field_name, permission in field_permissions.items():
+            if permission != "readonly" or field_name not in self.fields:
+                continue
+            try:
+                model_field = self._meta.model._meta.get_field(field_name)
+            except Exception:
+                continue
+
+            if isinstance(model_field, models.ManyToManyField):
+                original_value = list(getattr(self.instance, field_name).all())
+            elif isinstance(model_field, models.ForeignKey):
+                original_value = getattr(self.instance, field_name, None)
+            else:
+                original_value = getattr(self.instance, field_name, None)
+
+            submitted_value = cleaned_data.get(field_name)
+            value_changed = False
+
+            if isinstance(model_field, models.ManyToManyField):
+                original_pks = (
+                    set(obj.pk for obj in original_value) if original_value else set()
+                )
+                submitted_pks = (
+                    set(obj.pk for obj in submitted_value) if submitted_value else set()
+                )
+                value_changed = original_pks != submitted_pks
+            elif isinstance(model_field, models.ForeignKey):
+                original_pk = original_value.pk if original_value else None
+                submitted_pk = submitted_value.pk if submitted_value else None
+                value_changed = original_pk != submitted_pk
+            else:
+                value_changed = original_value != submitted_value
+
+            if value_changed:
+                cleaned_data[field_name] = original_value
+                self.add_error(
+                    field_name,
+                    forms.ValidationError(
+                        _("This field is read-only and cannot be modified."),
+                        code="readonly_field",
+                    ),
+                )
+            else:
+                cleaned_data[field_name] = original_value
+
+    # --- Shared widget / initial helpers (each form gets initials its own way, same attrs) ---
+
+    def _should_disable_select_for_permission(self, field_name, model_field):
+        """Return True if this FK/M2M/Select should be disabled (readonly and not mandatory in create/duplicate)."""
+        field_permissions = getattr(self, "field_permissions", None) or {}
+        permission = field_permissions.get(field_name, "readwrite")
+        if permission != "readonly":
+            return False
+        is_create_mode = not (self.instance and self.instance.pk)
+        is_duplicate_mode = getattr(self, "duplicate_mode", False)
+        try:
+            is_mandatory = not model_field.null and not model_field.blank
+        except Exception:
+            return True
+        return not ((is_create_mode or is_duplicate_mode) and is_mandatory)
+
+    def _apply_readonly_to_select_attrs(self, attrs):
+        """Mutate attrs to add disabled and readonly styling for select widgets."""
+        attrs["disabled"] = "disabled"
+        attrs["data-disabled"] = "true"
+        existing = attrs.get("class", "")
+        if SELECT_READONLY_CLASS_SUFFIX.strip() not in existing:
+            attrs["class"] = f"{existing}{SELECT_READONLY_CLASS_SUFFIX}".strip()
+
+    def _build_select2_m2m_attrs(
+        self,
+        field_name,
+        model_field,
+        initial_value,
+        object_id=None,
+        existing_attrs=None,
+    ):
+        """Build widget attrs for a ManyToManyField with select2-pagination. Caller sets initial_value source."""
+        related_model = model_field.related_model
+        app_label = related_model._meta.app_label
+        model_name = related_model._meta.model_name
+        data_initial = ",".join(map(str, initial_value)) if initial_value else ""
+        attrs = {
+            "class": "select2-pagination w-full text-sm",
+            "data-url": reverse_lazy(
+                "horilla_generics:model_select2",
+                kwargs={"app_label": app_label, "model_name": model_name},
+            ),
+            "data-placeholder": _("Select %(field)s")
+            % {"field": model_field.verbose_name.title()},
+            "multiple": "multiple",
+            "data-initial": data_initial,
+            "data-field-name": field_name,
+            "id": f"id_{field_name}",
+            "data-form-class": f"{self.__module__}.{self.__class__.__name__}",
+            **(existing_attrs or {}),
+        }
+        if object_id is not None:
+            attrs["data-object-id"] = str(object_id)
+        if self.__class__.__name__ == "DynamicForm":
+            attrs["data-parent-model"] = (
+                f"{self._meta.model._meta.app_label}.{self._meta.model._meta.model_name}"
+            )
+        return attrs
+
+    def _build_select2_fk_attrs(
+        self,
+        field_name,
+        model_field,
+        initial_value,
+        object_id=None,
+        existing_attrs=None,
+    ):
+        """Build widget attrs for a ForeignKey with select2-pagination. Caller sets initial_value source."""
+        related_model = model_field.related_model
+        app_label = related_model._meta.app_label
+        model_name = related_model._meta.model_name
+        attrs = {
+            "class": "select2-pagination w-full",
+            "data-url": reverse_lazy(
+                "horilla_generics:model_select2",
+                kwargs={"app_label": app_label, "model_name": model_name},
+            ),
+            "data-placeholder": _("Select %(field)s")
+            % {"field": model_field.verbose_name.title()},
+            "data-initial": str(initial_value) if initial_value is not None else "",
+            "data-field-name": field_name,
+            "id": f"id_{field_name}",
+            "data-form-class": f"{self.__module__}.{self.__class__.__name__}",
+            **(existing_attrs or {}),
+        }
+        if object_id is not None:
+            attrs["data-object-id"] = str(object_id)
+        if self.__class__.__name__ == "DynamicForm":
+            attrs["data-parent-model"] = (
+                f"{self._meta.model._meta.app_label}.{self._meta.model._meta.model_name}"
+            )
+        return attrs
+
+    def _build_datetime_widget_attrs(self, existing_attrs=None, readonly=False):
+        """Build attrs for DateTimeInput (type=datetime-local)."""
+        base = {
+            "type": "datetime-local",
+            "class": WIDGET_INPUT_CSS_CLASS_NO_PR,
+            **(existing_attrs or {}),
+        }
+        if readonly:
+            base["readonly"] = "readonly"
+        return base
+
+    def _build_date_widget_attrs(self, existing_attrs=None, readonly=False):
+        """Build attrs for DateInput (type=date)."""
+        base = {
+            "type": "date",
+            "class": WIDGET_INPUT_CSS_CLASS_NO_PR,
+            **(existing_attrs or {}),
+        }
+        if readonly:
+            base["readonly"] = "readonly"
+        return base
+
+    def _build_time_widget_attrs(
+        self, existing_attrs=None, readonly=False, extra_style=None
+    ):
+        """Build attrs for TimeInput (type=time). extra_style for e.g. clock icon (single-step)."""
+        base = {
+            "type": "time",
+            "class": WIDGET_TIME_CSS_CLASS,
+            **(existing_attrs or {}),
+        }
+        if extra_style:
+            base["style"] = extra_style
+        if readonly:
+            base["readonly"] = "readonly"
+        return base

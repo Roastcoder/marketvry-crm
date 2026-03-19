@@ -1,0 +1,716 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:11+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);\n"
+
+msgid "Opportunities"
+msgstr ""
+
+msgid "Big Deal Alerts"
+msgstr ""
+
+msgid "Update Big Deal Alert"
+msgstr ""
+
+msgid "Create Big Deal Alert"
+msgstr ""
+
+msgid "duplicated"
+msgstr ""
+
+msgid "updated"
+msgstr ""
+
+msgid "created"
+msgstr ""
+
+#, python-format
+msgid "%(model)s %(action)s successfully!"
+msgstr ""
+
+msgid "At least one valid condition row must be provided."
+msgstr ""
+
+msgid "Select Team"
+msgstr ""
+
+msgid "Select a team to add all its default members to this opportunity"
+msgstr ""
+
+msgid "Opportunity Team"
+msgstr ""
+
+msgid "Opportunity"
+msgstr ""
+
+msgid "Opportunity Team Settings"
+msgstr ""
+
+msgid "Opportunity Split Settings"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Closed Won"
+msgstr ""
+
+msgid "Closed Lost"
+msgstr ""
+
+msgid "Stage Name"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
+msgid "Probability"
+msgstr ""
+
+msgid "Is Final Stage"
+msgstr ""
+
+msgid "Stage Type"
+msgstr ""
+
+msgid "Type of stage - Open, Closed Won, or Closed Lost"
+msgstr ""
+
+msgid "Order must be a non-negative integer."
+msgstr ""
+
+msgid "Opportunity Stage"
+msgstr ""
+
+msgid "Opportunity Stages"
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid "Referral"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Campaign"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Social Media"
+msgstr ""
+
+msgid "Partner"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Opportunity Name"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Expected Revenue"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Close Date"
+msgstr ""
+
+msgid "Stage"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Next Step"
+msgstr ""
+
+msgid "Opportunity Score"
+msgstr ""
+
+msgid "Primary Campaign Source"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Lead Source"
+msgstr ""
+
+msgid "Forecast Category"
+msgstr ""
+
+msgid "Delivery Installation Status"
+msgstr ""
+
+msgid "Main Competitors"
+msgstr ""
+
+msgid "Order Number"
+msgstr ""
+
+msgid "Tracking Number"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Opportunity Contact Role"
+msgstr ""
+
+msgid "Opportunity Contact Roles"
+msgstr ""
+
+msgid "Read Only"
+msgstr ""
+
+msgid "Read/Write"
+msgstr ""
+
+msgid "Team Name"
+msgstr ""
+
+msgid "Opportunity Teams"
+msgstr ""
+
+msgid "Opportunity Access"
+msgstr ""
+
+msgid "Member Role"
+msgstr ""
+
+msgid "Team Members"
+msgstr ""
+
+msgid "Opportunity team member"
+msgstr ""
+
+msgid "Opportunity team members"
+msgstr ""
+
+msgid "Team Member"
+msgstr ""
+
+msgid "Access Level"
+msgstr ""
+
+msgid "Default Opportunity Member"
+msgstr ""
+
+msgid "Default Opportunity Members"
+msgstr ""
+
+msgid "Enable Team Selling"
+msgstr ""
+
+msgid ""
+"Enable Opportunity Teams to help multiple users collaborate on "
+"opportunities. When enabled, you can define roles for team members, set "
+"record-level access, and view teams in list views and reports."
+msgstr ""
+
+msgid "Enable Opportunity Splits"
+msgstr ""
+
+msgid ""
+"Allow multiple users to share credit for an opportunity. Splits can be based "
+"on revenue, overlay, or custom metrics."
+msgstr ""
+
+msgid "Let users add members to opportunity teams while editing splits"
+msgstr ""
+
+msgid ""
+"When enabled, users can assign splits to any active user in the company, not "
+"just opportunity team members. This allows adding new members while editing "
+"splits."
+msgstr ""
+
+msgid "Opportunity Setting"
+msgstr ""
+
+msgid "Opportunity Settings"
+msgstr ""
+
+msgid "Expected Revenue Overlay"
+msgstr ""
+
+msgid "Overlay"
+msgstr ""
+
+msgid "Revenue"
+msgstr ""
+
+msgid "Split Label"
+msgstr ""
+
+msgid "Name of the split type (e.g., Revenue, Overlay)"
+msgstr ""
+
+msgid "Split Field"
+msgstr ""
+
+msgid "Field to split: amount, expected_revenue, etc."
+msgstr ""
+
+msgid "Opportunity - Amount"
+msgstr ""
+
+msgid "Opportunity - Expected Revenue"
+msgstr ""
+
+msgid "Totals 100%"
+msgstr ""
+
+msgid "Require splits of this type to total exactly 100%"
+msgstr ""
+
+msgid "Opportunity Split Type"
+msgstr ""
+
+msgid "Opportunity Split Types"
+msgstr ""
+
+msgid "User receiving credit for this split."
+msgstr ""
+
+msgid "Split Type"
+msgstr ""
+
+msgid "Type of split, such as Revenue or Overlay."
+msgstr ""
+
+msgid "Split Percentage"
+msgstr ""
+
+msgid "Percentage of total credit (e.g., 25.00 for 25%)."
+msgstr ""
+
+msgid "Split Amount"
+msgstr ""
+
+msgid "Calculated split amount based on percentage and opportunity amount."
+msgstr ""
+
+msgid "Opportunity Split"
+msgstr ""
+
+msgid "Opportunity Splits"
+msgstr ""
+
+msgid "Is Active"
+msgstr ""
+
+msgid ""
+"Opportunity Splits has been enabled successfully! Users can now split "
+"opportunities and assign percentages to team members."
+msgstr ""
+
+msgid ""
+"Opportunity Splits has been disabled. Existing splits will no longer be "
+"visible or accessible."
+msgstr ""
+
+msgid ""
+"All users can now be added to opportunity splits. Users can assign splits to "
+"any active user in the company."
+msgstr ""
+
+msgid ""
+"Only opportunity team members can now be added to splits. Adding other users "
+"has been restricted."
+msgstr ""
+
+msgid "Opportunity splits are not enabled."
+msgstr ""
+
+msgid "Opportunity splits saved successfully"
+msgstr ""
+
+msgid "Added to opportunity team: {}"
+msgstr ""
+
+msgid "At least one split must be added."
+msgstr ""
+
+msgid "Invalid percentage value."
+msgstr ""
+
+#, python-brace-format
+msgid "Total percentage must equal 100%. Current total: {total_percentage}%"
+msgstr ""
+
+msgid "Percentage must be between 0 and 100."
+msgstr ""
+
+msgid "Cannot assign multiple splits to the same user for one split type."
+msgstr ""
+
+msgid "Create Opportunity Team"
+msgstr ""
+
+msgid "Add Members"
+msgstr ""
+
+msgid "Update Team Member"
+msgstr ""
+
+msgid ""
+"Cannot delete {user.get_full_name() or user.username} from the opportunity "
+"team. "
+msgstr ""
+
+msgid "An error occurred while deleting the team member."
+msgstr ""
+
+msgid "Add Default Team"
+msgstr ""
+
+msgid "Opportunity ID is required"
+msgstr ""
+
+msgid "The selected team has no default members configured."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Successfully added {added_count} team member(s) from {selected_team."
+"team_name}."
+msgstr ""
+
+#, python-brace-format
+msgid "{skipped_count} member(s) were already part of the opportunity team."
+msgstr ""
+
+msgid "Error adding default team members: {str(e)}"
+msgstr ""
+
+msgid "Add Opportunity Members"
+msgstr ""
+
+msgid ""
+"Team Selling has been enabled successfully! Users can now create opportunity "
+"teams and add team members."
+msgstr ""
+
+msgid ""
+"Team Selling has been disabled and all existing opportunity teams and their "
+"members have been deleted."
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Final stage changed successfully."
+msgstr ""
+
+msgid "Stage not found."
+msgstr ""
+
+msgid "Prospecting"
+msgstr ""
+
+msgid "Qualification"
+msgstr ""
+
+msgid "Needs Analysis"
+msgstr ""
+
+msgid "Value Proposition"
+msgstr ""
+
+msgid "Id. Decision Makers"
+msgstr ""
+
+msgid "Perception Analysis"
+msgstr ""
+
+msgid "Proposal/Price Quote"
+msgstr ""
+
+msgid "Negotiation/Review"
+msgstr ""
+
+msgid "Trigger Amount"
+msgstr ""
+
+msgid "Trigger Probability"
+msgstr ""
+
+msgid "Is Null"
+msgstr ""
+
+msgid "Is Not Null"
+msgstr ""
+
+msgid "Notify Emails"
+msgstr ""
+
+msgid "Notify CC Emails"
+msgstr ""
+
+msgid "Mail Template"
+msgstr ""
+
+msgid "Sender Email"
+msgstr ""
+
+msgid "Trigger"
+msgstr ""
+
+msgid "Delivery Channel"
+msgstr ""
+
+msgid "Nothing to show yet. Please add your big deal alerts"
+msgstr ""
+
+msgid "Select Closed Stage"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Please select whether this opportunity is Closed Won or Closed Lost:"
+msgstr ""
+
+msgid "Current stage:"
+msgstr ""
+
+msgid "Won"
+msgstr ""
+
+msgid "Lost"
+msgstr ""
+
+msgid ""
+"No closed stages are configured for this company. Please configure Closed "
+"Won and Closed Lost stages first."
+msgstr ""
+
+msgid "Update Stage"
+msgstr ""
+
+msgid "Are you sure you want to delete this split?"
+msgstr ""
+
+msgid "Delete Split"
+msgstr ""
+
+msgid "Cannot delete opportunity owner"
+msgstr ""
+
+msgid "Edit All Opportunity Splits"
+msgstr ""
+
+msgid "Enable Opportunity split"
+msgstr ""
+
+msgid ""
+"When enabled, users can assign splits to any active user in the company,not "
+"just opportunity team members. This allows adding new members while editing "
+"splits."
+msgstr ""
+
+msgid "split"
+msgstr ""
+
+msgid "Quick Tips for Opportunity Splits"
+msgstr ""
+
+msgid ""
+"Enable opportunity splits to distribute revenue and credit among multiple "
+"team members"
+msgstr ""
+
+msgid ""
+"Configure split fields to track different revenue types (Revenue, Overlay, "
+"Expected Revenue)"
+msgstr ""
+
+msgid ""
+"Set percentage allocations for each team member to ensure proper credit "
+"distribution"
+msgstr ""
+
+msgid ""
+"Choose whether to allow all users or restrict splits to opportunity team "
+"members only"
+msgstr ""
+
+msgid "Please Activate opporunity team settings"
+msgstr ""
+
+msgid "Select User"
+msgstr ""
+
+msgid "Not in team"
+msgstr ""
+
+msgid "Percent"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Add Row"
+msgstr ""
+
+msgid ""
+"Only opportunity team members can be assigned splits.To allow all users, "
+"enable Let users add members to opportunity teams while editing splits in  "
+"Opportunity Settings"
+msgstr ""
+
+msgid "All active users in the company can be assigned splits."
+msgstr ""
+
+#, python-format
+msgid "Total percentage must equal 100%% for this split type."
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Saving..."
+msgstr ""
+
+msgid "TOTAL PERCENT"
+msgstr ""
+
+msgid "TOTAL AMOUNT"
+msgstr ""
+
+msgid "Manage Custom Stages"
+msgstr ""
+
+msgid "Drag"
+msgstr ""
+
+msgid "Add Stage"
+msgstr ""
+
+msgid " Changes"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Initialize Database"
+msgstr ""
+
+msgid "Get started by using default stages or adding your custom stages."
+msgstr ""
+
+msgid "Default Stages"
+msgstr ""
+
+msgid "Stages"
+msgstr ""
+
+msgid "Select Opportunity Stages for"
+msgstr ""
+
+msgid "Custom Stages"
+msgstr ""
+
+msgid "Team Selling Setup"
+msgstr ""
+
+msgid ""
+"Configure opportunity team settings to enable collaboration among sales team "
+"members"
+msgstr ""
+
+msgid "Team Selling is Enabled"
+msgstr ""
+
+msgid "Opportunity teams are available across your system"
+msgstr ""
+
+msgid "Team Selling is Disabled"
+msgstr ""
+
+msgid "Enable to start using opportunity teams"
+msgstr ""
+
+msgid "About Team Selling"
+msgstr ""
+
+msgid ""
+"Opportunity Teams help multiple users to better collaborate on opportunities "
+"by defining a role for each team member, setting record-level access "
+"individually, and viewing teams in list views and reports."
+msgstr ""
+
+msgid ""
+"When disabled, all existing opportunity teams and their members have been "
+"deleted."
+msgstr ""
+
+msgid ""
+"When enabled, opportunity teams are available throughout the application. "
+"Users may prepare default opportunity teams for speedy setup of new "
+"opportunities."
+msgstr ""
+
+msgid "Change Owner"
+msgstr ""
+
+msgid "Duplicate"
+msgstr ""
+
+msgid "Opportunity Information"
+msgstr ""
+
+msgid "Additional Information"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "Contact Roles"
+msgstr ""
+
+msgid "Add Team"
+msgstr ""
+
+msgid "Manage Opportunity Splits"
+msgstr ""
+
+msgid "Add Contact Role"
+msgstr ""

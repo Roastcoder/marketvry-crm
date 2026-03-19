@@ -1,0 +1,100 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<style>
+    .htmx-indicator { display: none; pointer-events: none; }
+    /* Show indicators when either a parent element or the indicator itself has the htmx-request class */
+    .htmx-request .htmx-indicator,
+    .htmx-indicator.htmx-request { display: flex !important; pointer-events: none; }
+    #splitViewDetailPanel.htmx-request .split-detail-placeholder { opacity: 0.5; }
+    #split-view-tiles .split-view-tile { border-left: none; }
+    /* Use theme variables so split view follows the active theme */
+    #split-view-tiles .split-view-tile.split-view-tile-active {
+        background-color: var(--split-view-active-bg);
+        border-left-width: 4px;
+        border-left-style: solid;
+        border-left-color: var(--split-view-active-border);
+    }
+    #split-view-tiles .split-view-tile.split-view-tile-active .split-view-tile-name {
+        color: var(--split-view-active-border);
+    }
+</style>
+{% with full_query=request.GET.urlencode %}
+<div id="{{ view_id|safe }}"
+     style="position: relative;"
+     data-filter-reload-url="{% if filter_reload_url %}{{ filter_reload_url }}{% else %}{{ request.path }}{% if full_query %}?{{ full_query }}{% endif %}{% endif %}">
+{% endwith %}
+    <div id="loading-indicator" class="htmx-indicator tabloading" style="z-index: 30;">
+        <div class="flex justify-center items-center p-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+    </div>
+    {% include "messages.html" %}
+    <button id="reloadButton" hidden
+        hx-get="{{ request.path }}?{{ request.GET.urlencode }}"
+        hx-target="#{{ view_id|safe }}"
+        hx-trigger="click"
+        hx-swap="outerHTML"
+        hx-select="#{{ view_id|safe }}"
+        hx-indicator="#loading-indicator">click</button>
+
+    {% if filter_set_class %}
+        {% include "filterpanel.html" %}
+    {% endif %}
+    {% if enable_quick_filters %}
+        {% include "partials/quick_filters_bar.html" %}
+    {% endif %}
+
+    {% if queryset %}
+    <div class="flex w-full min-w-0 gap-4 h-[calc(100vh_-_200px)] min-h-0">
+        <!-- Left: tile list (300px fixed) -->
+        <div class="flex flex-col w-[300px] min-w-[300px] shrink-0 bg-white rounded-lg border border-primary-300 overflow-hidden">
+            <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-primary-100 flex-shrink-0">
+                <span class="text-sm font-semibold text-color-700">
+                    {{ model_verbose_name }}
+                </span>
+                <span class="text-xs text-color-500 shrink-0">
+                    {% if total_records_count is not None %} ({{ total_records_count }}) {% endif %}
+                </span>
+            </div>
+            <div id="split-view-tiles-container" class="flex-1 overflow-y-auto custom-scroll" style="overflow-anchor: auto;">
+                <div id="split-view-tiles" class="divide-y divide-primary-100">
+                {% include "partials/split_view_tiles.html" %}
+            </div>
+                <div id="splitViewLoadMore" class="htmx-indicator p-4 flex justify-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary-600"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Right: detail panel (auto-load first item if split_first_detail_url set) -->
+        <div id="splitViewDetailPanel" class="flex-1 min-w-0 bg-white rounded-lg border border-primary-200"
+            {% if split_first_detail_url %}hx-get="{{ split_first_detail_url }}" hx-trigger="load" hx-swap="innerHTML" hx-indicator="#loading-indicator"{% endif %}>
+            <div class="split-detail-placeholder text-color-500 text-sm flex flex-col items-center justify-center h-full min-h-[280px] p-8">
+                <span class="mb-2">{% trans "Select an item from the list to view details" %}</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        {% if no_record_section %}
+            <div class="flex flex-1 items-center justify-center flex-col gap-4">
+                <img src="{% static no_found_img|default:'assets/img/not-found.svg' %}" alt="404" class="w-60 opacity-80" />
+                <p class="text-sm text-color-600">
+                    {% if no_record_msg %}{{ no_record_msg }}{% else %}{% trans 'Nothing to show yet. Please add your' %} {{ model_verbose_name }}.{% endif %}
+                </p>
+                {% if no_record_add_button.url %}
+                <button
+                    hx-get="{{ no_record_add_button.url }}"
+                    hx-target="{{ no_record_add_button.target|default:'#modalBox' }}"
+                    hx-swap="{{ no_record_add_button.swap|default:'innerHTML' }}"
+                    onclick="{{ no_record_add_button.onclick|default:'openModal()' }}"
+                    class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 text-white transition duration-300"
+                    {% if no_record_add_button.attrs %}{{ no_record_add_button.attrs|safe }}{% endif %}>
+                    {{ no_record_add_button.title|default:_("Add New") }}
+                </button>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <script src="{% static 'assets/js/filter_reload.js' %}"></script>
+</div>

@@ -1,0 +1,13 @@
+{% extends "settings/settings.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block settings %}
+<div id="role-view">
+    <div id="navBar" hx-get="{{ nav_url}}?{{request.GET.urlencode}}" hx-trigger="load">
+    </div>
+    <div id="mainSession" class="pt-3" hx-get="{% if request.GET.layout == 'kanban' and kanban_url %}{{ kanban_url }}?{{ request.GET.urlencode}}{% if filter_form %}&hx_trigger={{filter_form}}{% endif %}{% elif request.GET.layout == 'list' and list_url %}{{ list_url }}?{{ request.GET.urlencode}}{% if filter_form %}&hx_trigger={{filter_form}}{% endif %}{% elif kanban_url %}{{ kanban_url }}?{{ request.GET.urlencode}}{% if filter_form %}&hx_trigger={{filter_form}}{% endif %}{% elif list_url %}{{ list_url }}?{{ request.GET.urlencode}}{% if filter_form %}&hx_trigger={{filter_form}}{% endif %}{% endif %}" hx-trigger="load">
+    </div>
+</div>
+
+{% endblock %}

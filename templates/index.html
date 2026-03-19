@@ -1,0 +1,141 @@
+{% load static i18n horilla_tags %}
+<!DOCTYPE html>
+<html class="{% if request.session.theme == 'dark' %}dark{% endif %}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ TITLE }}</title>
+
+    <!-- Head Start: Blocking initialization scripts -->
+    {% load_registered_html "head_start" as head_start_html %}
+    {% for tpl in head_start_html %} {% include tpl %} {% endfor %}
+
+    <!-- Theme Initialization (Blocking) -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem("theme") || "light";
+            const html = document.documentElement;
+
+            if (theme === "dark") {
+                html.classList.add("dark");
+                html.style.colorScheme = "dark";
+            } else {
+                html.classList.remove("dark");
+                html.style.colorScheme = "light";
+            }
+        })();
+    </script>
+
+    <!-- Core Scripts -->
+    <script src="{% static 'assets/js/tailwind/tailwind.js' %}"></script>
+    <script src="{% static 'assets/js/tailwind.config.js' %}"></script>
+    <script src="{% static 'assets/js/htmx/htmx.min.js' %}"></script>
+    <script src="{% static 'assets/js/cloudflare/htmx.min.js' %}"></script>
+    <script src="{% static 'assets/js/htmx/htmx-download.js' %}"></script>
+    <script src="{% static 'assets/js/cloudflare/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery/jquery-3.7.1.js' %}"></script>
+    <script src="{% static 'assets/js/hyperscript/hyperscript.min.js' %}"></script>
+
+    <!-- UI Libraries (Defer Non-Critical) -->
+    <script src="{% static 'assets/js/flowbite/flowbite.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.js' %}"></script>
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/sortablejs/Sortable.min.js' %}"></script>
+    <script src="{% static 'assets/js/summernote/summernote-lite.min.js' %}"></script>
+    <script src="{% static 'assets/js/summernote/purify.min.js' %}"></script>
+
+    <!-- Chart Libraries -->
+    <script src="{% static 'assets/js/cloudflare/chart.min.js' %}"></script>
+    <script src="{% static 'assets/js/echart/echarts.min.js' %}"></script>
+    <script src="{% static 'assets/js/jspdf/jspdf.umd.min.js' %}"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'assets/css/flowbite/flowbite.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/fontawesome/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/dark.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/calendar.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/sweetalert_toast/toast.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/summernote/summernote-lite.min.css' %}" />
+
+    {% block extra_css %}{% endblock extra_css %}
+
+    <!-- Google Fonts (Preconnect) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="{% static 'assets/css/googlefonts/css2.css' %}" />
+
+    <!-- Head End: Non-blocking head assets -->
+    {% load_registered_html "head_end" as head_end_html %}
+    {% for tpl in head_end_html %} {% include tpl %} {% endfor %}
+
+</head>
+
+<body class="bg-secondary-50 font-[Inter,_sans-serif]">
+
+    <!-- Body Start: Early body initialization -->
+    {% load_registered_html "body_start" as body_start_html %}
+    {% for tpl in body_start_html %} {% include tpl %} {% endfor %}
+
+    <!-- Apply Dark Mode to Body -->
+    <script>
+        !function () { const t = localStorage.getItem("theme"); "dark" === t && document.body.classList.add("dark") }();
+    </script>
+
+    <!-- Main Content Wrapper -->
+    <div class="ml-[4.8rem] h-screen">
+        <!-- Header -->
+        <div id="header">
+            {% include 'components/header.html' %}
+        </div>
+
+        <!-- Page Content -->
+        {% block content %}{% endblock content %}
+
+        <!-- Modals -->
+        {% include "components/horilla_modals.html" %}
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        {% include 'components/sidebar.html' %}
+    </div>
+
+    <!-- Messages Reload Button -->
+    <button id="reloadMessagesButton" hx-get="{% url 'horilla_core:reload_messages' %}" hx-swap="afterend"
+        hx-target="#reloadMessages" hidden>
+    </button>
+    <div id="reloadMessages">
+        {% include "messages.html" %}
+    </div>
+
+    <!-- HTMX CSRF Token Configuration -->
+    <script>
+        document.body.addEventListener("htmx:configRequest", (event) => {
+            event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
+        });
+    </script>
+
+    <!-- Global Scripts (Defer) -->
+    <script src="{% url 'javascript-catalog' %}"></script>
+    <script src="{% static 'assets/js/global.js' %}"></script>
+    <script src="{% static 'assets/js/action_tooltip.js' %}"></script>
+    <script src="{% static 'assets/js/horilla_charts.js' %}"></script>
+    <script src="{% static 'assets/js/calendar.js' %}"></script>
+    <script src="{% static 'assets/js/full_calendar.js' %}"></script>
+
+    <!-- Dynamically Registered Scripts -->
+    {% load_registered_js as register_js %}
+    {% for js_file in register_js %} <script src="{% static js_file %}"></script> {% endfor %}
+
+    {% block extra_js %}{% endblock extra_js %}
+
+    <!-- Body End: Deferred scripts & event bindings -->
+    {% load_registered_html "body_end" as body_end_html %}
+    {% for tpl in body_end_html %} {% include tpl %} {% endfor %}
+</body>
+
+</html>

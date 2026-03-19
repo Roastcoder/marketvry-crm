@@ -1,0 +1,340 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Forecast"
+msgstr "التوقعات"
+
+msgid "Update Target"
+msgstr "تحديث الهدف"
+
+msgid "Deal Revenue Amount"
+msgstr "مبلغ إيرادات الصفقة"
+
+msgid "Deal Revenue Expected Amount"
+msgstr "المبلغ المتوقع لإيرادات الصفقة"
+
+msgid "Deal Quantity"
+msgstr "كمية الصفقة"
+
+msgid "Forecast Type Name"
+msgstr "اسم نوع التوقع"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Forecast Type"
+msgstr "نوع التوقع"
+
+msgid "Include Pipeline"
+msgstr "تضمين خطوط الأنابيب"
+
+msgid "Include Best Case"
+msgstr "تضمين أفضل حالة"
+
+msgid "Include Commit"
+msgstr "تضمين الالتزام"
+
+msgid "Include Closed"
+msgstr "تضمين المغلق"
+
+msgid "Forecast Types"
+msgstr "أنواع التوقعات"
+
+msgid "Field Name"
+msgstr "اسم الحقل"
+
+msgid "Operator"
+msgstr "المشغل"
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "Logical Operator"
+msgstr "المشغل المنطقي"
+
+msgid "Order"
+msgstr "الترتيب"
+
+msgid "Forecast Condition"
+msgstr "شرط التوقع"
+
+msgid "Forecast Conditions"
+msgstr "شروط التوقع"
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Submitted"
+msgstr "مُرسل"
+
+msgid "Approved"
+msgstr "موافق عليه"
+
+msgid "Rejected"
+msgstr "مرفوض"
+
+msgid "Forecast Name"
+msgstr "اسم التوقع"
+
+msgid "Period"
+msgstr "الفترة"
+
+msgid "Quarter"
+msgstr "الربع"
+
+msgid "Fiscal Year"
+msgstr "السنة المالية"
+
+msgid "Forecast Owner"
+msgstr "مالك التوقع"
+
+msgid "Target Amount"
+msgstr "مبلغ الهدف"
+
+msgid "Pipeline Amount"
+msgstr "مبلغ خطوط الأنابيب"
+
+msgid "Best Case Amount"
+msgstr "مبلغ أفضل حالة"
+
+msgid "Commit Amount"
+msgstr "مبلغ الالتزام"
+
+msgid "Closed Amount"
+msgstr "المبلغ المغلق"
+
+msgid "Actual Amount"
+msgstr "المبلغ الفعلي"
+
+msgid "Target Quantity"
+msgstr "كمية الهدف"
+
+msgid "Pipeline Quantity"
+msgstr "كمية خطوط الأنابيب"
+
+msgid "Best Case Quantity"
+msgstr "كمية أفضل حالة"
+
+msgid "Commit Quantity"
+msgstr "كمية الالتزام"
+
+msgid "Closed Quantity"
+msgstr "الكمية المغلقة"
+
+msgid "Actual Quantity"
+msgstr "الكمية الفعلية"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Submitted At"
+msgstr "تم الإرسال في"
+
+msgid "Approved At"
+msgstr "تمت الموافقة في"
+
+msgid "Approved By"
+msgstr "تمت الموافقة بواسطة"
+
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgid "Forecasts"
+msgstr "التوقعات"
+
+msgid "Assigned User"
+msgstr "المستخدم المعين"
+
+msgid "Role"
+msgstr "الدور"
+
+msgid "Forecast Period"
+msgstr "فترة التوقع"
+
+msgid "Target"
+msgstr "الهدف"
+
+msgid "Target amount (revenue or quantity)"
+msgstr "مبلغ الهدف (الإيرادات أو الكمية)"
+
+msgid "Currency"
+msgstr "العملة"
+
+msgid "Currency code (e.g., USD, EUR, INR)"
+msgstr "رمز العملة (مثل USD، EUR، INR)"
+
+msgid "Current Achievement"
+msgstr "الإنجاز الحالي"
+
+msgid "Current achieved amount (auto-calculated)"
+msgstr "المبلغ المحقق الحالي (محسوب تلقائيًا)"
+
+msgid "Forecast Target"
+msgstr "هدف التوقع"
+
+msgid "Forecast Targets"
+msgstr "أهداف التوقع"
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "User Revenue Target"
+msgstr "هدف إيرادات المستخدم"
+
+msgid "Individual revenue target for this user"
+msgstr "هدف الإيرادات الفردي لهذا المستخدم"
+
+msgid "User Quantity Target"
+msgstr "هدف كمية المستخدم"
+
+msgid "Individual quantity target for this user"
+msgstr "هدف الكمية الفردي لهذا المستخدم"
+
+msgid "Current Revenue Achieved"
+msgstr "الإيرادات المحققة الحالية"
+
+msgid "Current achieved revenue for this user"
+msgstr "الإيرادات المحققة الحالية لهذا المستخدم"
+
+msgid "Current Quantity Achieved"
+msgstr "الكمية المحققة الحالية"
+
+msgid "Current achieved quantity for this user"
+msgstr "الكمية المحققة الحالية لهذا المستخدم"
+
+msgid "Is Active"
+msgstr "نشط"
+
+msgid "Forecast Target User"
+msgstr "مستخدم هدف التوقع"
+
+msgid "Forecast Target Users"
+msgstr "مستخدمو هدف التوقع"
+
+msgid "My Forecast"
+msgstr "توقعي"
+
+msgid "All Users"
+msgstr "جميع المستخدمين"
+
+msgid "Select Fiscal Year"
+msgstr "اختر السنة المالية"
+
+msgid "- Current"
+msgstr "- الحالي"
+
+#, fuzzy
+#| msgid "Closed"
+msgid "Close"
+msgstr "مغلق"
+
+msgid "deals"
+msgstr "الصفقات"
+
+msgid "Total:"
+msgstr "الإجمالي:"
+
+msgid "opportunities"
+msgstr "الفرص"
+
+msgid "Total Quantity:"
+msgstr "إجمالي الكمية:"
+
+msgid "Total Amount:"
+msgstr "إجمالي المبلغ:"
+
+msgid "Select User"
+msgstr "اختر المستخدم"
+
+msgid "Select Period"
+msgstr "اختر الفترة"
+
+msgid "Select Forecast Type"
+msgstr "اختر نوع التوقع"
+
+msgid "Remove"
+msgstr ""
+
+msgid "Conditions"
+msgstr "الشروط"
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Activate company"
+msgstr ""
+
+msgid "Please create or activate your company."
+msgstr "يرجى إنشاء شركتك أو تفعيلها."
+
+msgid "Not found"
+msgstr ""
+
+msgid "No Forecast Type set. Set it from settings."
+msgstr "لم يتم تعيين نوع التوقع. قم بتعيينه من الإعدادات."
+
+msgid "Go To Forecast Type"
+msgstr "الذهاب إلى نوع التوقع"
+
+msgid "Achievement"
+msgstr "الإنجاز"
+
+msgid "Gap"
+msgstr "الفجوة"
+
+msgid "Closed"
+msgstr "مغلق"
+
+msgid "Commit Forecast"
+msgstr "توقع الالتزام"
+
+msgid "Best Case"
+msgstr "أفضل حالة"
+
+msgid "Open Pipeline"
+msgstr "خط الأنابيب المفتوح"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Periods"
+msgstr "الفترات"
+
+msgid "Up trend"
+msgstr ""
+
+msgid "Down trend"
+msgstr ""
+
+msgid "Loading more users for"
+msgstr "جارٍ تحميل المزيد من المستخدمين لـ"
+
+msgid "No forecast data available for this period"
+msgstr "لا توجد بيانات توقع متاحة لهذه الفترة"
+
+msgid "Forecast Type:"
+msgstr "نوع التوقع:"
+
+msgid "Permission Denied"
+msgstr "تم رفض الإذن"
+
+msgid "You do not have permission to view this page."
+msgstr "ليس لديك إذن لعرض هذه الصفحة."

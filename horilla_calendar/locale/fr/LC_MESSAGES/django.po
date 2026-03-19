@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-13 10:49+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Module for managing calendar events and schedules."
+msgstr ""
+"Module permettant de gérer les événements du calendrier et les plannings."
+
+msgid "Calendar"
+msgstr "Calendrier"
+
+msgid "Schedule"
+msgstr "Planning"
+
+msgid "Task"
+msgstr "Tâche"
+
+msgid "Event"
+msgstr "Événement"
+
+msgid "Meeting"
+msgstr "Réunion"
+
+msgid "Un Availability"
+msgstr "Indisponibilité"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Calendar Type"
+msgstr "Type de calendrier"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Is Selected"
+msgstr "Sélectionné"
+
+msgid "User Calendar Preference"
+msgstr "Préférence de calendrier utilisateur"
+
+msgid "User Calendar Preferences"
+msgstr "Préférences de calendrier utilisateur"
+
+msgid "From"
+msgstr "De"
+
+msgid "To"
+msgstr "À"
+
+msgid "Reason"
+msgstr "Raison"
+
+msgid "User Unavailability"
+msgstr "Indisponibilité de l’utilisateur"
+
+msgid "User Unavailabilities"
+msgstr "Indisponibilités de l’utilisateur"
+
+msgid "Mark Unavailable"
+msgstr "Marquer comme indisponible"
+
+msgid "previous"
+msgstr ""
+
+msgid "Today"
+msgstr "Aujourd’hui"
+
+msgid "next"
+msgstr ""
+
+msgid "Day"
+msgstr "Jour"
+
+msgid "Week"
+msgstr "Semaine"
+
+msgid "Month"
+msgstr "Mois"
+
+msgid "Year"
+msgstr "Année"
+
+msgid "Start Date"
+msgstr "Date de début"
+
+msgid "End Date"
+msgstr "Date de fin"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Assigned to"
+msgstr "Assigné à"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Mark as Complete"
+msgstr "Marquer comme terminé"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "New Activity"
+msgstr "Nouvelle activité"
+
+msgid "Mark as Unavailable"
+msgstr "Marquer comme indisponible"
+
+msgid "My Calendars"
+msgstr "Mes calendriers"
+
+msgid "Dropdown"
+msgstr ""
+
+msgid "Display This Only"
+msgstr "Afficher uniquement ceci"
+
+msgid "Tasks"
+msgstr "Tâches"
+
+msgid "Events"
+msgstr "Événements"
+
+msgid "Meetings"
+msgstr "Réunions"
+
+msgid "Unavailability"
+msgstr "Indisponibilité"
+
+msgid "Preferences saved successfully"
+msgstr "Préférences enregistrées avec succès"
+
+msgid "Marked as completed successfully."
+msgstr "Marqué comme terminé avec succès."
+
+msgid "Mark Unavailability"
+msgstr "Marquer l’indisponibilité"

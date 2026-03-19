@@ -1,0 +1,551 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Leads"
+msgstr "العملاء المتوقعون"
+
+msgid "CRM"
+msgstr "إدارة علاقات العملاء"
+
+msgid "CRM module for managing leads, contacts, and opportunities."
+msgstr "وحدة إدارة علاقات العملاء لإدارة العملاء المحتملين وجهات الاتصال والفرص."
+
+msgid "Horilla CRM"
+msgstr "هوريلا لإدارة علاقات العملاء"
+
+msgid "Welcome to Horilla CRM"
+msgstr "مرحبًا بك في هوريلا لإدارة علاقات العملاء"
+
+msgid "Please sign up to access Horilla CRM"
+msgstr "يرجى التسجيل للوصول إلى هوريلا لإدارة علاقات العملاء"
+
+msgid "Is Final Stage"
+msgstr "هل هي المرحلة النهائية"
+
+msgid "Mail to Lead"
+msgstr "بريد إلى العميل المتوقع"
+
+msgid "Lead"
+msgstr "عميل متوقع"
+
+msgid "Web to Lead"
+msgstr "تحويل من الويب إلى عميل متوقع"
+
+msgid "Sales"
+msgstr "المبيعات"
+
+msgid "Status Name"
+msgstr "اسم الحالة"
+
+msgid "Status Order"
+msgstr "ترتيب الحالة"
+
+msgid "Status Color"
+msgstr "لون الحالة"
+
+msgid "Leave blank for default (primary theme colour)."
+msgstr "اتركه فارغًا للون الافتراضي (اللون الأساسي للسمة)."
+
+msgid "Probability"
+msgstr "احتمالية"
+
+msgid "Default probability percentage for this stage"
+msgstr "النسبة المئوية الافتراضية للاحتمالية في هذه المرحلة"
+
+msgid "Lead Stage"
+msgstr "مرحلة العميل المتوقع"
+
+msgid "Lead Stages"
+msgstr "مراحل العميل المتوقع"
+
+msgid "Order must be a non-negative integer."
+msgstr "يجب أن يكون الترتيب عددًا صحيحًا غير سالب."
+
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+msgid "Referral"
+msgstr "الإحالة"
+
+msgid "Event"
+msgstr "حدث"
+
+msgid "Campaign"
+msgstr "حملة"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Social Media"
+msgstr "وسائل التواصل الاجتماعي"
+
+msgid "Partner"
+msgstr "شريك"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Finance"
+msgstr "المالية"
+
+msgid "Healthcare"
+msgstr "الرعاية الصحية"
+
+msgid "Manufacturing"
+msgstr "التصنيع"
+
+msgid "Agriculture"
+msgstr "الزراعة"
+
+msgid "Construction"
+msgstr "البناء"
+
+msgid "Banking"
+msgstr "المصرفية"
+
+msgid "Education"
+msgstr "التعليم"
+
+msgid "Insurance"
+msgstr "التأمين"
+
+msgid "Lead Owner"
+msgstr "مالك العميل المتوقع"
+
+msgid "Title"
+msgstr "اللقب"
+
+msgid "First Name"
+msgstr "الاسم الأول"
+
+msgid "Last Name"
+msgstr "اسم العائلة"
+
+msgid "Contact Number"
+msgstr "رقم الاتصال"
+
+msgid "Fax"
+msgstr "فاكس"
+
+msgid "Lead Source"
+msgstr "مصدر العميل المتوقع"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Total Employees"
+msgstr "إجمالي الموظفين"
+
+msgid "Industry"
+msgstr "الصناعة"
+
+msgid "Annual Revenue"
+msgstr "الإيرادات السنوية"
+
+msgid "City"
+msgstr "المدينة"
+
+msgid "State"
+msgstr "الولاية"
+
+msgid "Country"
+msgstr "البلد"
+
+msgid "Zip"
+msgstr "الرمز البريدي"
+
+msgid "Requirements"
+msgstr "المتطلبات"
+
+msgid "Lead Score"
+msgstr "درجة العميل المتوقع"
+
+msgid "Incoming Mail"
+msgstr "البريد الوارد"
+
+msgid ""
+"Comma-separated list of allowed sender email addresses. Leave blank to "
+"accept all."
+msgstr ""
+"قائمة بعناوين البريد الإلكتروني المرسلة المسموح بها مفصولة بفواصل. اتركها "
+"فارغة لقبول الجميع."
+
+msgid "Accept Emails From"
+msgstr "قبول الرسائل من"
+
+msgid ""
+"Comma-separated keywords to filter emails. Email must contain at least one "
+"keyword in subject OR body."
+msgstr ""
+"كلمات مفتاحية مفصولة بفواصل لتصفية الرسائل. يجب أن تحتوي الرسالة على كلمة "
+"مفتاحية واحدة على الأقل في الموضوع أو النص."
+
+msgid "Keywords"
+msgstr "الكلمات المفتاحية"
+
+msgid "Last Fetched On"
+msgstr "آخر تحديث في"
+
+msgid "Mail to Lead Config"
+msgstr "إعدادات البريد إلى العميل المتوقع"
+
+msgid "English"
+msgstr "الإنجليزية"
+
+msgid "Arabic"
+msgstr "العربية"
+
+msgid "German"
+msgstr "الألمانية"
+
+msgid "French"
+msgstr "الفرنسية"
+
+msgid "Form Name"
+msgstr "اسم النموذج"
+
+msgid "Selected Fields"
+msgstr "الحقول المختارة"
+
+msgid "Enable Return URL"
+msgstr "تفعيل رابط العودة"
+
+msgid "Return URL"
+msgstr "رابط العودة"
+
+msgid "Success Message"
+msgstr "رسالة النجاح"
+
+msgid "Success Description"
+msgstr "وصف النجاح"
+
+msgid "Enable Recaptcha"
+msgstr "تفعيل ريكابتشا"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Header Color"
+msgstr "لون الرأس"
+
+msgid "Lead Capture Form"
+msgstr "نموذج تسجيل العميل المتوقع"
+
+msgid "Lead Capture Forms"
+msgstr "نماذج تسجيل العملاء المتوقعين"
+
+msgid "Rule Name"
+msgstr "اسم القاعدة"
+
+msgid "Opportunity"
+msgstr "فرصة"
+
+msgid "Account"
+msgstr "حساب"
+
+msgid "Contact"
+msgstr "جهة اتصال"
+
+msgid "Module"
+msgstr "الوحدة"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Scoring Rule"
+msgstr "قاعدة التقييم"
+
+msgid "Scoring Rules"
+msgstr "قواعد التقييم"
+
+msgid "Criterion Name"
+msgstr "اسم المعيار"
+
+msgid "Points to Award"
+msgstr "النقاط الممنوحة"
+
+msgid "Add"
+msgstr "إضافة"
+
+msgid "Sub"
+msgstr "طرح"
+
+msgid "Operation Type"
+msgstr "نوع العملية"
+
+msgid "Order"
+msgstr "الترتيب"
+
+msgid "Scoring Criterion"
+msgstr "معيار التقييم"
+
+msgid "Scoring Criteria"
+msgstr "معايير التقييم"
+
+msgid "Field Name"
+msgstr "اسم الحقل"
+
+msgid "Operator"
+msgstr "المشغل"
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "AND"
+msgstr "و"
+
+msgid "OR"
+msgstr "أو"
+
+msgid "Logical Operator"
+msgstr "المشغل المنطقي"
+
+msgid "Scoring Condition"
+msgstr "شرط التقييم"
+
+msgid "Scoring Conditions"
+msgstr "شروط التقييم"
+
+msgid "Opened"
+msgstr "تم الفتح"
+
+msgid "Clicked"
+msgstr "تم النقر"
+
+msgid "Bounced"
+msgstr "تم الارتداد"
+
+
+msgid "Add Column to List"
+msgstr "إضافة عمود إلى القائمة"
+
+msgid "Is Active"
+msgstr "نشط"
+
+msgid "Create New Rule Criteria"
+msgstr "إنشاء معيار قاعدة جديد"
+
+msgid "Lead Conversion"
+msgstr "تحويل العميل المتوقع"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Create New"
+msgstr "إنشاء جديد"
+
+msgid "Select Existing"
+msgstr "اختر الموجود"
+
+msgid "Owner"
+msgstr "المالك"
+
+msgid "Convert"
+msgstr "تحويل"
+
+msgid "Account Name"
+msgstr "اسم الحساب"
+
+msgid "Select Contact"
+msgstr "اختر جهة اتصال"
+
+msgid "Opportunity Name"
+msgstr "اسم الفرصة"
+
+msgid "Select Opportunity"
+msgstr "اختر الفرصة"
+
+msgid "Please select an account first"
+msgstr "يرجى اختيار حساب أولاً"
+
+msgid "Select an account to see available opportunities"
+msgstr "اختر حسابًا لرؤية الفرص المتاحة"
+
+
+msgid "Success"
+msgstr "نجاح"
+
+msgid "Your lead has been converted"
+msgstr "تم تحويل العميل المتوقع الخاص بك"
+
+msgid "Comapny"
+msgstr "الشركة"
+
+msgid "User"
+msgstr "مستخدم"
+
+msgid "crown"
+msgstr "تاج"
+
+msgid "Go to Leads"
+msgstr "الذهاب إلى العملاء المتوقعين"
+
+msgid "Manage Custom Stages"
+msgstr "إدارة المراحل المخصصة"
+
+msgid "Drag"
+msgstr "سحب"
+
+msgid "Add Stage"
+msgstr "إضافة مرحلة"
+
+msgid " Changes"
+msgstr " تغييرات"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Initialize Database"
+msgstr "تهيئة قاعدة البيانات"
+
+msgid "Get started by using default stages or adding your custom stages."
+msgstr "ابدأ باستخدام المراحل الافتراضية أو بإضافة مراحل مخصصة."
+
+msgid "Default Stages"
+msgstr "المراحل الافتراضية"
+
+msgid "Stages"
+msgstr "المراحل"
+
+msgid "Select Lead Stages for"
+msgstr "اختر مراحل العميل المتوقع لـ"
+
+msgid "Custom Stages"
+msgstr "المراحل المخصصة"
+
+msgid "Criteria"
+msgstr "المعايير"
+
+msgid "Points"
+msgstr "النقاط"
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Nothing to show yet. Please add your Criteria"
+msgstr "لا يوجد شيء للعرض بعد. يرجى إضافة معاييرك"
+
+msgid "Enter return url"
+msgstr "أدخل رابط العودة"
+
+msgid "Enter success message"
+msgstr "أدخل رسالة النجاح"
+
+msgid "Enter success description"
+msgstr "أدخل وصف النجاح"
+
+msgid "Contact Us"
+msgstr "اتصل بنا"
+
+#, python-format
+msgid "Enter %(vname)s"
+msgstr "أدخل %(vname)s"
+
+#, python-format
+msgid "Select %(vname)s"
+msgstr "اختر %(vname)s"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "Select fields to preview form"
+msgstr "اختر الحقول لمعاينة النموذج"
+
+msgid "Your lead capture form is ready to use."
+msgstr "نموذج تسجيل العملاء المتوقعين جاهز للاستخدام."
+
+msgid "IFRAME EMBED CODE"
+msgstr "كود تضمين IFRAME"
+
+msgid "Copy Embed"
+msgstr "نسخ التضمين"
+
+msgid ""
+"Copy and paste this embed code into your website's HTML where you want the "
+"form to appear."
+msgstr ""
+"انسخ والصق كود التضمين هذا في كود HTML الخاص بموقعك حيث تريد ظهور النموذج."
+
+msgid "GENERATED HTML CODE"
+msgstr "كود HTML المُنشأ"
+
+msgid "Copy Code"
+msgstr "نسخ الكود"
+
+msgid "Preview"
+msgstr "معاينة"
+
+msgid "Form Builder"
+msgstr "منشئ النموذج"
+
+msgid "Fields"
+msgstr "الحقول"
+
+msgid "Click fields to add"
+msgstr "انقر على الحقول لإضافتها"
+
+msgid "Select Lead Owner"
+msgstr "اختر مالك العميل المتوقع"
+
+msgid "Generate"
+msgstr "إنشاء"
+
+msgid "Enter"
+msgstr "أدخل"
+
+msgid "Select"
+msgstr "اختر"
+
+msgid "Submitting..."
+msgstr "جارٍ الإرسال..."
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+msgid "Page Not Found"
+msgstr "الصفحة غير موجودة"
+
+msgid "Converted Lead"
+msgstr "عميل محتمل محوَّل"
+
+msgid "Duplicate"
+msgstr "تكرار"
+
+msgid "Basic Information"
+msgstr "المعلومات الأساسية"
+
+msgid "Company Details"
+msgstr "تفاصيل الشركة"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "Change Owner"
+msgstr "تغيير المالك"

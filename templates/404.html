@@ -1,0 +1,13 @@
+{% extends "error.html" %}
+{% load static i18n %}
+{% block content %}
+    <img src={% static "assets/img/404.svg" %} alt="404" width="400" class="max-w-full h-auto flex justify-center m-auto pb-10">
+    <h2 class="error-title">{% trans "Page Not Found" %}</h2>
+    <p class="error-description">
+        {{ error_message|default:"The requested resource was not found on this server." }}
+    </p>
+    <a href="/" class="text-sm px-6 py-3 bg-primary-600 rounded-md hover:bg-primary-800
+        transition duration-300 text-white">
+        {% trans "Go to Dashboard" %}
+    </a>
+{% endblock %}

@@ -1,0 +1,23 @@
+[
+    {
+        "model": "horilla_automations.horillaautomation",
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "title": "User Create",
+            "method_title": "User Create",
+            "model": {
+                "app_label" : "horilla_core",
+                "model": "horillauser"
+            },
+            "mail_to": "instance.email",
+            "mail_detail_choice": "",
+            "trigger": "on_create",
+            "mail_template": 1,
+            "notification_template": null,
+            "mail_server": 1,
+            "delivery_channel": "mail",
+            "also_sent_to": []
+        }
+    }
+]

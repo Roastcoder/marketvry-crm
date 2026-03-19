@@ -1,0 +1,103 @@
+{% extends "index.html" %}
+{% load static i18n horilla_tags %}
+{% block content %}
+<div class="modelcontent">
+  <div id="mainContent" class="p-4">
+    {% if settings_menu %}
+      <h3 class="text-md font-semibold">{% trans 'Settings' %}</h3>
+      <div class="grid grid-cols-12 gap-3 pt-3" >
+        <div class="col-span-12 xl:col-span-2">
+          <div id="settings-sidebar" class="bg-white rounded-xl [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)]">
+            {% for menu in settings_menu %}
+              <div class="border-t border-primary-100">
+                <button
+                  type="button"
+                  class="flex justify-between items-center w-full px-4 py-3 text-left text-gray-800 font-medium transition"
+                  onclick="toggleAccordion(this)">
+                  <div class="flex gap-3 w-full font-medium text-sm">
+                    <img class="svg-themed" src={% static menu.icon %}  alt="{% trans 'Icon' %}" width="18"  />
+                    {{ menu.title }}
+                  </div>
+                  <svg
+                    class="ms-5 w-4 h-4 transform transition-transform {% is_open_collapse menu.items %}"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div class="accordion-content text-sm text-dark-500 {% is_open menu.items %}" id="base-content" >
+                  <ul class="px-4 border-t border-primary-100 pt-3">
+                    {% for item in menu.items %}
+                      {% has_perm item.perm as can_view_item %}
+                      {% if can_view_item %}
+                        <li class="py-1">
+                          <a role="button"
+                            hx-get="{{ item.url }}"
+                            {% for key, value in item.items %}
+                                {% if key not in "label,url" %}
+                                  {{ key }}="{{ value }}"
+                                {% endif %}
+                            {% endfor %}
+                            class="text-[.85rem] hover:text-primary-600 transition duration-300 flex py-.5 {% is_active item.url %}"
+                            >{{ item.label }}</a
+                          >
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Company Information Card -->
+        {% has_perm "horilla_core.view_company" as can_view_company %}
+        <div class="col-span-12 xl:col-span-10">
+          <div class="bg-white rounded-xl [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] p-5 h-[calc(_100vh_-_160px_)]" id="settings-content">
+          {% block settings %}
+            <div id="default-loader"
+                {% if can_view_company %}
+                    hx-get="{% url 'horilla_core:company_information' %}?{{ request.GET.urlencode }}"
+                    hx-target="#settings-content"
+                    hx-select="#company-information"
+                    hx-trigger="load"
+                    hx-push-url="true"
+                    hx-select-oob="#settings-sidebar"
+                {% else %}
+                    data-auto-load="true"
+                {% endif %}>
+            </div>
+        {% endblock %}
+
+          </div>
+        </div>
+      </div>
+    {% else %}
+      {% include "error/settings_403.html" with embed=True %}
+    {% endif%}
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      const autoLoader = document.getElementById("default-loader");
+
+      if (autoLoader && autoLoader.dataset.autoLoad === "true") {
+          const firstLink = document.querySelector("#settings-sidebar ul li a[role='button']");
+          if (firstLink) {
+              firstLink.click();
+          }
+      }
+  });
+  </script>
+
+  {% endblock content %}

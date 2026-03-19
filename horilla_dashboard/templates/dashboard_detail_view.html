@@ -1,0 +1,451 @@
+{% extends "index.html" %} {% load static %} {% load horilla_tags %}
+{% load i18n %} {% load dashboard_tags %} {% block content %}
+<div class="flex modelcontent">
+    {% include "components/sub_sidebar.html" %}
+
+    <div id="mainContent"
+        class="flex-[1_0] leftspace transition-all duration-300 ease-in-out pt-0 overflow-hidden overflow-y-auto h-[100vh]">
+        <button id="reloadButton" hidden hx-get="{{ request.path }}?{{request.GET.urlencode}}" hx-target="#mainContent" hx-trigger="click" hx-swap="outerHTML" hx-select="#mainContent">click</button>
+        {% include "messages.html" %}
+
+        <div class="bg-white px-5 border-b border-b-dark-50 fixed w-fill-available z-30">
+            <div class="flex flex-wrap items-center gap-2 justify-between">
+                <div class="flex items-start">
+                    <button class=""
+                    hx-get="{{ previous_url }}"
+                    hx-target="#mainContent"
+                    hx-select-oob="#sideMenuContainer"
+                    hx-swap="outerHTML"
+                    hx-select="#mainContent"
+                    hx-push-url="true"
+                    onclick="console.log('Back button clicked. URL:', '{{ previous_url }}'); return true;">
+
+                    <i class="fas fa-arrow-left mr-2"></i>
+                </button>
+                    <div>
+                        <h3 class="text-md font-semibold">{{ dashboard.name }}</h3>
+                    </div>
+                </div>
+                <div class="flex items-center gap-5 h-[70px]">
+                    <div class="flex items-center gap-5">
+                        <div class="flex items-center gap-3">
+                            {% has_perm "horilla_dashboard.add_dashboardcomponent" as can_add_component %}
+                            {% if can_add_component %}
+                                <button id="addComponentBtn"
+                                    hx-get="{% url 'horilla_dashboard:component_create' %}?{{ request.GET.urlencode}}&dashboard={{current_obj.pk}}"
+                                    onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML"
+                                    class="border border-primary-500 btn-with-icon flex items-center gap-3 text-sm px-4 py-2 rounded-md text-primary-600 bg-primary-100 hover:bg-primary-600 hover:text-[white] transition duration-300 cursor-pointer">
+                                    <i class="fa-solid fa-plus"></i>
+                                    {% trans "Add components"|force_escape %}
+                                </button>
+                            {% endif %}
+                            {% if has_components %}
+                                <button type="button" id="editLayoutBtn" onclick="toggleEditMode()"
+                                    class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
+                                    {% trans "Reorder"|force_escape %}
+                                </button>
+                                <span id="editModeActions" class="hidden items-center gap-2">
+                                    <button type="button" onclick="saveDragOrder()" id="saveOrderBtn"
+                                    class="text-sm px-4 py-2 bg-primary-600 rounded-md transition duration-300 text-[white]">
+                                    {% trans "Save"|force_escape %}
+                                    </button>
+                                    <button type="button" onclick="toggleEditMode()" id="cancelEditBtn"
+                                    class="text-sm px-4 py-2 rounded-md border border-primary-600 text-primary-600 transition duration-300 cursor-pointer">
+                                    {% trans "Cancel"|force_escape %}
+                                    </button>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-5 pt-24" id="dashboard-detail-view" data-reorder-url="{% url 'horilla_dashboard:reorder_components' dashboard_id=current_obj.pk %}" data-csrf-token="{{ csrf_token }}">
+            {% if has_components %}
+                <!-- KPI Components - Always at the top -->
+                {% with kpi_components=components|filter_by_type:'kpi' %}
+                    {% if kpi_components %}
+                        <div class="mb-6">
+                            <div class="grid grid-cols-12 gap-6" id="reorderable-kpis">
+                                {% for component in kpi_components %}
+                                <div class="col-span-3 kpi-component-fixed kpi-dashboard-card relative" data-component-id="{{ component.id }}">
+                                    <div class="edit-drag-handle hidden absolute left-2 top-2 cursor-grab text-gray-400 z-20" title="{% trans 'Drag to reorder' %}"><i class="fa-solid fa-grip-vertical"></i></div>
+                                    <div hx-get="{% url 'horilla_dashboard:component_chart' component_id=component.id %}" hx-trigger="load"
+                                        hx-swap="innerHTML" class="w-full h-full">
+                                        <div class="text-gray-500 text-sm flex items-center justify-center h-full">
+                                            {% trans "Loading KPI..."|force_escape %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Other Components - Charts and Tables (Reorderable) -->
+                {% with non_kpi_components=components|filter_by_type_exclude:'kpi' %}
+                    {% if non_kpi_components %}
+                        <div>
+                            {% if kpi_components %}
+                                <h4 class="text-lg font-medium mb-4 text-gray-700">
+                                    {% trans "Charts & Data" %}
+                                </h4>
+                            {% endif %}
+                            <div class="grid grid-cols-12 gap-6" id="reorderable-components">
+                                {% for component in non_kpi_components %}
+                                    <div class="col-span-6 dashboard-component-card" data-component-id="{{ component.id }}">
+                                        {# overflow-visible on chart cards so ECharts tooltips are not clipped; tables keep overflow hidden via inner wrapper if needed #}
+                                        <div class="shadow-sm bg-white rounded-lg z-0 p-4 relative {% if component.component_type == 'chart' %}overflow-visible{% else %}overflow overflow-hidden{% endif %}">
+                                            <div class="edit-drag-handle hidden absolute left-2 top-2 cursor-grab text-gray-400 z-20" title="{% trans 'Drag to reorder' %}"><i class="fa-solid fa-grip-vertical"></i></div>
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h3 class="text-md font-semibold">{{ component.name }}</h3>
+                                                {% has_perm "horilla_dashboard.change_dashboard" as can_change_dashboard %}
+                                                {% has_perm "horilla_dashboard.delete_dashboard" as can_delete_dashboard %}
+                                                {% if component.component_type == 'chart' or component.component_type == 'table_data' and can_change_dashboard or component.component_type == 'table_data' and instance.dashboard_owner == request.user or component.component_type == 'table_data' and can_delete_dashboard %}
+                                                <div class="relative dropdown-wrapper z-[10]">
+                                                    <button id="dropdownbtn-{{ component.id }}" type="button"
+                                                        class="flex relative">
+                                                        <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                                                    </button>
+                                                    <div
+                                                        class="dropdown-content absolute bg-white border-primary-300 rounded-lg shadow-lg min-w-[150px] py-2 right-0 border border-gray-200 z-[9]">
+                                                        <ul class="text-sm py-1" aria-labelledby="dropdownbtn-{{ component.id }}">
+                                                            <!-- Export options - only for chart components -->
+                                                            {% if component.component_type == 'chart' %}
+                                                            <li>
+                                                                <a href="#"
+                                                                    class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
+                                                                    onclick="exportChart('component-chart-{{ component.id }}', '{{ component.name|escapejs }}', 'png')">
+                                                                    {% trans "Export as PNG"|force_escape %}
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#"
+                                                                    class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
+                                                                    onclick="exportDashboardChartAsPDF('{{ component.id }}', '{{ component.name|escapejs }}')">
+                                                                    {% trans "Export as PDF"|force_escape %}
+                                                                </a>
+                                                            </li>
+                                                            {% endif %}
+
+                                                            <!-- Edit/Update option - for chart and table components -->
+                                                            {% has_perm "horilla_dashboard.change_dashboard" as can_change_dashboard %}
+                                                            {% if can_change_dashboard or instance.dashboard_owner == request.user %}
+                                                                {% if component.component_type == 'chart' or component.component_type == 'table_data' %}
+                                                                    {% if not component.reports %}
+                                                                        <li>
+                                                                            <a href="#"
+                                                                                class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
+                                                                                hx-get="{% url 'horilla_dashboard:component_update' pk=component.id %}?{{ request.GET.urlencode}}"
+                                                                                onclick="openModal()" hx-target="#modalBox" hx-swap="innerHTML">
+                                                                                {% trans "Update"|force_escape%}
+                                                                            </a>
+                                                                        </li>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                                <li>
+                                                                    <a href="#"
+                                                                        class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
+                                                                        hx-get="{% url 'horilla_dashboard:move_to_another_dashboard' component.pk %}"
+                                                                        hx-target="#modalBox" hx-swap="innerHTML" hx-trigger="click"
+                                                                        onclick="openModal()">
+                                                                        {% trans "Add to Another Dashboard"|force_escape%}
+                                                                    </a>
+                                                                </li>
+                                                            {% endif %}
+
+                                                            {% has_perm "horilla_dashboard.delete_dashboard" as can_delete_dashboard %}
+                                                            {% if can_delete_dashboard %}
+                                                                <li>
+                                                                    <a href="#"
+                                                                        class="px-4 py-1.5 hover:text-primary-600 hover:bg-gray-50 transition duration-300 text-sm gap-4 items-center flex w-full"
+                                                                        hx-post="{% url 'horilla_dashboard:component_delete' component.pk %}"
+                                                                        hx-target="#deleteModeBox" hx-swap="innerHTML" hx-trigger="click"
+                                                                        onclick="openDeleteModeModal();"
+                                                                        hx-vals='{"check_dependencies": "true"}'>
+                                                                        {% trans "Delete"|force_escape %}
+                                                                    </a>
+                                                                </li>
+                                                            {% endif %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            {% if component.component_type == 'chart' %}
+                                                <div class="chart-container relative w-full overflow-visible" style="height: 344px; min-height: 344px">
+                                                    <div hx-get="{% url 'horilla_dashboard:component_chart' component_id=component.id %}"
+                                                        hx-trigger="load" hx-swap="innerHTML"
+                                                        class="w-full h-full">
+                                                        <div class="text-gray-500 text-sm flex items-center justify-center h-full">
+                                                            {% trans " Loading chart..."|force_escape %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% if component.reports %}
+                                                    <div class="mt-3 flex items-center gap-2 text-xs text-gray-600">
+                                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-300 rounded-md">
+                                                            <i class="fa-solid fa-file-lines text-black"></i>
+                                                            <span class="font-bold">{% trans "Created From report"|force_escape %}</span>
+                                                            <a href="{% url 'horilla_reports:report_detail' component.reports.pk %}?section=analytics"
+                                                            class="text-primary-600 hover:text-blue-800 font-bold"
+                                                            hx-get="{% url 'horilla_reports:report_detail' component.reports.pk %}?section=analytics"
+                                                            hx-target="#mainContent"
+                                                            hx-swap="outerHTML"
+                                                            hx-select="#mainContent"
+                                                            hx-push-url="true">
+                                                                {{component.reports.name}}
+                                                            </a>
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            {% elif component.component_type == 'table_data' %}
+                                                <div>
+                                                    {% with ctx=table_contexts|lookup:component.id %}
+                                                        {% unpack_context ctx %} {% include "list_view.html" %}
+                                                    {% endwith %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% else %}
+                <div class="flex flex-col items-center justify-center min-h-[400px] text-center background bg-white">
+                    <div class="mb-6">
+                        <svg class="w-20 h-20 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">
+                        {% trans 'No Components Added'|force_escape %}
+                    </h3>
+                    <p class="text-gray-500 mb-6 max-w-md">
+                        {% trans "This dashboard doesn't have any components yet. Add charts, tables, KPIs, or targets to visualize your data."|force_escape %}
+                    </p>
+                </div>
+            {% endif %}
+
+            <!-- Ensure jsPDF is available for chart PDF export (e.g. when view is loaded via HTMX) -->
+            <script src="{% static 'assets/js/jspdf/jspdf.umd.min.js' %}"></script>
+            <script>
+                $(document).ready(function () {
+                    initializeSelect2();
+                    bindEventHandlers();
+                });
+
+                function initializeSelect2() {
+                    $("#exportFormat").select2({
+                        width: "100%",
+                        theme: "default",
+                    });
+
+                    $("select").on("select2:select", function (e) {
+                        this.dispatchEvent(new Event("change"));
+                    });
+                }
+
+                var sortableKpis = null;
+                var sortableComponents = null;
+                var editMode = false;
+
+                function toggleEditMode() {
+                    editMode = !editMode;
+                    var $view = $("#dashboard-detail-view");
+                    if (editMode) {
+                        $("#editLayoutBtn").addClass("hidden");
+                        $("#editModeActions").removeClass("hidden").addClass("flex");
+                        $("#addComponentBtn").addClass("hidden");
+                        $view.addClass("edit-mode");
+                        $view.find(".edit-drag-handle").removeClass("hidden");
+                        initDragSortables();
+                    } else {
+                        $("#editLayoutBtn").removeClass("hidden");
+                        $("#editModeActions").addClass("hidden").removeClass("flex");
+                        $("#addComponentBtn").removeClass("hidden");
+                        $view.removeClass("edit-mode");
+                        $view.find(".edit-drag-handle").addClass("hidden");
+                        destroyDragSortables();
+                    }
+                }
+
+                function initDragSortables() {
+                    if (typeof Sortable === "undefined") return;
+                    var kpiList = document.getElementById("reorderable-kpis");
+                    var compList = document.getElementById("reorderable-components");
+                    var handle = ".edit-drag-handle";
+                    if (kpiList && !sortableKpis) {
+                        sortableKpis = Sortable.create(kpiList, {
+                            handle: handle,
+                            animation: 150,
+                            ghostClass: "opacity-50"
+                        });
+                    }
+                    if (compList && !sortableComponents) {
+                        sortableComponents = Sortable.create(compList, {
+                            handle: handle,
+                            animation: 150,
+                            ghostClass: "opacity-50"
+                        });
+                    }
+                }
+
+                function destroyDragSortables() {
+                    if (sortableKpis) { sortableKpis.destroy(); sortableKpis = null; }
+                    if (sortableComponents) { sortableComponents.destroy(); sortableComponents = null; }
+                }
+
+                function saveDragOrder() {
+                    var $view = $("#dashboard-detail-view");
+                    var url = $view.data("reorder-url");
+                    var csrfToken = $view.data("csrf-token");
+                    if (!url) return;
+
+                    function postOrder(reorderType, order) {
+                        var formData = new FormData();
+                        formData.append("csrfmiddlewaretoken", csrfToken);
+                        formData.append("reorder_type", reorderType);
+                        order.forEach(function(id) { formData.append("component_order", id); });
+                        return $.ajax({
+                            url: url,
+                            method: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            headers: { "X-CSRFToken": csrfToken }
+                        });
+                    }
+
+                    var kpiIds = [];
+                    $("#reorderable-kpis").find("[data-component-id]").each(function() {
+                        kpiIds.push($(this).data("component-id"));
+                    });
+                    var compIds = [];
+                    $("#reorderable-components").find("[data-component-id]").each(function() {
+                        compIds.push($(this).data("component-id"));
+                    });
+
+                    if (!kpiIds.length && !compIds.length) {
+                        toggleEditMode();
+                        return;
+                    }
+                    $("#saveOrderBtn").prop("disabled", true);
+                    var p = $.Deferred().resolve();
+                    if (kpiIds.length) p = p.then(function() { return postOrder("kpi", kpiIds); });
+                    if (compIds.length) p = p.then(function() { return postOrder("components", compIds); });
+                    p.done(function() {
+                        toggleEditMode();
+                        window.location.reload();
+                    }).fail(function() {
+                        window.location.reload();
+                    }).always(function() {
+                        $("#saveOrderBtn").prop("disabled", false);
+                    });
+                }
+
+
+                window.toggleEditMode = toggleEditMode;
+                window.saveDragOrder = saveDragOrder;
+
+                function exportChart(chartId, chartName, format) {
+                    const $chartDom = $("#" + chartId);
+
+                    if ($chartDom.length === 0) {
+                        console.error("Chart DOM element not found for ID:", chartId);
+                        alert("Failed to export chart: Chart element not found.");
+                        return;
+                    }
+
+                    if (
+                        typeof EChartsConfig === "undefined" ||
+                        typeof echarts === "undefined"
+                    ) {
+                        console.error("EChartsConfig or echarts not available");
+                        alert("Failed to export chart: Required libraries are not available.");
+                        return;
+                    }
+
+                    const myChart = echarts.getInstanceByDom($chartDom[0]);
+
+                    if (myChart) {
+                        EChartsConfig.exportChart(myChart, chartName, format);
+                    } else {
+                        console.error("Chart instance not found for ID:", chartId);
+                        alert("Failed to export chart: Chart instance not found.");
+                    }
+                }
+
+                // Dashboard-specific PDF export, similar to report_detail.html
+                function exportDashboardChartAsPDF(componentId, filename) {
+                    try {
+                        if (!window.jspdf || !window.jspdf.jsPDF) {
+                            console.error('jsPDF library is not loaded.');
+                            alert('Failed to export PDF: jsPDF library is not loaded.');
+                            return;
+                        }
+
+                        var compKey = 'dashboard-component-' + componentId;
+                        var entry = window.chartInstances && window.chartInstances[compKey];
+
+                        if (!entry || !entry.instance || entry.instance.isDisposed()) {
+                            console.error('Chart instance not found or disposed for component ID:', componentId);
+                            alert('Failed to export PDF: Chart instance not available.');
+                            return;
+                        }
+
+                        var chartInstance = entry.instance;
+                        chartInstance.resize();
+
+                        var imgData = chartInstance.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff',
+                            excludeComponents: ['toolbox']
+                        });
+
+                        if (!imgData) {
+                            console.error('Failed to generate chart image data.');
+                            alert('Failed to export PDF: Could not generate chart image.');
+                            return;
+                        }
+
+                        var jsPDF = window.jspdf.jsPDF;
+                        var pdf = new jsPDF({
+                            orientation: 'landscape',
+                            unit: 'px',
+                            format: [800, 400]
+                        });
+
+                        var imgProps = pdf.getImageProperties(imgData);
+                        var pdfWidth = pdf.internal.pageSize.getWidth();
+                        var pdfHeight = pdf.internal.pageSize.getHeight();
+                        var imgWidth = 700;
+                        var imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+                        var x = (pdfWidth - imgWidth) / 2;
+                        var y = (pdfHeight - imgHeight) / 2;
+
+                        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                        pdf.save(filename + '.pdf');
+                    } catch (error) {
+                        console.error('Error exporting chart as PDF:', error);
+                        alert('Failed to export PDF: An error occurred.');
+                    }
+                }
+
+                window.exportChart = exportChart;
+                window.exportDashboardChartAsPDF = exportDashboardChartAsPDF;
+            </script>
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,234 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Campaigns"
+msgstr "Kampagnen"
+
+msgid "Select Campaign"
+msgstr "Kampagne auswählen"
+
+msgid "Select campaign"
+msgstr "Kampagne auswählen"
+
+msgid "Please select campaign."
+msgstr "Bitte wählen Sie eine Kampagne aus."
+
+msgid "This campaign already has a parent campaign assigned."
+msgstr "Diese Kampagne hat bereits eine übergeordnete Kampagne."
+
+msgid "An campaign cannot be its own parent."
+msgstr "Eine Kampagne kann nicht ihre eigene übergeordnete Kampagne sein."
+
+msgid "Please select a valid campaign."
+msgstr "Bitte wählen Sie eine gültige Kampagne aus."
+
+msgid "Planned"
+msgstr "Geplant"
+
+msgid "Sent"
+msgstr "Gesendet"
+
+msgid "Recieved"
+msgstr "Empfangen"
+
+msgid "Responded"
+msgstr "Reagiert"
+
+msgid "Lead"
+msgstr "Lead"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Campaign"
+msgstr "Kampagne"
+
+msgid "Member Status"
+msgstr "Mitgliederstatus"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Campaign Member"
+msgstr "Kampagnenmitglied"
+
+msgid "Campaign Members"
+msgstr "Kampagnenmitglieder"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "In Progress"
+msgstr "In Bearbeitung"
+
+msgid "Completed"
+msgstr "Abgeschlossen"
+
+msgid "Aborted"
+msgstr "Abgebrochen"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Event"
+msgstr "Veranstaltung"
+
+msgid "Social Media"
+msgstr "Soziale Medien"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "Webinar"
+msgstr "Webinar"
+
+msgid "Referral"
+msgstr "Empfehlung"
+
+msgid "Advertisement"
+msgstr "Werbung"
+
+msgid "Campaign Name"
+msgstr "Kampagnenname"
+
+msgid "Campaign Owner"
+msgstr "Kampagneninhaber"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgid "End Date"
+msgstr "Enddatum"
+
+msgid "Expected Revenue"
+msgstr "Erwarteter Umsatz"
+
+msgid "Budget Cost"
+msgstr "Budgetkosten"
+
+msgid "Actual Cost"
+msgstr "Tatsächliche Kosten"
+
+msgid "Expected Response (%)"
+msgstr "Erwartete Rücklaufquote (%)"
+
+msgid "Number Sent in Campaign"
+msgstr "Anzahl gesendet in der Kampagne"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Parent Campaign"
+msgstr "Übergeordnete Kampagne"
+
+msgid "Leads in Campaign"
+msgstr "Leads in der Kampagne"
+
+msgid "Converted Leads in Campaign"
+msgstr "Konvertierte Leads in der Kampagne"
+
+msgid "Contacts in Campaign"
+msgstr "Kontakte in der Kampagne"
+
+msgid "Opportunities in Campaign"
+msgstr "Verkaufschancen in der Kampagne"
+
+msgid "Won Opportunities in Campaign"
+msgstr "Gewonnene Verkaufschancen in der Kampagne"
+
+msgid "Value Opportunities in Campaign"
+msgstr "Wert der Verkaufschancen in der Kampagne"
+
+msgid "Value Won Opportunities in Campaign"
+msgstr "Wert der gewonnenen Verkaufschancen in der Kampagne"
+
+msgid "Responses in Campaign"
+msgstr "Rückmeldungen in der Kampagne"
+
+msgid "Campaign Hierarchy"
+msgstr "Kampagnenhierarchie"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Duplicate"
+msgstr "Duplizieren"
+
+msgid "Campaign Information"
+msgstr "Kampagneninformationen"
+
+msgid "Financial Information"
+msgstr "Finanzinformationen"
+
+msgid "Additional Information"
+msgstr "Zusätzliche Informationen"
+
+msgid "Change Owner"
+msgstr "Besitzer ändern"
+
+msgid "View Hierarchy"
+msgstr "Hierarchie anzeigen"
+
+msgid "Add Child Campaign"
+msgstr "Unterkampagne hinzufügen"
+
+msgid "You must be logged in to perform this action."
+msgstr "Sie müssen angemeldet sein, um diese Aktion auszuführen."
+
+msgid "No parent campaign specified in the request."
+msgstr "Im Anfragevorgang wurde keine übergeordnete Kampagne angegeben."
+
+msgid "A campaign cannot be its own parent."
+msgstr "Eine Kampagne kann nicht ihre eigene übergeordnete Kampagne sein."
+
+msgid "This campaign already has a parent campaign."
+msgstr "Diese Kampagne hat bereits eine übergeordnete Kampagne."
+
+msgid "Child campaign assigned successfully!"
+msgstr "Unterkampagne erfolgreich zugewiesen!"
+
+msgid "Invalid parent campaign ID format."
+msgstr "Ungültiges Format der übergeordneten Kampagnen-ID."
+
+msgid "You don't have permission to perform this action."
+msgstr "Sie haben keine Berechtigung, diese Aktion auszuführen."
+
+msgid "This campaign doesn't have a parent campaign."
+msgstr "Diese Kampagne hat keine übergeordnete Kampagne."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_campaign.campaign_name} from {parent_campaign."
+"campaign_name}'s child campaigns."
+msgstr ""
+"{child_campaign.campaign_name} wurde erfolgreich aus den Unterkampagnen von "
+"{parent_campaign.campaign_name} entfernt."
+
+msgid "An error occurred while removing the child campaign."
+msgstr "Beim Entfernen der Unterkampagne ist ein Fehler aufgetreten."
+
+msgid "Add to Campaign"
+msgstr "Zur Kampagne hinzufügen"
+
+msgid "Add Campaign Members"
+msgstr "Kampagnenmitglieder hinzufügen"

@@ -1,0 +1,18 @@
+{% load static %}
+{% load i18n %}
+{% if superuser_count > 1 %}
+<button type="button"
+        class="text-xs px-3 py-1.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition duration-300"
+        hx-post="{% url 'horilla_core:super_user_status' instance.pk %}"
+        hx-trigger="confirmed"
+        hx-on::after-request="$('#reloadMessagesButton').click();$('#reloadButton').click();"
+        hx-on:click="hxConfirm(this, '{% trans 'Are you sure you want to remove superuser status from this user?' %}')">
+    {% trans "Remove" %}
+</button>
+{% else %}
+<button type="button"
+        class="text-xs px-3 py-1.5 bg-primary-600 text-white  rounded-md cursor-not-allowed opacity-50"
+        disabled>
+    {% trans "Remove" %}
+</button>
+{% endif %}

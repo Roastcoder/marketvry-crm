@@ -1,0 +1,754 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:11+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Opportunities"
+msgstr "الفرص"
+
+msgid "Big Deal Alerts"
+msgstr "تنبيهات الصفقات الكبيرة"
+
+
+msgid "Update Big Deal Alert"
+msgstr "تنبيه صفقة كبيرة"
+
+
+msgid "Create Big Deal Alert"
+msgstr "تنبيه صفقة كبيرة"
+
+msgid "duplicated"
+msgstr "تكرار"
+
+msgid "updated"
+msgstr "تحديث"
+
+msgid "created"
+msgstr "إنشاء"
+
+#, python-format
+msgid "%(model)s %(action)s successfully!"
+msgstr "تم %(action)s %(model)s بنجاح!"
+
+msgid "At least one valid condition row must be provided."
+msgstr "يجب توفير صف واحد صالح على الأقل من الشروط."
+
+msgid "Select Team"
+msgstr "اختر الفريق"
+
+msgid "Select a team to add all its default members to this opportunity"
+msgstr "اختر فريقًا لإضافة جميع أعضائه الافتراضيين إلى هذه الفرصة"
+
+msgid "Opportunity Team"
+msgstr "فريق الفرصة"
+
+msgid "Opportunity"
+msgstr "الفرصة"
+
+msgid "Opportunity Team Settings"
+msgstr "إعدادات فريق الفرصة"
+
+msgid "Opportunity Split Settings"
+msgstr "إعدادات تقسيم الفرصة"
+
+msgid "Open"
+msgstr "مفتوحة"
+
+msgid "Closed Won"
+msgstr "مغلقة - ناجحة"
+
+msgid "Closed Lost"
+msgstr "مغلقة - خاسرة"
+
+msgid "Stage Name"
+msgstr "اسم المرحلة"
+
+msgid "Order"
+msgstr "الترتيب"
+
+msgid "Probability"
+msgstr "الاحتمالية"
+
+msgid "Is Final Stage"
+msgstr "هل هي المرحلة النهائية"
+
+msgid "Stage Type"
+msgstr "نوع المرحلة"
+
+msgid "Type of stage - Open, Closed Won, or Closed Lost"
+msgstr "نوع المرحلة - مفتوحة، مغلقة ناجحة، أو مغلقة خاسرة"
+
+msgid "Order must be a non-negative integer."
+msgstr "يجب أن يكون الترتيب عددًا صحيحًا غير سالب."
+
+msgid "Opportunity Stage"
+msgstr "مرحلة الفرصة"
+
+msgid "Opportunity Stages"
+msgstr "مراحل الفرصة"
+
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+msgid "Referral"
+msgstr "إحالة"
+
+msgid "Event"
+msgstr "حدث"
+
+msgid "Campaign"
+msgstr "حملة"
+
+msgid "Phone"
+msgstr "هاتف"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Social Media"
+msgstr "وسائل التواصل الاجتماعي"
+
+msgid "Partner"
+msgstr "شريك"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Opportunity Name"
+msgstr "اسم الفرصة"
+
+msgid "Amount"
+msgstr "المبلغ"
+
+msgid "Expected Revenue"
+msgstr "الإيرادات المتوقعة"
+
+msgid "Quantity"
+msgstr "الكمية"
+
+msgid "Close Date"
+msgstr "تاريخ الإغلاق"
+
+msgid "Stage"
+msgstr "المرحلة"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Next Step"
+msgstr "الخطوة التالية"
+
+msgid "Opportunity Score"
+msgstr "درجة الفرصة"
+
+msgid "Primary Campaign Source"
+msgstr "المصدر الأساسي للحملة"
+
+msgid "Owner"
+msgstr "المالك"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Lead Source"
+msgstr "مصدر العميل المتوقع"
+
+msgid "Forecast Category"
+msgstr "فئة التنبؤ"
+
+msgid "Delivery Installation Status"
+msgstr "حالة التسليم والتركيب"
+
+msgid "Main Competitors"
+msgstr "المنافسون الرئيسيون"
+
+msgid "Order Number"
+msgstr "رقم الطلب"
+
+msgid "Tracking Number"
+msgstr "رقم التتبع"
+
+msgid "Account"
+msgstr "الحساب"
+
+msgid "Role"
+msgstr "الدور"
+
+msgid "Opportunity Contact Role"
+msgstr "دور جهة الاتصال في الفرصة"
+
+msgid "Opportunity Contact Roles"
+msgstr "أدوار جهات الاتصال في الفرصة"
+
+msgid "Read Only"
+msgstr "للقراءة فقط"
+
+msgid "Read/Write"
+msgstr "قراءة/كتابة"
+
+msgid "Team Name"
+msgstr "اسم الفريق"
+
+msgid "Opportunity Teams"
+msgstr "فرق الفرص"
+
+msgid "Opportunity Access"
+msgstr "وصول الفرصة"
+
+msgid "Member Role"
+msgstr "دور العضو"
+
+msgid "Team Members"
+msgstr "أعضاء الفريق"
+
+msgid "Opportunity team member"
+msgstr "عضو فريق الفرصة"
+
+msgid "Opportunity team members"
+msgstr "أعضاء فريق الفرصة"
+
+msgid "Team Member"
+msgstr "عضو الفريق"
+
+msgid "Access Level"
+msgstr "مستوى الوصول"
+
+msgid "Default Opportunity Member"
+msgstr "عضو الفرصة الافتراضي"
+
+msgid "Default Opportunity Members"
+msgstr "أعضاء الفرصة الافتراضيين"
+
+msgid "Enable Team Selling"
+msgstr "تفعيل بيع الفريق"
+
+msgid ""
+"Enable Opportunity Teams to help multiple users collaborate on "
+"opportunities. When enabled, you can define roles for team members, set "
+"record-level access, and view teams in list views and reports."
+msgstr ""
+"تفعيل فرق الفرص لمساعدة عدة مستخدمين على التعاون في الفرص. عند التفعيل، "
+"يمكنك تحديد أدوار لأعضاء الفريق، تعيين صلاحيات وصول على مستوى السجل، وعرض "
+"الفرق في القوائم والتقارير."
+
+msgid "Enable Opportunity Splits"
+msgstr "تفعيل تقسيم الفرص"
+
+msgid ""
+"Allow multiple users to share credit for an opportunity. Splits can be based "
+"on revenue, overlay, or custom metrics."
+msgstr ""
+"السماح لعدة مستخدمين بمشاركة نسبة الفرصة. يمكن أن تكون التقسيمات مبنية على "
+"الإيرادات، التراكب، أو مقاييس مخصصة."
+
+msgid "Let users add members to opportunity teams while editing splits"
+msgstr "السماح للمستخدمين بإضافة أعضاء إلى فرق الفرص أثناء تعديل التقسيمات"
+
+msgid ""
+"When enabled, users can assign splits to any active user in the company, not "
+"just opportunity team members. This allows adding new members while editing "
+"splits."
+msgstr ""
+"عند التفعيل، يمكن للمستخدمين تعيين التقسيمات لأي مستخدم نشط في الشركة، وليس "
+"فقط لأعضاء فريق الفرصة. هذا يسمح بإضافة أعضاء جدد أثناء تعديل التقسيمات."
+
+msgid "Opportunity Setting"
+msgstr "إعدادات الفرصة"
+
+msgid "Opportunity Settings"
+msgstr "إعدادات الفرص"
+
+msgid "Expected Revenue Overlay"
+msgstr "تراكب الإيرادات المتوقعة"
+
+msgid "Overlay"
+msgstr "تراكب"
+
+msgid "Revenue"
+msgstr "الإيرادات"
+
+msgid "Split Label"
+msgstr "تسمية التقسيم"
+
+msgid "Name of the split type (e.g., Revenue, Overlay)"
+msgstr "اسم نوع التقسيم (مثل الإيرادات، التراكب)"
+
+msgid "Split Field"
+msgstr "حقل التقسيم"
+
+msgid "Field to split: amount, expected_revenue, etc."
+msgstr "الحقل المراد تقسيمه: المبلغ، الإيرادات المتوقعة، إلخ."
+
+msgid "Opportunity - Amount"
+msgstr "الفرصة - المبلغ"
+
+msgid "Opportunity - Expected Revenue"
+msgstr "الفرصة - الإيرادات المتوقعة"
+
+msgid "Totals 100%"
+msgstr "الإجمالي 100%"
+
+msgid "Require splits of this type to total exactly 100%"
+msgstr "يجب أن يصل مجموع هذا النوع من التقسيمات إلى 100% بالضبط"
+
+msgid "Opportunity Split Type"
+msgstr "نوع تقسيم الفرصة"
+
+msgid "Opportunity Split Types"
+msgstr "أنواع تقسيم الفرص"
+
+msgid "User receiving credit for this split."
+msgstr "المستخدم الذي يحصل على النسبة في هذا التقسيم."
+
+msgid "Split Type"
+msgstr "نوع التقسيم"
+
+msgid "Type of split, such as Revenue or Overlay."
+msgstr "نوع التقسيم، مثل الإيرادات أو التراكب."
+
+msgid "Split Percentage"
+msgstr "نسبة التقسيم"
+
+msgid "Percentage of total credit (e.g., 25.00 for 25%)."
+msgstr "نسبة الائتمان الإجمالي (مثلاً 25.00 تمثل 25%)"
+
+msgid "Split Amount"
+msgstr "مبلغ التقسيم"
+
+msgid "Calculated split amount based on percentage and opportunity amount."
+msgstr "مبلغ التقسيم المحسوب بناءً على النسبة ومبلغ الفرصة."
+
+msgid "Opportunity Split"
+msgstr "تقسيمات الفرص"
+
+msgid "Opportunity Splits"
+msgstr "تقسيمات الفرص"
+
+msgid "Is Active"
+msgstr "نشط"
+
+msgid ""
+"Opportunity Splits has been enabled successfully! Users can now split "
+"opportunities and assign percentages to team members."
+msgstr ""
+"تم تفعيل تقسيم الفرص بنجاح! يمكن للمستخدمين الآن تقسيم الفرص وتعيين النسب "
+"لأعضاء الفريق."
+
+msgid ""
+"Opportunity Splits has been disabled. Existing splits will no longer be "
+"visible or accessible."
+msgstr "تم تعطيل تقسيم الفرص. لن تكون التقسيمات الحالية مرئية أو قابلة للوصول."
+
+msgid ""
+"All users can now be added to opportunity splits. Users can assign splits to "
+"any active user in the company."
+msgstr ""
+"يمكن الآن إضافة جميع المستخدمين إلى تقسيمات الفرص. يمكن للمستخدمين تعيين "
+"التقسيمات لأي مستخدم نشط في الشركة."
+
+msgid ""
+"Only opportunity team members can now be added to splits. Adding other users "
+"has been restricted."
+msgstr ""
+"يمكن الآن إضافة أعضاء فريق الفرصة فقط إلى التقسيمات. تم تقييد إضافة مستخدمين "
+"آخرين."
+
+msgid "Opportunity splits are not enabled."
+msgstr "تقسيم الفرص غير مفعل."
+
+msgid "Opportunity splits saved successfully"
+msgstr "تم حفظ تقسيمات الفرص بنجاح"
+
+msgid "Added to opportunity team: {}"
+msgstr "تمت الإضافة إلى فريق الفرصة: {}"
+
+msgid "At least one split must be added."
+msgstr "يجب إضافة تقسيم واحد على الأقل."
+
+msgid "Invalid percentage value."
+msgstr "قيمة النسبة غير صالحة."
+
+#, python-brace-format
+msgid "Total percentage must equal 100%. Current total: {total_percentage}%"
+msgstr "يجب أن يكون مجموع النسب 100%. الإجمالي الحالي: {total_percentage}%"
+
+msgid "Percentage must be between 0 and 100."
+msgstr "يجب أن تكون النسبة بين 0 و 100."
+
+msgid "Cannot assign multiple splits to the same user for one split type."
+msgstr "لا يمكن تعيين تقسيمات متعددة لنفس المستخدم لنوع تقسيم واحد."
+
+msgid "Create Opportunity Team"
+msgstr "إنشاء فريق الفرصة"
+
+msgid "Add Members"
+msgstr "إضافة أعضاء"
+
+msgid "Update Team Member"
+msgstr "تحديث عضو الفريق"
+
+msgid ""
+"Cannot delete {user.get_full_name() or user.username} from the opportunity "
+"team. "
+msgstr "لا يمكن حذف {user.get_full_name() or user.username} من فريق الفرصة."
+
+msgid "An error occurred while deleting the team member."
+msgstr "حدث خطأ أثناء حذف عضو الفريق."
+
+msgid "Add Default Team"
+msgstr "إضافة الفريق الافتراضي"
+
+msgid "Opportunity ID is required"
+msgstr "معرف الفرصة مطلوب"
+
+msgid "The selected team has no default members configured."
+msgstr "الفريق المختار لا يحتوي على أعضاء افتراضيين مكونين."
+
+#, python-brace-format
+msgid ""
+"Successfully added {added_count} team member(s) from {selected_team."
+"team_name}."
+msgstr "تمت إضافة {added_count} عضو فريق من {selected_team.team_name} بنجاح."
+
+#, python-brace-format
+msgid "{skipped_count} member(s) were already part of the opportunity team."
+msgstr "{skipped_count} عضو(أعضاء) كانوا بالفعل جزءًا من فريق الفرصة."
+
+msgid "Error adding default team members: {str(e)}"
+msgstr "خطأ أثناء إضافة أعضاء الفريق الافتراضي: {str(e)}"
+
+msgid "Add Opportunity Members"
+msgstr "إضافة أعضاء الفرصة"
+
+msgid ""
+"Team Selling has been enabled successfully! Users can now create opportunity "
+"teams and add team members."
+msgstr ""
+"تم تفعيل بيع الفريق بنجاح! يمكن للمستخدمين الآن إنشاء فرق الفرص وإضافة أعضاء "
+"الفريق."
+
+msgid ""
+"Team Selling has been disabled and all existing opportunity teams and their "
+"members have been deleted."
+msgstr "تم تعطيل بيع الفريق وتم حذف جميع فرق الفرص وأعضائها الحالية."
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Final stage changed successfully."
+msgstr "تم تغيير المرحلة النهائية بنجاح."
+
+msgid "Stage not found."
+msgstr "المرحلة غير موجودة."
+
+msgid "Prospecting"
+msgstr "التنقيب"
+
+msgid "Qualification"
+msgstr "التأهيل"
+
+msgid "Needs Analysis"
+msgstr "تحليل الاحتياجات"
+
+msgid "Value Proposition"
+msgstr "عرض القيمة"
+
+msgid "Id. Decision Makers"
+msgstr "تحديد صناع القرار"
+
+msgid "Perception Analysis"
+msgstr "تحليل الإدراك"
+
+msgid "Proposal/Price Quote"
+msgstr "العرض/عرض السعر"
+
+msgid "Negotiation/Review"
+msgstr "التفاوض/المراجعة"
+
+msgid "Trigger Amount"
+msgstr "مبلغ التفعيل"
+
+msgid "Trigger Probability"
+msgstr "احتمالية التفعيل"
+
+msgid "Is Null"
+msgstr "فارغ"
+
+msgid "Is Not Null"
+msgstr "غير فارغ"
+
+msgid "Notify Emails"
+msgstr "إشعار عبر البريد الإلكتروني"
+
+msgid "Notify CC Emails"
+msgstr "إشعار نسخ إلى البريد الإلكتروني"
+
+msgid "Mail Template"
+msgstr "قالب البريد الإلكتروني"
+
+msgid "Sender Email"
+msgstr "بريد المرسل الإلكتروني"
+
+
+msgid "Trigger"
+msgstr "مبلغ التفعيل"
+
+msgid "Delivery Channel"
+msgstr "قناة التسليم"
+
+msgid "Nothing to show yet. Please add your big deal alerts"
+msgstr "لا يوجد شيء للعرض بعد. الرجاء إضافة تنبيهات الصفقات."
+
+
+msgid "Select Closed Stage"
+msgstr "اختر الفريق"
+
+msgid "Close"
+msgstr "إغلاق"
+
+
+msgid "Please select whether this opportunity is Closed Won or Closed Lost:"
+msgstr "نوع المرحلة - مفتوحة، مغلقة ناجحة، أو مغلقة خاسرة"
+
+msgid "Current stage:"
+msgstr "المرحلة الحالية:"
+
+msgid "Won"
+msgstr "مكسوب"
+
+msgid "Lost"
+msgstr "خسارة"
+
+msgid ""
+"No closed stages are configured for this company. Please configure Closed "
+"Won and Closed Lost stages first."
+msgstr ""
+"لم يتم تكوين مراحل مغلقة لهذه الشركة. يرجى تكوين مرحلتي الفوز المغلق والخسارة المغلقة أولاً."
+
+
+msgid "Update Stage"
+msgstr "إضافة مرحلة"
+
+msgid "Are you sure you want to delete this split?"
+msgstr "هل أنت متأكد من حذف هذا التقسيم؟"
+
+msgid "Delete Split"
+msgstr "حذف التقسيم"
+
+msgid "Cannot delete opportunity owner"
+msgstr "لا يمكن حذف مالك الفرصة"
+
+msgid "Edit All Opportunity Splits"
+msgstr "تعديل جميع تقسيمات الفرص"
+
+msgid "Enable Opportunity split"
+msgstr "تفعيل تقسيم الفرص"
+
+msgid ""
+"When enabled, users can assign splits to any active user in the company,not "
+"just opportunity team members. This allows adding new members while editing "
+"splits."
+msgstr ""
+"عند التفعيل، يمكن للمستخدمين تعيين التقسيمات لأي مستخدم نشط في الشركة، وليس "
+"فقط لأعضاء فريق الفرصة. هذا يسمح بإضافة أعضاء جدد أثناء تعديل التقسيمات."
+
+msgid "split"
+msgstr "تقسيم"
+
+msgid "Quick Tips for Opportunity Splits"
+msgstr "نصائح سريعة لتقسيم الفرص"
+
+msgid ""
+"Enable opportunity splits to distribute revenue and credit among multiple "
+"team members"
+msgstr "تفعيل تقسيم الفرص لتوزيع الإيرادات والنسب بين أعضاء الفريق المتعددين"
+
+msgid ""
+"Configure split fields to track different revenue types (Revenue, Overlay, "
+"Expected Revenue)"
+msgstr ""
+"تكوين حقول التقسيم لتتبع أنواع الإيرادات المختلفة (الإيرادات، التراكب، "
+"الإيرادات المتوقعة)"
+
+msgid ""
+"Set percentage allocations for each team member to ensure proper credit "
+"distribution"
+msgstr "تعيين نسب مئوية لكل عضو فريق لضمان توزيع النسب بشكل صحيح"
+
+msgid ""
+"Choose whether to allow all users or restrict splits to opportunity team "
+"members only"
+msgstr ""
+"اختر ما إذا كنت تريد السماح لجميع المستخدمين أو تقييد التقسيمات لأعضاء فريق "
+"الفرصة فقط"
+
+msgid "Please Activate opporunity team settings"
+msgstr "يرجى تفعيل إعدادات فريق الفرصة"
+
+msgid "Select User"
+msgstr "اختر المستخدم"
+
+msgid "Not in team"
+msgstr "ليس في الفريق"
+
+msgid "Percent"
+msgstr "النسبة المئوية"
+
+msgid "Actions"
+msgstr "الإجراءات"
+
+msgid "Add Row"
+msgstr "إضافة صف"
+
+msgid ""
+"Only opportunity team members can be assigned splits.To allow all users, "
+"enable Let users add members to opportunity teams while editing splits in  "
+"Opportunity Settings"
+msgstr ""
+"يمكن تعيين التقسيمات لأعضاء فريق الفرصة فقط. للسماح لجميع المستخدمين، قم "
+"بتفعيل 'السماح للمستخدمين بإضافة أعضاء إلى فرق الفرص أثناء تعديل التقسيمات' "
+"في إعدادات الفرصة."
+
+msgid "All active users in the company can be assigned splits."
+msgstr "يمكن تعيين التقسيمات لجميع المستخدمين النشطين في الشركة."
+
+#, python-format
+msgid "Total percentage must equal 100%% for this split type."
+msgstr "يجب أن يكون مجموع النسب 100%% لهذا النوع من التقسيم."
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Saving..."
+msgstr "جارٍ الحفظ..."
+
+msgid "TOTAL PERCENT"
+msgstr "إجمالي النسبة"
+
+msgid "TOTAL AMOUNT"
+msgstr "إجمالي المبلغ"
+
+msgid "Manage Custom Stages"
+msgstr "إدارة المراحل المخصصة"
+
+msgid "Drag"
+msgstr "سحب"
+
+msgid "Add Stage"
+msgstr "إضافة مرحلة"
+
+msgid " Changes"
+msgstr " التغييرات"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Initialize Database"
+msgstr "تهيئة قاعدة البيانات"
+
+msgid "Get started by using default stages or adding your custom stages."
+msgstr "ابدأ باستخدام المراحل الافتراضية أو إضافة مراحل مخصصة."
+
+msgid "Default Stages"
+msgstr "المراحل الافتراضية"
+
+msgid "Stages"
+msgstr "المراحل"
+
+msgid "Select Opportunity Stages for"
+msgstr "اختر مراحل الفرصة لـ"
+
+msgid "Custom Stages"
+msgstr "المراحل المخصصة"
+
+msgid "Team Selling Setup"
+msgstr "إعداد بيع الفريق"
+
+msgid ""
+"Configure opportunity team settings to enable collaboration among sales team "
+"members"
+msgstr "تكوين إعدادات فريق الفرصة لتمكين التعاون بين أعضاء فريق المبيعات"
+
+msgid "Team Selling is Enabled"
+msgstr "بيع الفريق مفعّل"
+
+msgid "Opportunity teams are available across your system"
+msgstr "فرق الفرص متاحة في نظامك"
+
+msgid "Team Selling is Disabled"
+msgstr "بيع الفريق معطل"
+
+msgid "Enable to start using opportunity teams"
+msgstr "فعّل للبدء باستخدام فرق الفرص"
+
+msgid "About Team Selling"
+msgstr "حول بيع الفريق"
+
+msgid ""
+"Opportunity Teams help multiple users to better collaborate on opportunities "
+"by defining a role for each team member, setting record-level access "
+"individually, and viewing teams in list views and reports."
+msgstr ""
+"تساعد فرق الفرص عدة مستخدمين على التعاون بشكل أفضل في الفرص من خلال تحديد "
+"دور لكل عضو فريق، تعيين صلاحيات وصول على مستوى السجل بشكل فردي، وعرض الفرق "
+"في القوائم والتقارير."
+
+msgid ""
+"When disabled, all existing opportunity teams and their members have been "
+"deleted."
+msgstr "عند التعطيل، تم حذف جميع فرق الفرص الحالية وأعضائها."
+
+msgid ""
+"When enabled, opportunity teams are available throughout the application. "
+"Users may prepare default opportunity teams for speedy setup of new "
+"opportunities."
+msgstr ""
+"عند التفعيل، تتوفر فرق الفرص في كامل التطبيق. يمكن للمستخدمين تحضير فرق فرص "
+"افتراضية لتسهيل إنشاء فرص جديدة بسرعة."
+
+msgid "Change Owner"
+msgstr "تغيير المالك"
+
+msgid "Duplicate"
+msgstr "تكرار"
+
+msgid "Opportunity Information"
+msgstr "معلومات الفرصة"
+
+msgid "Additional Information"
+msgstr "معلومات إضافية"
+
+
+msgid "Closed"
+msgstr "إغلاق"
+
+msgid "Contact Roles"
+msgstr "أدوار الاتصال"
+
+msgid "Add Team"
+msgstr "إضافة فريق"
+
+msgid "Manage Opportunity Splits"
+msgstr "إدارة تقسيمات الفرص"
+
+msgid "Add Contact Role"
+msgstr "إضافة دور اتصال"

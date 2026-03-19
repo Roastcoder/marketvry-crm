@@ -1,0 +1,214 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Contacts"
+msgstr "Contacts"
+
+msgid "Select Contact"
+msgstr "Sélectionner un contact"
+
+msgid "Select the contact to assign as a child contact."
+msgstr "Sélectionnez le contact à attribuer comme contact enfant."
+
+msgid "Please select contact."
+msgstr "Veuillez sélectionner un contact."
+
+msgid "This contact already has a parent contact assigned."
+msgstr "Ce contact a déjà un contact parent attribué."
+
+msgid "An contact cannot be its own parent."
+msgstr "Un contact ne peut pas être son propre parent."
+
+msgid "Please select a valid contact."
+msgstr "Veuillez sélectionner un contact valide."
+
+msgid "Web"
+msgstr "Web"
+
+msgid "Phone Inquiry"
+msgstr "Demande téléphonique"
+
+msgid "Partner Referral"
+msgstr "Référence partenaire"
+
+msgid "Purchased List"
+msgstr "Liste achetée"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Contact Owner"
+msgstr "Propriétaire du contact"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "Last Name"
+msgstr "Nom"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Secondary Phone"
+msgstr "Téléphone secondaire"
+
+msgid "City"
+msgstr "Ville"
+
+msgid "State"
+msgstr "État"
+
+msgid "Zip"
+msgstr "Code postal"
+
+msgid "Country"
+msgstr "Pays"
+
+msgid "Parent Contact"
+msgstr "Contact parent"
+
+msgid "Contact Source"
+msgstr "Source du contact"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Birth Date"
+msgstr "Date de naissance"
+
+msgid "Assistant"
+msgstr "Assistant"
+
+msgid "Assistant Phone"
+msgstr "Téléphone de l’assistant"
+
+msgid "Languages"
+msgstr "Langues"
+
+msgid "Is Primary"
+msgstr "Est principal"
+
+msgid "Contact Score"
+msgstr "Score du contact"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Contact Account Relationship"
+msgstr "Relation contact-compte"
+
+msgid "Contact Account Relationships"
+msgstr "Relations contact-compte"
+
+
+msgid "contact Hierarchy"
+msgstr "Propriétaire du contact"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Change Owner"
+msgstr "Changer de propriétaire"
+
+msgid "Duplicate"
+msgstr "Dupliquer"
+
+msgid "Contact Information"
+msgstr "Informations du contact"
+
+msgid "Address Information"
+msgstr "Informations d’adresse"
+
+msgid "Additional Information"
+msgstr "Informations supplémentaires"
+
+msgid "Related Campaigns"
+msgstr "Campagnes liées"
+
+msgid "Related Opportunities"
+msgstr "Opportunités liées"
+
+msgid "Related Accounts"
+msgstr "Comptes liés"
+
+msgid "Child Contacts"
+msgstr "Contacts enfants"
+
+msgid "View Hierarchy"
+msgstr "Voir la hiérarchie"
+
+msgid "Add Account Contact Relationships"
+msgstr "Ajouter des relations contact-compte"
+
+msgid "Add Child Contact"
+msgstr "Ajouter un contact enfant"
+
+msgid "You must be logged in to perform this action."
+msgstr "Vous devez être connecté pour effectuer cette action."
+
+msgid "No parent contact specified in the request."
+msgstr "Aucun contact parent spécifié dans la requête."
+
+msgid "A contact cannot be its own parent."
+msgstr "Un contact ne peut pas être son propre parent."
+
+msgid "This contact already has a parent contact."
+msgstr "Ce contact a déjà un contact parent."
+
+msgid "Child contact assigned successfully!"
+msgstr "Contact enfant attribué avec succès !"
+
+msgid "Invalid parent contact ID format."
+msgstr "Format d’identifiant du contact parent invalide."
+
+msgid "An unexpected error occurred while assigning the child contact."
+msgstr ""
+"Une erreur inattendue est survenue lors de l’attribution du contact enfant."
+
+msgid "You don't have permission to perform this action."
+msgstr "Vous n’avez pas la permission d’effectuer cette action."
+
+msgid "This contact doesn't have a parent contact."
+msgstr "Ce contact n’a pas de contact parent."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_contact} from {parent_contact}'s child contacts."
+msgstr ""
+"{child_contact} a été retiré avec succès des contacts enfants de "
+"{parent_contact}."
+
+msgid "An error occurred while removing the child contact."
+msgstr "Une erreur s’est produite lors de la suppression du contact enfant."

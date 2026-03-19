@@ -1,0 +1,68 @@
+"""
+This module contains the views for the campaigns app.
+"""
+
+from horilla_crm.campaigns.views.core import (
+    CampaignView,
+    CampaignListView,
+    CampaignNavbar,
+    CampaignDetailView,
+    CampaignKanbanView,
+    CampaignGroupByView,
+    CampaignDetailsTab,
+    CampaignDetailViewTabs,
+    CampaignNotesAndAttachments,
+    CampaignActivityTab,
+    CampaignHistoryTab,
+    CampaignRelatedListsTab,
+    CampaignHierarchyView,
+    CampaignCardView,
+    CampaignSplitView,
+    CampaignChartView,
+    CampaignTimelineView,
+)
+from horilla_crm.campaigns.views.actions import (
+    AddChildCampaignFormView,
+    ChildCampaignDeleteView,
+    AddToCampaignFormview,
+    AddCampaignMemberFormview,
+    CampaignMemberDeleteView,
+    AddContactToCampaignFormView,
+    CampaignContactMemberDeleteView,
+    CampaignDeleteView,
+    CampaignSingleFormView,
+    CampaignFormView,
+    CampaignChangeOwnerForm,
+)
+
+
+__all__ = [
+    "AddChildCampaignFormView",
+    "ChildCampaignDeleteView",
+    "AddToCampaignFormview",
+    "AddCampaignMemberFormview",
+    "CampaignMemberDeleteView",
+    "AddContactToCampaignFormView",
+    "CampaignContactMemberDeleteView",
+    "CampaignDeleteView",
+    "CampaignSingleFormView",
+    "CampaignFormView",
+    "CampaignChangeOwnerForm",
+    "CampaignView",
+    "CampaignListView",
+    "CampaignNavbar",
+    "CampaignDetailView",
+    "CampaignKanbanView",
+    "CampaignGroupByView",
+    "CampaignDetailsTab",
+    "CampaignDetailViewTabs",
+    "CampaignNotesAndAttachments",
+    "CampaignActivityTab",
+    "CampaignHistoryTab",
+    "CampaignRelatedListsTab",
+    "CampaignHierarchyView",
+    "CampaignCardView",
+    "CampaignSplitView",
+    "CampaignChartView",
+    "CampaignTimelineView",
+]

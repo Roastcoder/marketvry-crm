@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 21 21">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #191919;
+      }
+    </style>
+    <clipPath id="circle-clip">
+      <circle cx="10.5" cy="10.5" r="8.5"/>
+    </clipPath>
+  </defs>
+  <g>
+    <g id="Layer_1">
+      <g>
+        <!-- Ring: outer circle minus inner circle (evenodd) -->
+        <path class="cls-1" fill-rule="evenodd" d="M10.5,2 A8.5,8.5 0 1,0 10.5,19 A8.5,8.5 0 1,0 10.5,2 Z M10.5,5 A5.5,5.5 0 1,0 10.5,16 A5.5,5.5 0 1,0 10.5,5 Z"/>
+        <!-- Diagonal bar, clipped to outer circle -->
+        <polygon class="cls-1" clip-path="url(#circle-clip)" points="5.2,17.9 3.1,15.8 15.8,3.1 17.9,5.2"/>
+      </g>
+    </g>
+  </g>
+</svg>

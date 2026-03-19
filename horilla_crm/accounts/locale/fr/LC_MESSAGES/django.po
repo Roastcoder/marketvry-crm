@@ -1,0 +1,304 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Accounts"
+msgstr "Comptes"
+
+msgid "Select Account"
+msgstr "Sélectionner un compte"
+
+msgid "Select the account to assign as a child account."
+msgstr "Sélectionnez le compte à attribuer comme compte enfant."
+
+msgid "Please select an account."
+msgstr "Veuillez sélectionner un compte."
+
+msgid "This account already has a parent account assigned."
+msgstr "Ce compte a déjà un compte parent attribué."
+
+msgid "An account cannot be its own parent."
+msgstr "Un compte ne peut pas être son propre parent."
+
+msgid "Please select a valid account."
+msgstr "Veuillez sélectionner un compte valide."
+
+msgid "People"
+msgstr "Personnes"
+
+msgid "Website"
+msgstr "Site web"
+
+msgid "Referral"
+msgstr "Référence"
+
+msgid "Event"
+msgstr "Événement"
+
+msgid "Campaign"
+msgstr "Campagne"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Social Media"
+msgstr "Réseaux sociaux"
+
+msgid "Partner"
+msgstr "Partenaire"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Prospect"
+msgstr "Prospect"
+
+msgid "Customer - Direct"
+msgstr "Client - Direct"
+
+msgid "Customer - Channel"
+msgstr "Client - Canal"
+
+msgid "Channel Partner / Reseller"
+msgstr "Partenaire canal / Revendeur"
+
+msgid "Installation Partner"
+msgstr "Partenaire d'installation"
+
+msgid "Technology Partner"
+msgstr "Partenaire technologique"
+
+msgid "Finance"
+msgstr "Finance"
+
+msgid "Healthcare"
+msgstr "Santé"
+
+msgid "Manufacturing"
+msgstr "Industrie"
+
+msgid "Agriculture"
+msgstr "Agriculture"
+
+msgid "Construction"
+msgstr "Construction"
+
+msgid "Banking"
+msgstr "Banque"
+
+msgid "Education"
+msgstr "Éducation"
+
+msgid "Insurance"
+msgstr "Assurance"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Private"
+msgstr "Privé"
+
+msgid "Subsidiary"
+msgstr "Filiale"
+
+msgid "Account Name"
+msgstr "Nom du compte"
+
+msgid "Account Number"
+msgstr "Numéro de compte"
+
+msgid "Account Owner"
+msgstr "Propriétaire du compte"
+
+msgid "Account Type"
+msgstr "Type de compte"
+
+msgid "Account Site"
+msgstr "Site du compte"
+
+msgid "Account Source"
+msgstr "Source du compte"
+
+msgid "Annual Revenue"
+msgstr "Revenu annuel"
+
+msgid "Billing City"
+msgstr "Ville de facturation"
+
+msgid "Billing State"
+msgstr "État de facturation"
+
+msgid "Billing District"
+msgstr "District de facturation"
+
+msgid "Billing Zip"
+msgstr "Code postal de facturation"
+
+msgid "Shipping City"
+msgstr "Ville de livraison"
+
+msgid "Shipping State"
+msgstr "État de livraison"
+
+msgid "Shipping District"
+msgstr "District de livraison"
+
+msgid "Shipping Zip"
+msgstr "Code postal de livraison"
+
+msgid "Is Customer Portal"
+msgstr "Est portail client"
+
+msgid "Customer Priority"
+msgstr "Priorité client"
+
+msgid "Parent Account"
+msgstr "Compte parent"
+
+msgid "Is Partner"
+msgstr "Est partenaire"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Industry"
+msgstr "Industrie"
+
+msgid "Number of Employees"
+msgstr "Nombre d'employés"
+
+msgid "Fax"
+msgstr "Fax"
+
+msgid "Operating Hours"
+msgstr "Heures d'ouverture"
+
+msgid "Ownership"
+msgstr "Propriété"
+
+msgid "Rating"
+msgstr "Évaluation"
+
+msgid "Account Score"
+msgstr "Score du compte"
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Partner Role"
+msgstr "Rôle du partenaire"
+
+msgid "Partner Account"
+msgstr "Compte partenaire"
+
+msgid "Partner Account Role"
+msgstr "Rôle du compte partenaire"
+
+msgid "Partner Account Roles"
+msgstr "Rôles du compte partenaire"
+
+
+msgid "Account Hierarchy"
+msgstr "Site du compte"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Change Owner"
+msgstr "Changer de propriétaire"
+
+msgid "Duplicate"
+msgstr "Dupliquer"
+
+msgid "Account Information"
+msgstr "Informations sur le compte"
+
+msgid "Address Information"
+msgstr "Informations d'adresse"
+
+msgid "Additional Information"
+msgstr "Informations supplémentaires"
+
+msgid "New Contact"
+msgstr "Nouveau contact"
+
+msgid "Add Relationship"
+msgstr "Ajouter une relation"
+
+msgid "Related Contacts"
+msgstr "Contacts associés"
+
+msgid "Child Accounts"
+msgstr "Comptes enfants"
+
+msgid "View Hierarchy"
+msgstr "Voir la hiérarchie"
+
+msgid "Opportunities"
+msgstr "Opportunités"
+
+msgid "Add Contact Relationships"
+msgstr "Ajouter des relations de contact"
+
+msgid "Add Child Account"
+msgstr "Ajouter un compte enfant"
+
+msgid "You must be logged in to perform this action."
+msgstr "Vous devez être connecté pour effectuer cette action."
+
+msgid "No parent account specified in the request."
+msgstr "Aucun compte parent spécifié dans la requête."
+
+msgid "This account already has a parent account."
+msgstr "Ce compte a déjà un compte parent."
+
+msgid "Child account assigned successfully!"
+msgstr "Compte enfant attribué avec succès !"
+
+msgid "Invalid parent account ID format."
+msgstr "Format d'identifiant du compte parent invalide."
+
+msgid "An unexpected error occurred while assigning the child account."
+msgstr ""
+"Une erreur inattendue s'est produite lors de l'attribution du compte enfant."
+
+msgid "Account Partner"
+msgstr "Partenaire de compte"
+
+msgid "You don't have permission to perform this action."
+msgstr "Vous n'avez pas la permission d'effectuer cette action."
+
+msgid "This contact doesn't have a parent account."
+msgstr "Ce contact n'a pas de compte parent."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_account} from {parent_account}'s child accounts."
+msgstr ""
+"{child_account} a été retiré avec succès des comptes enfants de "
+"{parent_account}."
+
+msgid "An error occurred while removing the child account."
+msgstr "Une erreur s'est produite lors de la suppression du compte enfant."

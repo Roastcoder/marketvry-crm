@@ -1,0 +1,59 @@
+[
+    {
+        "model": "horilla_reports.reportfolder",
+        "pk": 1,
+        "fields": {
+            "name": "Default Reports",
+            "parent": null
+        }
+    },
+    {
+        "model": "horilla_reports.reportfolder",
+        "pk": 3,
+        "fields": {
+            "name": "Opportunity Folder",
+            "parent": 1
+        }
+    },
+
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Opportunities by Stage",
+            "module": {
+                "app_label": "opportunities",
+                "model": "opportunity"
+            },
+            "folder": 3,
+            "selected_columns": "name,amount,close_date,opportunity_score",
+            "row_groups": "stage",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "",
+            "chart_type": "scatter",
+            "chart_field": null,
+            "chart_field_stacked": null
+
+        }
+    },
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Opportunities by Source",
+            "module": {
+                "app_label": "opportunities",
+                "model": "opportunity"
+            },
+            "folder": 3,
+            "selected_columns": "name,amount,expected_revenue,close_date",
+            "row_groups": "lead_source",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "",
+            "chart_type": "bar",
+            "chart_field": null,
+            "chart_field_stacked": null
+
+        }
+    }
+]

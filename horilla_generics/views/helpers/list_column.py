@@ -1,0 +1,710 @@
+"""
+List column visibility and selector views for horilla_generics.
+
+Utilities and views for resolving default columns and column visibility selection.
+"""
+
+# Standard library
+import inspect
+import logging
+import re
+from urllib.parse import urlparse
+
+# Third-party imports (Django)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
+from django.db.models.fields import Field
+from django.template import Context, Template
+from django.utils import translation
+from django.utils.encoding import force_str
+from django.views import View
+from django.views.generic import FormView
+
+# First-party (Horilla)
+from horilla.apps import apps
+from horilla.http import HttpResponse, JsonResponse
+from horilla.utils.decorators import htmx_required, method_decorator
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.models import ListColumnVisibility
+from horilla_core.utils import filter_hidden_fields
+from horilla_generics.forms import ColumnSelectionForm
+
+logger = logging.getLogger(__name__)
+
+
+def get_default_columns_from_view(url_name, app_label, model_name, request):
+    """
+    Get default columns from the view class based on URL name.
+
+    Args:
+        url_name: The URL name
+        app_label: The app label
+        model_name: The model name
+        request: The request object (for getting URL resolver)
+
+    Returns:
+        List of default column field names, or None if view cannot be resolved
+    """
+    try:
+        from horilla.urls import get_resolver
+        from horilla_generics.views.list import HorillaListView
+
+        # Get the URL resolver
+        resolver = get_resolver()
+        view_func = None
+
+        # Try to find the URL pattern by name
+        # URL name might be in format 'app:name' or just 'name'
+        if ":" in url_name:
+            app_name, pattern_name = url_name.split(":", 1)
+        else:
+            pattern_name = url_name
+            app_name = None
+
+        def find_pattern_by_name(patterns, target_name, target_app=None):
+            """Recursively search for URL pattern by name"""
+            for pattern in patterns:
+                # Check if this pattern matches
+                pattern_app = getattr(pattern, "app_name", None)
+                pattern_name_attr = getattr(pattern, "name", None)
+
+                if pattern_name_attr == target_name:
+                    if target_app is None or pattern_app == target_app:
+                        return getattr(pattern, "callback", None)
+
+                # Recursively search nested patterns
+                if hasattr(pattern, "url_patterns"):
+                    result = find_pattern_by_name(
+                        pattern.url_patterns, target_name, target_app
+                    )
+                    if result:
+                        return result
+            return None
+
+        view_func = find_pattern_by_name(resolver.url_patterns, pattern_name, app_name)
+
+        if not view_func:
+            return None
+
+        # Get the view class
+        if hasattr(view_func, "view_class"):
+            view_class = view_func.view_class
+        elif hasattr(view_func, "cls"):
+            view_class = view_func.cls
+        elif inspect.isclass(view_func):
+            view_class = view_func
+        else:
+            return None
+
+        # Check if it's a HorillaListView and has columns defined
+        if issubclass(view_class, HorillaListView):
+            try:
+                model = apps.get_model(app_label=app_label, model_name=model_name)
+
+                # Get columns from the view class
+                # Columns might be defined as class attribute
+                if hasattr(view_class, "columns") and view_class.columns:
+                    columns = view_class.columns
+                    # Extract field names from columns
+                    default_field_names = []
+                    for col in columns:
+                        if isinstance(col, (list, tuple)) and len(col) >= 2:
+                            default_field_names.append(col[1])
+                        elif isinstance(col, str):
+                            default_field_names.append(col)
+                    return default_field_names
+            except Exception as e:
+                logger.debug("Error getting columns from view: %s", str(e))
+                return None
+    except Exception as e:
+        logger.debug("Error resolving URL name %s: %s", url_name, str(e))
+        return None
+
+    return None
+
+
+@method_decorator(htmx_required, name="dispatch")
+class ListColumnSelectFormView(LoginRequiredMixin, FormView):
+    """View for selecting and adding columns to list views."""
+
+    template_name = "add_column_to_list.html"
+    form_class = ColumnSelectionForm
+
+    def get_form_kwargs(self):
+        """Pass model, app_label, path_context, user, and url_name to the column selection form."""
+        kwargs = super().get_form_kwargs()
+        app_label = self.request.POST.get(
+            "app_label", self.request.GET.get("app_label")
+        )
+        model_name = self.request.POST.get(
+            "model_name", self.request.GET.get("model_name")
+        )
+        url_name = self.request.POST.get("url_name", self.request.GET.get("url_name"))
+        model_name = model_name.strip('"') if model_name else model_name
+        if model_name and "." in model_name:
+            model_name = model_name.split(".")[-1]
+
+        path_context = (
+            urlparse(self.request.META.get("HTTP_REFERER", ""))
+            .path.strip("/")
+            .replace("/", "_")
+        )
+        path_context = re.sub(r"_\d+$", "", path_context)
+        user = self.request.user
+
+        if app_label and model_name and url_name:
+            try:
+                model = apps.get_model(app_label=app_label, model_name=model_name)
+                kwargs["model"] = model
+                kwargs["app_label"] = app_label
+                kwargs["path_context"] = path_context
+                kwargs["user"] = user
+                kwargs["model_name"] = model_name
+                kwargs["url_name"] = url_name
+            except LookupError:
+                self.form_error = "Invalid model specified."
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        """Add app_label, model_name, url_name, path_context, and column visibility data to context."""
+        context = super().get_context_data(**kwargs)
+        app_label = self.request.GET.get(
+            "app_label", self.request.POST.get("app_label")
+        )
+        model_name = self.request.GET.get(
+            "model_name", self.request.POST.get("model_name")
+        )
+        url_name = self.request.GET.get("url_name", self.request.POST.get("url_name"))
+
+        model_name = model_name.strip('"') if model_name else model_name
+        if model_name and "." in model_name:
+            model_name = model_name.split(".")[-1]
+        path_context = (
+            urlparse(self.request.META.get("HTTP_REFERER", ""))
+            .path.strip("/")
+            .replace("/", "_")
+        )
+        path_context = re.sub(r"_\d+$", "", path_context)
+        context["app_label"] = app_label
+        context["model_name"] = model_name
+        context["url_name"] = url_name
+
+        visible_fields = []
+        all_fields = []
+        removed_custom_field_lists = []
+        visibility = None
+        model = None
+
+        if app_label and model_name:
+            try:
+                model = apps.get_model(app_label=app_label, model_name=model_name)
+                instance = model()
+                model_fields = [
+                    [
+                        force_str(f.verbose_name or f.name.title()),
+                        (
+                            f.name
+                            if not getattr(f, "choices", None)
+                            else f"get_{f.name}_display"
+                        ),
+                    ]
+                    for f in model._meta.get_fields()
+                    if isinstance(f, Field) and f.name not in ["history"]
+                ]
+                all_fields = (
+                    getattr(instance, "columns", model_fields)
+                    if hasattr(instance, "columns")
+                    else model_fields
+                )
+
+                # Filter out hidden fields based on field permissions
+                if all_fields:
+                    field_names = [
+                        f[1]
+                        for f in all_fields
+                        if isinstance(f, (list, tuple)) and len(f) >= 2
+                    ]
+
+                    # filter_hidden_fields now handles display methods internally
+                    visible_field_names_from_perms = filter_hidden_fields(
+                        self.request.user, model, field_names
+                    )
+
+                    # Filter all_fields - only keep fields that are visible
+                    filtered_all_fields = []
+                    for f in all_fields:
+                        field_name = (
+                            f[1]
+                            if isinstance(f, (list, tuple)) and len(f) >= 2
+                            else None
+                        )
+                        if field_name and field_name in visible_field_names_from_perms:
+                            filtered_all_fields.append(f)
+
+                    all_fields = filtered_all_fields
+
+                session_key = (
+                    f"visible_fields_{app_label}_{model_name}_{path_context}_{url_name}"
+                )
+                visibility = ListColumnVisibility.all_objects.filter(
+                    user=self.request.user,
+                    app_label=app_label,
+                    model_name=model_name,
+                    context=path_context,
+                    url_name=url_name,
+                ).first()
+                if visibility:
+                    visible_fields = visibility.visible_fields
+                    # Filter out hidden fields from visible_fields as well
+                    if visible_fields:
+                        visible_field_names_list = [
+                            f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                            for f in visible_fields
+                        ]
+                        visible_field_names_from_perms = filter_hidden_fields(
+                            self.request.user, model, visible_field_names_list
+                        )
+                        visible_fields = [
+                            f
+                            for f in visible_fields
+                            if (
+                                f[1]
+                                if isinstance(f, (list, tuple)) and len(f) >= 2
+                                else f
+                            )
+                            in visible_field_names_from_perms
+                        ]
+
+                    # Get removed_custom_field_lists and filter hidden fields
+                    removed_custom_field_lists = visibility.removed_custom_fields or []
+                    # Filter out hidden fields from removed_custom_field_lists
+                    if removed_custom_field_lists:
+                        removed_field_names = [
+                            f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                            for f in removed_custom_field_lists
+                        ]
+                        visible_removed_field_names = filter_hidden_fields(
+                            self.request.user, model, removed_field_names
+                        )
+                        removed_custom_field_lists = [
+                            f
+                            for f in removed_custom_field_lists
+                            if (
+                                f[1]
+                                if isinstance(f, (list, tuple)) and len(f) >= 2
+                                else f
+                            )
+                            in visible_removed_field_names
+                        ]
+
+                self.request.session[session_key] = [
+                    f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                    for f in visible_fields
+                ]
+                self.request.session.modified = True
+            except LookupError:
+                context["error"] = "Invalid model specified."
+
+        context["visible_fields"] = visible_fields
+
+        visible_field_names = [
+            f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+            for f in visible_fields
+        ]
+        # For choice fields: view/store uses raw name (e.g. lead_source) but all_fields
+        # uses get_x_display; treat both as visible so the field does not appear in both panels
+        visible_field_names_set = set(visible_field_names)
+        for name in visible_field_names:
+            visible_field_names_set.add(f"get_{name}_display")
+        for name in list(visible_field_names_set):
+            if name.startswith("get_") and name.endswith("_display"):
+                raw = name[4:-8]  # strip get_ and _display
+                visible_field_names_set.add(raw)
+
+        related_field_parents = set()
+        for _, field_name in visible_fields + removed_custom_field_lists:
+            if isinstance(field_name, (list, tuple)) and len(field_name) >= 2:
+                field_name = field_name[1]
+            if "__" in str(field_name):
+                parent_field = str(field_name).split("__")[0]
+                related_field_parents.add(parent_field)
+        exclude_fields = self.request.GET.get("exclude")
+        exclude_fields_list = exclude_fields.split(",") if exclude_fields else []
+        context["exclude_fields"] = exclude_fields
+        sensitive_fields = ["id", "additional_info"]
+
+        # Build available_fields - all_fields and removed_custom_field_lists are already filtered for hidden fields
+        # But do one final check to ensure no hidden fields slip through
+        combined_fields = all_fields + removed_custom_field_lists
+
+        if model and combined_fields:
+            # Final safety check: filter hidden fields one more time
+            combined_field_names = [
+                f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                for f in combined_fields
+            ]
+
+            # filter_hidden_fields now handles display methods internally
+            visible_combined_field_names = filter_hidden_fields(
+                self.request.user, model, combined_field_names
+            )
+
+            # Only include fields that passed the permission check
+            filtered_combined_fields = []
+            for f in combined_fields:
+                field_name = f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                if field_name in visible_combined_field_names:
+                    filtered_combined_fields.append(f)
+
+            combined_fields = filtered_combined_fields
+
+        context["available_fields"] = [
+            [verbose_name, field_name]
+            for verbose_name, field_name in combined_fields
+            if field_name not in visible_field_names_set
+            and field_name not in related_field_parents
+            and field_name not in exclude_fields_list
+            and field_name not in sensitive_fields
+        ]
+
+        has_custom_visibility = False
+        if app_label and model_name and model and url_name:
+            view_default_field_names = get_default_columns_from_view(
+                url_name, app_label, model_name, self.request
+            )
+
+            if view_default_field_names is None:
+                view_default_field_names = []
+                for f in all_fields:
+                    if isinstance(f, (list, tuple)) and len(f) >= 2:
+                        view_default_field_names.append(f[1])
+
+            session_key = (
+                f"visible_fields_{app_label}_{model_name}_{path_context}_{url_name}"
+            )
+            session_field_names = self.request.session.get(session_key, [])
+
+            if session_field_names:
+                current_field_names = session_field_names
+            else:
+                current_field_names = []
+                for f in visible_fields:
+                    if isinstance(f, (list, tuple)) and len(f) >= 2:
+                        current_field_names.append(f[1])
+                    elif isinstance(f, str):
+                        current_field_names.append(f)
+
+            has_removed_fields = bool(removed_custom_field_lists)
+
+            default_set = set(view_default_field_names)
+            current_set = set(current_field_names)
+
+            has_added_fields = bool(current_set - default_set)
+            has_removed_default_fields = bool(default_set - current_set)
+            # Same fields but different order counts as custom (so "Reset to Default" shows)
+            default_list = (
+                list(view_default_field_names) if view_default_field_names else []
+            )
+            has_order_changed = (
+                default_set == current_set
+                and len(current_field_names) == len(default_list)
+                and current_field_names != default_list
+            )
+
+            has_custom_visibility = (
+                has_removed_fields
+                or has_added_fields
+                or has_removed_default_fields
+                or has_order_changed
+            )
+
+        context["has_custom_visibility"] = has_custom_visibility
+
+        if hasattr(self, "form_error"):
+            context["error"] = self.form_error
+        return context
+
+    def form_valid(self, form):
+        """Save selected visible columns and return JSON/HTMX response."""
+        with translation.override("en"):
+            app_label = self.request.POST.get("app_label")
+            model_name = self.request.POST.get("model_name")
+            url_name = self.request.POST.get("url_name")
+            if model_name and "." in model_name:
+                model_name = model_name.split(".")[-1]
+            field_names = self.request.POST.getlist("visible_fields")
+
+            if not app_label or not model_name:
+                return JsonResponse(
+                    {
+                        "status": "error",
+                        "message": "Missing app_label or model_name",
+                        "htmx": '<div id="error-message">Missing app_label or model_name</div>',
+                    }
+                )
+
+            path_context = (
+                urlparse(self.request.META.get("HTTP_REFERER", ""))
+                .path.strip("/")
+                .replace("/", "_")
+            )
+            path_context = re.sub(r"_\d+$", "", path_context)
+            try:
+                model = apps.get_model(app_label=app_label, model_name=model_name)
+
+                # Filter out hidden fields from field_names before processing
+                if field_names:
+                    field_names = filter_hidden_fields(
+                        self.request.user, model, field_names
+                    )
+                instance = model()
+                model_fields = [
+                    [
+                        force_str(f.verbose_name or f.name.title()),
+                        (
+                            f.name
+                            if not getattr(f, "choices", None)
+                            else f"get_{f.name}_display"
+                        ),
+                    ]
+                    for f in model._meta.get_fields()
+                    if isinstance(f, Field) and f.name not in ["history"]
+                ]
+                all_fields = (
+                    getattr(instance, "columns", model_fields)
+                    if hasattr(instance, "columns")
+                    else model_fields
+                )
+
+                # Filter out hidden fields based on field permissions
+                if all_fields:
+                    field_names_list = [
+                        f[1]
+                        for f in all_fields
+                        if isinstance(f, (list, tuple)) and len(f) >= 2
+                    ]
+                    visible_field_names_from_perms = filter_hidden_fields(
+                        self.request.user, model, field_names_list
+                    )
+                    all_fields = [
+                        f
+                        for f in all_fields
+                        if (
+                            f[1]
+                            if isinstance(f, (list, tuple)) and len(f) >= 2
+                            else None
+                        )
+                        in visible_field_names_from_perms
+                    ]
+
+                all_field_names = {item[1] for item in all_fields}
+                visibility = ListColumnVisibility.all_objects.filter(
+                    user=self.request.user,
+                    app_label=app_label,
+                    model_name=model_name,
+                    context=path_context,
+                    url_name=url_name,
+                ).first()
+                custom_fields = []
+                if visibility:
+                    visible_fields_from_db = visibility.visible_fields
+                    # Filter visible_fields from DB to exclude hidden fields
+                    if visible_fields_from_db:
+                        visible_field_names_list = [
+                            f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                            for f in visible_fields_from_db
+                        ]
+                        visible_field_names_from_perms = filter_hidden_fields(
+                            self.request.user, model, visible_field_names_list
+                        )
+                        visible_fields_from_db = [
+                            f
+                            for f in visible_fields_from_db
+                            if (
+                                f[1]
+                                if isinstance(f, (list, tuple)) and len(f) >= 2
+                                else f
+                            )
+                            in visible_field_names_from_perms
+                        ]
+
+                    for display_name, field_name in visible_fields_from_db:
+                        if field_name not in all_field_names and field_name not in [
+                            f[1]
+                            for f in model_fields
+                            if isinstance(f, (list, tuple)) and len(f) >= 2
+                        ]:
+                            custom_fields.append([display_name, field_name])
+                all_fields = all_fields + custom_fields
+                verbose_name_map = {f[1]: f[0] for f in all_fields}
+
+                # Include removed custom fields in the verbose name map to preserve original display names
+                removed_custom_field_lists = (
+                    visibility.removed_custom_fields if visibility else []
+                )
+                # Filter out hidden fields from removed_custom_field_lists
+                if removed_custom_field_lists:
+                    removed_field_names = [
+                        f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f
+                        for f in removed_custom_field_lists
+                    ]
+                    visible_removed_field_names = filter_hidden_fields(
+                        self.request.user, model, removed_field_names
+                    )
+                    removed_custom_field_lists = [
+                        f
+                        for f in removed_custom_field_lists
+                        if (f[1] if isinstance(f, (list, tuple)) and len(f) >= 2 else f)
+                        in visible_removed_field_names
+                    ]
+
+                for display_name, field_name in removed_custom_field_lists:
+                    verbose_name_map[field_name] = display_name
+
+                model_field_names = {
+                    f.name for f in model._meta.get_fields() if isinstance(f, Field)
+                }
+
+                visible_fields = [
+                    [force_str(verbose_name_map.get(f, f.replace("_", " ").title())), f]
+                    for f in field_names
+                ]
+
+                previous_visible_fields = (
+                    visibility.visible_fields if visibility else []
+                )
+                previous_non_model_fields = [
+                    f[1]
+                    for f in previous_visible_fields
+                    if f[1] not in model_field_names and not f[1].startswith("get_")
+                ]
+                removed_non_model_fields = [
+                    [force_str(verbose_name_map.get(f, f.replace("_", " ").title())), f]
+                    for f in previous_non_model_fields
+                    if f not in field_names
+                ]
+
+                existing_removed = (
+                    visibility.removed_custom_fields if visibility else []
+                )
+                # Only add to removed_custom_fields if not already there
+                for removed_field in removed_non_model_fields:
+                    if not any(
+                        existing[1] == removed_field[1] for existing in existing_removed
+                    ):
+                        existing_removed.append(removed_field)
+
+                # Remove fields from removed_custom_fields if they're being added back
+                updated_removed_custom_fields = [
+                    field for field in existing_removed if field[1] not in field_names
+                ]
+
+                session_key = (
+                    f"visible_fields_{app_label}_{model_name}_{path_context}_{url_name}"
+                )
+                self.request.session[session_key] = field_names
+                self.request.session.modified = True
+
+                ListColumnVisibility.all_objects.filter(
+                    user=self.request.user,
+                    app_label=app_label,
+                    model_name=model_name,
+                    context=path_context,
+                    url_name=url_name,
+                ).delete()
+                ListColumnVisibility.all_objects.create(
+                    user=self.request.user,
+                    app_label=app_label,
+                    model_name=model_name,
+                    visible_fields=visible_fields,
+                    removed_custom_fields=updated_removed_custom_fields,
+                    context=path_context,
+                    url_name=url_name,
+                )
+
+                cache_key = f"visible_columns_{self.request.user.id}_{app_label}_{model_name}_{path_context}_{url_name}"
+                cache.delete(cache_key)
+
+                return HttpResponse(
+                    "<script>$('#reloadButton').click();closeModal();</script>"
+                )
+            except LookupError:
+                return JsonResponse(
+                    {
+                        "status": "error",
+                        "message": "Invalid model",
+                        "htmx": '<div id="error-message">Invalid model</div>',
+                    }
+                )
+
+    def form_invalid(self, form):
+        """Render form with error message when column selection is invalid."""
+        context = self.get_context_data(form=form)
+        context["error"] = "Form submission failed. Please review the selected fields."
+        return self.render_to_response(context)
+
+
+@method_decorator(htmx_required, name="dispatch")
+class ResetColumnToDefaultView(LoginRequiredMixin, View):
+    """View for resetting column visibility to default settings."""
+
+    def post(self, request, *args, **kwargs):
+        """
+        Reset column visibility to default by deleting ListColumnVisibility record.
+
+        Expects query parameters: app_label, model_name, url_name
+        """
+        app_label = request.POST.get("app_label") or request.GET.get("app_label")
+        model_name = request.POST.get("model_name") or request.GET.get("model_name")
+        url_name = request.POST.get("url_name") or request.GET.get("url_name")
+
+        if not app_label or not model_name:
+            return HttpResponse(
+                "<div id='error-message'>Missing app_label or model_name</div>",
+                status=400,
+            )
+
+        # Clean model_name if it contains app_label
+        model_name = model_name.strip('"') if model_name else model_name
+        if model_name and "." in model_name:
+            model_name = model_name.split(".")[-1]
+
+        path_context = (
+            urlparse(request.META.get("HTTP_REFERER", ""))
+            .path.strip("/")
+            .replace("/", "_")
+        )
+        path_context = re.sub(r"_\d+$", "", path_context)
+
+        try:
+            ListColumnVisibility.all_objects.filter(
+                user=request.user,
+                app_label=app_label,
+                model_name=model_name,
+                context=path_context,
+                url_name=url_name,
+            ).delete()
+
+            session_key = (
+                f"visible_fields_{app_label}_{model_name}_{path_context}_{url_name}"
+            )
+            if session_key in request.session:
+                del request.session[session_key]
+                request.session.modified = True
+
+            cache_key = (
+                f"visible_columns_{request.user.id}_{app_label}_{model_name}_"
+                f"{path_context}_{url_name}"
+            )
+            cache.delete(cache_key)
+
+            # Return response that reloads the page
+            return HttpResponse(
+                "<script>$('#reloadButton').click();closeModal();</script>"
+            )
+        except Exception as e:
+            logger.error("Error resetting columns to default: %s", str(e))
+            msg = Template(
+                "<div id='error-message'>Error resetting columns: {{ message }}</div>"
+            ).render(Context({"message": str(e)}))
+            return HttpResponse(msg, status=500)

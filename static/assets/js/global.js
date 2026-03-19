@@ -1,0 +1,1995 @@
+/* ==========================================================================
+   Summernote XSS Protection - Sanitizes HTML before rendering
+   ========================================================================== */
+(function() {
+    if (typeof DOMPurify === 'undefined' || typeof $ === 'undefined') return;
+
+    var purifyConfig = {
+        USE_PROFILES: { html: true },
+        ALLOW_DATA_ATTR: true,
+        FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'applet', 'link', 'svg', 'math'],
+        FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur',
+            'onmouseout', 'onkeydown', 'onkeyup', 'onkeypress', 'onchange', 'onsubmit',
+            'onmousedown', 'onmouseup', 'ondblclick', 'oncontextmenu', 'ondrag', 'ondrop']
+    };
+
+    // Function to sanitize code area content
+    function sanitizeCodeArea($editor) {
+        var $codeArea = $editor.find('.note-codable');
+        if ($codeArea.length) {
+            var rawCode = $codeArea.val();
+            var sanitized = DOMPurify.sanitize(rawCode, purifyConfig);
+            if (rawCode !== sanitized) {
+                $codeArea.val(sanitized);
+            }
+        }
+    }
+
+    // Intercept codeview button clicks BEFORE summernote processes them
+    // This ensures we sanitize the code textarea content before it gets rendered
+    // Using multiple selectors to cover different Summernote versions
+    $(document).on('mousedown touchstart', [
+        '.note-btn[data-original-title="Code View"]',
+        '.note-btn.btn-codeview',
+        'button[data-tooltip="codeview"]',
+        '.btn-codeview',
+        '[data-name="codeview"]',
+        '.note-toolbar button:contains("</>")'
+    ].join(', '), function(e) {
+        var $btn = $(this);
+        var $editor = $btn.closest('.note-editor');
+        var isInCodeView = $editor.hasClass('codeview');
+
+        // If currently in code view and about to switch to normal view
+        if (isInCodeView) {
+            sanitizeCodeArea($editor);
+        }
+    });
+
+    // Also catch keyboard shortcut (Ctrl+Shift+C or Cmd+Shift+C)
+    $(document).on('keydown', '.note-codable', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
+            var $editor = $(this).closest('.note-editor');
+            sanitizeCodeArea($editor);
+        }
+    });
+
+    // Patch jQuery's html() method for .note-editable elements to sanitize content
+    var originalHtml = $.fn.html;
+    $.fn.html = function(value) {
+        if (value !== undefined && this.hasClass('note-editable')) {
+            value = DOMPurify.sanitize(value, purifyConfig);
+        }
+        return originalHtml.apply(this, arguments.length ? [value] : []);
+    };
+
+    // Also intercept when summernote sets content via 'code' command
+    $(document).on('summernote.codeview.toggled', function(e, isCodeView) {
+        if (!isCodeView) {
+            var $target = $(e.target);
+            setTimeout(function() {
+                try {
+                    var content = $target.summernote('code');
+                    var sanitized = DOMPurify.sanitize(content, purifyConfig);
+                    if (content !== sanitized) {
+                        $target.summernote('code', sanitized);
+                    }
+                } catch(err) {}
+            }, 0);
+        }
+    });
+
+    // Sanitize on paste globally
+    $(document).on('summernote.paste', function(e) {
+        var $target = $(e.target);
+        setTimeout(function() {
+            try {
+                var content = $target.summernote('code');
+                var sanitized = DOMPurify.sanitize(content, purifyConfig);
+                if (content !== sanitized) {
+                    $target.summernote('code', sanitized);
+                }
+            } catch(err) {}
+        }, 50);
+    });
+})();
+
+// Internationalization messages
+const horillaMessages = {
+    confirm: gettext("Confirm"),
+    close: gettext("Close"),
+    cancel: gettext("Cancel"),
+    selected: gettext("Selected"),
+    downloadExcel: gettext("Do you want to download the excel file?"),
+    downloadTemplate: gettext("Do you want to download the template?"),
+    noRowsSelected: gettext("No rows are selected from the records."),
+    confirmBulkDelete: gettext("Do you really want to delete all the selected records?"),
+    confirmBulkArchive: gettext("Do you really want to archive all the selected records?"),
+    confirmBulkUnArchive: gettext("Do you really want to unarchive all the selected records?"),
+};
+
+
+const ModalManager = {
+    stack: [],
+    baseZIndex: 1000,
+
+    open(modalId, modalBoxId) {
+        const $modal = $(`#${modalId}`);
+        const $modalBox = $(`#${modalBoxId}`);
+
+        // Calculate and apply z-index based on stack position
+        const currentZIndex = this.baseZIndex + (this.stack.length * 10);
+        $modal.css('z-index', currentZIndex);
+
+        // Add to stack
+        this.stack.push({
+            id: modalId,
+            boxId: modalBoxId,
+            zIndex: currentZIndex
+        });
+
+        // Show modal
+        $modal.removeClass("hidden").addClass("flex");
+        setTimeout(() => {
+            $modalBox.removeClass("opacity-0 scale-95").addClass("opacity-100 scale-100");
+        }, 10);
+
+        // Lock body scroll if first modal
+        if (this.stack.length === 1) {
+            $('body').css('overflow', 'hidden');
+        }
+    },
+
+    close(modalId, modalBoxId, clearContent = true) {
+        const $modal = $(`#${modalId}`);
+        const $modalBox = $(`#${modalBoxId}`);
+
+        if (clearContent) $modalBox.html("");
+        $modalBox.removeClass("opacity-100 scale-100").addClass("opacity-0 scale-95");
+
+        setTimeout(() => {
+            $modal.removeClass("flex").addClass("hidden");
+            // Reset z-index when closing
+            $modal.css('z-index', '');
+        }, 300);
+
+        // Remove from stack
+        this.stack = this.stack.filter(m => m.id !== modalId);
+
+        // Unlock body scroll if no modals
+        if (this.stack.length === 0) {
+            $('body').css('overflow', '');
+        }
+    },
+
+    closeTop() {
+        if (this.stack.length > 0) {
+            const topModal = this.stack[this.stack.length - 1];
+            this.close(topModal.id, topModal.boxId);
+        }
+    },
+
+    closeAll() {
+        // Close in reverse order
+        const modalsToClose = [...this.stack].reverse();
+        modalsToClose.forEach(modal => {
+            this.close(modal.id, modal.boxId);
+        });
+    }
+};
+
+
+// Modal functions using ModalManager
+function OpenDeleteConfirmModal() { ModalManager.open("deleteConfirmModal", "deleteConfirmModalBox"); }
+function CloseDeleteConfirmModal() { ModalManager.close("deleteConfirmModal", "deleteConfirmModalBox"); }
+function openDynamicModal() { ModalManager.open("dynamicCreateModal", "dynamicCreateModalBox"); }
+function closeDynamicModal() { ModalManager.close("dynamicCreateModal", "dynamicCreateModalBox"); }
+function openContentModal() { ModalManager.open("contentModal", "contentModalBox"); }
+function closeContentModal() { ModalManager.close("contentModal", "contentModalBox"); }
+function openCalendarPreviewModal() { ModalManager.open("calendarPreviewModal", "calendarPreviewModalBox"); }
+function closeCalendarPreviewModal() { ModalManager.close("calendarPreviewModal", "calendarPreviewModalBox"); }
+function openContentModalSecond() { ModalManager.open("contentModalSecond", "contentModalBoxSecond"); }
+function closeContentModalSecond() { ModalManager.close("contentModalSecond", "contentModalBoxSecond"); }
+function openDetailModal() { ModalManager.open("detailModal", "detailModalBox"); }
+function closeDetailModal() { ModalManager.close("detailModal", "detailModalBox"); }
+function openModal() { ModalManager.open("dbmodal", "modalBox"); }
+function closeModal() { ModalManager.close("dbmodal", "modalBox"); }
+function openhorillaModal() { ModalManager.open("horillaModal", "horillaModalBox"); }
+function closehorillaModal() { ModalManager.close("horillaModal", "horillaModalBox"); }
+function openFilterModal() { ModalManager.open("filtermodal", "filtermodalBox"); }
+function closeFilterModal() { ModalManager.close("filtermodal", "filtermodalBox"); }
+function openDeleteModal() { ModalManager.open("deletemodal", "deleteBox"); }
+function closeDeleteModal() { ModalManager.close("deletemodal", "deleteBox"); }
+function openDeleteModeModal() { ModalManager.open("deleteModeModal", "deleteModeBox"); }
+function closeDeleteModeModal() { ModalManager.close("deleteModeModal", "deleteModeBox"); }
+function openExport() { ModalManager.open("exportModal", "exportBox"); }
+function closeExport() { ModalManager.close("exportModal", "exportBox", false); }
+document.body.addEventListener("openNotificationDetailModal", function () { openModal(); });
+
+function closeConfirm(button) {
+    const modal = button.closest(".modal-wrapper");
+    modal.classList.add("hidden");
+}
+
+function toggleAccordion(button) {
+    const content = button.nextElementSibling;
+    const svg = button.querySelector("svg");
+    content.classList.toggle("open");
+    svg.classList.toggle("rotate-90");
+}
+
+function isElementVisible(element) {
+    const $targetSelector = $(element).attr("hx-target");
+    const $targetEl = $($targetSelector);
+    const isOpen = $targetEl.css("max-height") && $targetEl.css("max-height") !== "0px";
+    return !isOpen;
+}
+
+// Bulk delete with validation
+function doBulkDeleteRequest(element) {
+    const viewId = $(element).attr("id").replace("bulk-delete-btn-", "");
+    const selectedIds = selectedRecordIds(viewId);
+
+    if (selectedIds.length > 0) {
+        htmx.trigger(element, "doRequest");
+    } else {
+        const modalContent = `
+            <div class="p-6 text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v2m0 4h.01M12 2a10 10 0 11-0 20 10 10 0 010-20z" />
+                    </svg>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">No Rows Selected</h2>
+                <p class="text-sm text-gray-500 mb-6">Please select at least one record before attempting to delete.</p>
+                <button id="closeDbModal" class="px-6 py-2.5 text-sm border-[1px] border-[solid] bg-secondary-600 rounded-[5px] text-white btn-with-icon border-[#e54f38] [transition:.3s]">
+                    Close
+                </button>
+            </div>
+        `;
+
+        $("#deleteModeBox").html(modalContent);
+        $("#deleteModeModal").removeClass("hidden").addClass("flex");
+
+        setTimeout(() => {
+            $("#deleteModeBox").removeClass("opacity-0 scale-95").addClass("opacity-100 scale-100");
+        }, 10);
+
+        $("#closeDbModal").on("click", function () {
+            closeDeleteModeModal();
+        });
+    }
+}
+
+// Select2 formatting
+function formatOption(option) {
+    if (!option.id) return option.text;
+
+    var imgSrc = $(option.element).data('img');
+    if (imgSrc) {
+        return $('<span><img src="' + imgSrc + '" class="w-6 h-6 rounded-full inline-block mr-2" /> ' + option.text + '</span>');
+    }
+    return option.text;
+}
+
+// Sidebar Management
+const SidebarManager = {
+    ACTIVE_FILTER: "brightness(0) invert(1)",
+    INACTIVE_FILTER: "brightness(0) saturate(100%) invert(52%) sepia(0%) saturate(0%) hue-rotate(179deg) brightness(92%) contrast(85%)",
+
+    getAppLabelFromUrl() {
+        const path = window.location.pathname;
+        const pathParts = path.split('/').filter(part => part.length > 0);
+        return pathParts[0] || 'horilla_core';
+    },
+
+    /** Find a subsection link whose href path matches or is a prefix of the current path, or whose first path segment matches (e.g. detail view under same app as list link). */
+    getSubsectionLinkMatchingUrl() {
+        const currentPath = window.location.pathname;
+        const currentNorm = currentPath.replace(/\/+$/, "") || "/";
+        const currentFirst = (currentNorm.split("/").filter(Boolean))[0] || "";
+        let $exactFound = null;
+        let exactLongest = 0;
+        let $segmentFound = null;
+        let segmentLongest = 0;
+        $("ul a.sidebar-link").each(function () {
+            const href = $(this).attr("href");
+            if (!href) return;
+            const linkPath = href.indexOf("?") >= 0 ? href.split("?")[0] : href;
+            const path = linkPath.startsWith("http") ? new URL(linkPath).pathname : (linkPath.startsWith("/") ? linkPath : "/" + linkPath);
+            const pathNorm = path.replace(/\/+$/, "") || "/";
+            const linkFirst = (pathNorm.split("/").filter(Boolean))[0] || "";
+            const exactMatch = currentNorm === pathNorm || (currentNorm.length > pathNorm.length && currentNorm.indexOf(pathNorm) === 0 && (pathNorm === "/" || currentNorm.charAt(pathNorm.length) === "/"));
+            const firstSegmentMatch = linkFirst && currentFirst === linkFirst;
+            if (exactMatch && pathNorm.length >= exactLongest) {
+                exactLongest = pathNorm.length;
+                $exactFound = $(this);
+            } else if (firstSegmentMatch && pathNorm.length >= segmentLongest) {
+                segmentLongest = pathNorm.length;
+                $segmentFound = $(this);
+            }
+        });
+        return ($exactFound && $exactFound.length ? $exactFound : null) || ($segmentFound && $segmentFound.length ? $segmentFound : null);
+    },
+
+    /** App label for sidebar logic; from DOM (URL-matching link) so it works after full load and HTMX. */
+    getResolvedAppLabel() {
+        const $link = this.getSubsectionLinkMatchingUrl();
+        if ($link && $link.length) return $link.attr("id") || this.getAppLabelFromUrl();
+        return this.getAppLabelFromUrl();
+    },
+
+    getSectionFromAppLabel(appLabel) {
+        const APP_SECTION_MAPPING = window.APP_SECTION_MAPPING || {};
+        for (const [section, apps] of Object.entries(APP_SECTION_MAPPING)) {
+            if (Array.isArray(apps) && apps.includes(appLabel)) {
+                return section;
+            }
+        }
+        const $link = $(`ul a.sidebar-link#${CSS.escape(appLabel)}`);
+        if ($link.length) return $link.attr("data-section") || "home";
+        return "home";
+    },
+
+    getActiveSection() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sectionFromUrl = urlParams.get("section");
+        if (sectionFromUrl) return sectionFromUrl;
+
+        const $link = this.getSubsectionLinkMatchingUrl();
+        if ($link && $link.length) return $link.attr("data-section") || "home";
+
+        const appLabel = this.getResolvedAppLabel();
+        const sectionFromApp = this.getSectionFromAppLabel(appLabel);
+        return sectionFromApp || localStorage.getItem("currentActiveSection") || "home";
+    },
+
+    getSectionSpecificSubsectionId(sectionId) {
+        return localStorage.getItem(`activeSidebarLinkId_${sectionId}`) || localStorage.getItem("activeSidebarLinkId");
+    },
+
+    setActiveNavLink($link, sectionId) {
+        const $navLinks = $("nav a.nav-link");
+        $navLinks.removeClass('bg-primary-600 hover:bg-primary-800').find("img").css("filter", "");
+        $link.addClass('bg-primary-600 hover:bg-primary-800').find("img").css("filter", this.ACTIVE_FILTER);
+        localStorage.setItem("activeNavLinkId", sectionId);
+        localStorage.setItem("currentActiveSection", sectionId);
+
+        if (sectionId === "home") {
+            localStorage.setItem("sidebarClicked", "false");
+            localStorage.removeItem("activeSidebarLinkId");
+            localStorage.removeItem("activeSidebarLinkId_home");
+        }
+    },
+
+    setActiveSubsectionLink($link, sectionId) {
+        $("ul a.sidebar-link").removeClass("bg-primary-600 text-white").find("img").css("filter", this.INACTIVE_FILTER);
+        $link.addClass("bg-primary-600 text-white").find("img").css("filter", this.ACTIVE_FILTER);
+
+        const linkId = $link.attr("id");
+        if (linkId && sectionId) {
+            localStorage.setItem(`activeSidebarLinkId_${sectionId}`, linkId);
+            localStorage.setItem("activeSidebarLinkId", linkId);
+            localStorage.setItem("sidebarClicked", "true");
+        }
+    },
+
+    activateFirstSubsectionItem(sectionId) {
+        const $subsectionLinks = $("ul a.sidebar-link").filter(`[data-section="${sectionId}"]`);
+        if (!$subsectionLinks.length) {
+            const $allLinks = $("ul a.sidebar-link");
+            if (!$allLinks.length) return;
+        }
+
+        let $activeLink = null;
+        const sidebarClicked = localStorage.getItem("sidebarClicked") === "true";
+        const activeSubItemId = this.getSectionSpecificSubsectionId(sectionId);
+        const lastActiveSection = localStorage.getItem("lastActiveSection");
+        const appLabel = this.getResolvedAppLabel();
+
+        const isSectionSwitch = lastActiveSection && lastActiveSection !== sectionId;
+
+        const $appLabelLink = $subsectionLinks.filter(`#${appLabel}`);
+        if ($appLabelLink.length) {
+            $activeLink = $appLabelLink;
+        } else if (isSectionSwitch || !sidebarClicked || sectionId === "home") {
+            $activeLink = $subsectionLinks.first();
+            const firstLinkId = $activeLink ? $activeLink.attr("id") : null;
+            if (firstLinkId) {
+                localStorage.setItem(`activeSidebarLinkId_${sectionId}`, firstLinkId);
+                localStorage.setItem("activeSidebarLinkId", firstLinkId);
+                localStorage.setItem("sidebarClicked", "false");
+            }
+        } else {
+            $activeLink = activeSubItemId ? $subsectionLinks.filter(`#${activeSubItemId}`) : $subsectionLinks.first();
+
+            if (!$activeLink.length) {
+                $("#hiddenReloadSidebar").click();
+                console.warn("No sub-sidebar link found, triggering reload.");
+                return;
+            }
+        }
+
+        if ($activeLink && $activeLink.length) {
+            this.setActiveSubsectionLink($activeLink, sectionId);
+        } else {
+            const $fallbackLink = $subsectionLinks.first() || $("ul a.sidebar-link").first();
+            if ($fallbackLink.length) {
+                this.setActiveSubsectionLink($fallbackLink, sectionId);
+            }
+        }
+
+        localStorage.setItem("lastActiveSection", sectionId);
+    },
+
+    initFromUrl() {
+        const currentSection = this.getActiveSection();
+        const $navLinks = $("nav a.nav-link");
+        const $sectionLink = $navLinks.filter(`#${currentSection}`);
+
+        if ($sectionLink.length) {
+            this.setActiveNavLink($sectionLink, currentSection);
+        }
+
+        const currentHref = window.location.href;
+        localStorage.setItem('last-visited-url', currentHref);
+
+        this.activateFirstSubsectionItem(currentSection);
+    }
+};
+
+// Sidebar collapse/expand
+function initSidebar() {
+    const sideMenu = document.getElementById("sideMenu");
+    const toggleBtn = document.getElementById("toggleSideMenu");
+    const arrowIcon = document.getElementById("arrowIcon");
+    const mainContent = document.getElementById("mainContent");
+    const kanbanView = document.getElementById("kanbanview");
+
+    if (!sideMenu || !toggleBtn || !arrowIcon || !mainContent) return;
+
+    let isCollapsed = false;
+
+    function collapseMenu() {
+        sideMenu.classList.add("w-0");
+        sideMenu.classList.remove("w-[230px]");
+        arrowIcon.classList.add("scale-x-[-1]");
+        mainContent.classList.remove("leftspace");
+
+        if (kanbanView) {
+            kanbanView.classList.add("w-full");
+            kanbanView.classList.remove("ml-[230px]");
+        }
+        isCollapsed = true;
+    }
+
+    function expandMenu() {
+        sideMenu.classList.remove("w-0");
+        sideMenu.classList.add("w-[230px]");
+        arrowIcon.classList.remove("scale-x-[-1]");
+        mainContent.classList.add("leftspace");
+
+        if (kanbanView) {
+            kanbanView.classList.remove("w-full");
+        }
+        isCollapsed = false;
+    }
+
+    toggleBtn.onclick = () => {
+        isCollapsed ? expandMenu() : collapseMenu();
+    };
+
+    function adjustSidebar() {
+        window.innerWidth < 992 ? collapseMenu() : expandMenu();
+    }
+
+    adjustSidebar();
+    window.onresize = adjustSidebar;
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeHideIcon = document.getElementById('eyeHideIcon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.add('hidden');
+        eyeHideIcon.classList.remove('hidden');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('hidden');
+        eyeHideIcon.classList.add('hidden');
+    }
+}
+
+// Table Management
+const tableData = new Map();
+
+function getCurrentViewId(element) {
+    const $tableContainer = $(element).closest("[id^='table-container-']");
+    return $tableContainer.data("view-id") || "";
+}
+
+function initializeRecordIds(recordIds, viewId) {
+    if (!viewId) {
+        console.warn("No viewId provided");
+        return;
+    }
+
+    tableData.set(viewId, {
+        allRecordIds: recordIds && Array.isArray(recordIds) && recordIds.length ? recordIds.map(String) : [],
+        selectedRecordIds: [],
+        allSelected: false,
+    });
+
+    const table = tableData.get(viewId);
+    const $tableContainer = $(`#table-container-${viewId}`);
+
+    if (table.allRecordIds.length) {
+        $tableContainer.find(".total-count").text(table.allRecordIds.length);
+        const storedSelections = sessionStorage.getItem(`selectedRecordIds_${viewId}`);
+        if (storedSelections) {
+            try {
+                table.selectedRecordIds = JSON.parse(storedSelections).map(String);
+                table.allSelected =
+                    table.selectedRecordIds.length === table.allRecordIds.length &&
+                    table.allRecordIds.every((id) => table.selectedRecordIds.includes(id));
+            } catch (e) {
+                console.error("Error parsing stored selections for viewId", viewId, e);
+                table.selectedRecordIds = [];
+            }
+        }
+        updateCheckboxStates(viewId);
+        updateActionButtonsVisibility(viewId);
+    }
+}
+
+function selectAll(checked, viewId) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    table.allSelected = checked;
+    table.selectedRecordIds = checked ? [...table.allRecordIds] : [];
+    sessionStorage.setItem(`selectedRecordIds_${viewId}`, JSON.stringify(table.selectedRecordIds));
+
+    const $tableContainer = $(`#table-container-${viewId}`);
+    $tableContainer.find("input[data-role='row-select']").prop("checked", checked);
+    $tableContainer.find("input[data-role='select-all']").prop("checked", checked);
+
+    updateActionButtonsVisibility(viewId);
+}
+
+function clearSelections(viewId) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    table.selectedRecordIds = [];
+    table.allSelected = false;
+    sessionStorage.removeItem(`selectedRecordIds_${viewId}`);
+
+    const $tableContainer = $(`#table-container-${viewId}`);
+    $tableContainer.find("input[data-role='row-select']").prop("checked", false);
+    $tableContainer.find("input[data-role='select-all']").prop("checked", false);
+
+    updateActionButtonsVisibility(viewId);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+const updateActionButtonsVisibility = debounce(function (viewId) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    const totalSelectedCount = table.selectedRecordIds.length;
+    const hasSelections = totalSelectedCount > 0;
+
+    $(`#export-all-btn-${viewId}, #bulk-update-btn-${viewId}, #unselect-all-btn-${viewId}, #bulk-delete-btn-${viewId}, [id^="bulk-action-"][id$="-${viewId}"]`)
+        .toggle(hasSelections);
+
+    if (hasSelections) {
+        $(`#selected-text-${viewId}`).text(`${totalSelectedCount}`);
+        $(`#unselect-text-${viewId}`).text(`${totalSelectedCount}`);
+    }
+
+    $(`#select-all-btn-${viewId}`).toggle(table.allRecordIds.length > 0 && !table.allSelected);
+}, 100);
+
+function updateCheckboxStates(viewId) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    const $tableContainer = $(`#table-container-${viewId}`);
+    $tableContainer.find("input[data-role='row-select']").each(function () {
+        const id = $(this).val();
+        $(this).prop("checked", table.selectedRecordIds.includes(id));
+    });
+
+    const checkedCount = $tableContainer.find("input[data-role='row-select']:checked").length;
+    const totalVisible = $tableContainer.find("input[data-role='row-select']").length;
+    $tableContainer
+        .find("input[data-role='select-all']")
+        .prop("checked", checkedCount === totalVisible && totalVisible > 0);
+}
+
+function reorderTableRows(viewId, $rowsToAdd = []) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    const $tbody = $(`#table-container-${viewId} #data-container-${viewId}`);
+    const $existingRows = $tbody.find("tr").not(".separator").get();
+    const allRows = [...$existingRows, ...$rowsToAdd];
+
+    const selectedRows = [];
+    const unselectedRows = [];
+    let sentinelRow = null;
+
+    allRows.forEach((row) => {
+        const $row = $(row);
+        if ($row.hasClass("htmx-sentinel")) {
+            sentinelRow = $row;
+        } else {
+            const id = $row.find("input[data-role='row-select']").val();
+            if (table.selectedRecordIds.includes(id)) {
+                selectedRows.push($row);
+            } else {
+                unselectedRows.push($row);
+            }
+        }
+    });
+
+    $tbody.empty();
+    selectedRows.forEach(($row) => $tbody.append($row));
+    unselectedRows.forEach(($row) => $tbody.append($row));
+    if (sentinelRow) $tbody.append(sentinelRow);
+}
+
+function processInfiniteScrollRows(viewId, $newRows) {
+    if (!viewId) return;
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    $newRows.each(function () {
+        const $checkbox = $(this).find("input[data-role='row-select']");
+        const id = $checkbox.val();
+        $checkbox.prop("checked", table.selectedRecordIds.includes(id));
+    });
+
+    reorderTableRows(viewId, $newRows);
+}
+
+function processNewRecords(viewId) {
+    updateCheckboxStates(viewId);
+    reorderTableRows(viewId);
+    updateActionButtonsVisibility(viewId);
+}
+
+function selectedRecordIds(viewId) {
+    const table = tableData.get(viewId);
+    return table ? table.selectedRecordIds : [];
+}
+
+// Export functionality
+function exportSelected(viewId) {
+    const table = tableData.get(viewId);
+    const $tableContainer = $(`#table-container-${viewId}`);
+    const selectedIds = (table && table.selectedRecordIds.length > 0)
+        ? table.selectedRecordIds
+        : $tableContainer.find("input[data-role='row-select']:checked").map(function () {
+            return $(this).val();
+        }).get();
+
+    if (selectedIds.length === 0) {
+        alert("No items selected for export");
+        return;
+    }
+
+    openExport();
+    $("#exportRecordIds").val(JSON.stringify(selectedIds));
+}
+
+// Kanban drag and drop
+let draggedColumn = null;
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+    const target = ev.target.closest(".kanban-block");
+    if (target) target.classList.add("highlight");
+}
+
+function drop(ev) {
+    ev.preventDefault();
+
+    if (!ev.dataTransfer) return;
+
+    const data = ev.dataTransfer.getData("text");
+    const target = ev.target.closest(".kanban-block");
+
+    if (!target) return;
+
+    target.classList.remove("highlight");
+
+    const currentQuery = new URLSearchParams(window.location.search);
+
+    if (data.startsWith("column-")) {
+        const kanbanView = document.getElementById("kanbanview");
+        const allowColumnReorder = kanbanView.dataset.allowColumnReorder === "true";
+
+        if (!allowColumnReorder) return;
+
+        const columnKey = data.replace("column-", "");
+        const draggedColumn = document.querySelector(`.kanban-block[data-column-key="${columnKey}"]`);
+
+        if (draggedColumn && draggedColumn !== target) {
+            const parent = target.parentNode;
+            const allColumns = Array.from(parent.querySelectorAll(".kanban-block"));
+            const draggedIndex = allColumns.indexOf(draggedColumn);
+            const targetIndex = allColumns.indexOf(target);
+
+            if (draggedIndex < targetIndex) {
+                if (target.nextSibling) {
+                    parent.insertBefore(draggedColumn, target.nextSibling);
+                } else {
+                    parent.appendChild(draggedColumn);
+                }
+            } else {
+                parent.insertBefore(draggedColumn, target);
+            }
+
+            const appLabel = kanbanView.dataset.appLabel;
+            const modelName = kanbanView.dataset.modelName;
+            const csrfToken = kanbanView.dataset.csrfToken;
+            const className = kanbanView.dataset.className;
+
+            const newColumnOrder = Array.from(document.querySelectorAll(".kanban-block")).map(
+                (col) => col.dataset.columnKey
+            );
+
+            const postValues = {
+                column_order: JSON.stringify(newColumnOrder),
+                app_label: appLabel,
+                model_name: modelName,
+                class_name: className,
+            };
+
+            currentQuery.forEach((value, key) => {
+                if (postValues[key]) {
+                    if (!Array.isArray(postValues[key])) {
+                        postValues[key] = [postValues[key]];
+                    }
+                    postValues[key].push(value);
+                } else {
+                    postValues[key] = value;
+                }
+            });
+
+            htmx.ajax("POST", `/generics/update-kanban-column-order/${appLabel}/${modelName}/`, {
+                target: "#kanbancontainer",
+                swap: "innerHTML",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                },
+                values: postValues,
+            });
+        }
+    } else {
+        const draggedElement = document.getElementById(data);
+        if (draggedElement && target) {
+            target.querySelector(".items-container").appendChild(draggedElement);
+
+            const targetColumn = target.dataset.columnKey;
+            const itemId = data.split("-")[1];
+
+            const kanbanView = document.getElementById("kanbanview");
+            const appLabel = kanbanView.dataset.appLabel;
+            const modelName = kanbanView.dataset.modelName;
+            const csrfToken = kanbanView.dataset.csrfToken;
+            const className = kanbanView.dataset.className;
+
+            const postValues = {
+                item_id: itemId,
+                new_column: targetColumn,
+                app_label: appLabel,
+                model_name: modelName,
+                class_name: className,
+            };
+
+            currentQuery.forEach((value, key) => {
+                if (postValues[key]) {
+                    if (!Array.isArray(postValues[key])) {
+                        postValues[key] = [postValues[key]];
+                    }
+                    postValues[key].push(value);
+                } else {
+                    postValues[key] = value;
+                }
+            });
+
+            htmx.ajax("POST", `/generics/update-kanban-item/${appLabel}/${modelName}/`, {
+                target: "#kanbancontainer",
+                swap: "innerHTML",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                },
+                values: postValues,
+            });
+        }
+    }
+}
+
+function columnDragStart(e) {
+    const kanbanView = document.getElementById("kanbanview");
+    const allowColumnReorder = kanbanView.dataset.allowColumnReorder === "true";
+
+    if (!allowColumnReorder) {
+        e.preventDefault();
+        return;
+    }
+
+    draggedColumn = $(e.target).closest(".kanban-block");
+    const event = e.originalEvent || e;
+    if (event.dataTransfer) {
+        const columnKey = draggedColumn.data("column-key");
+        event.dataTransfer.setData("text", `column-${columnKey}`);
+        event.dataTransfer.effectAllowed = "move";
+    }
+    setTimeout(() => draggedColumn.addClass("opacity-50"), 0);
+}
+
+function columnDragEnd(e) {
+    if (draggedColumn) {
+        draggedColumn.removeClass("opacity-50");
+        draggedColumn = null;
+    }
+}
+
+// Confirmation dialogs
+function hxConfirm(element, messageText, hint) {
+    const isCheckbox = element.type === 'checkbox';
+    const wasChecked = isCheckbox ? element.checked : null;
+
+    if (isCheckbox) {
+        element.checked = !wasChecked;
+    }
+
+    let htmlContent = messageText;
+    if (hint) {
+        htmlContent += `
+            <p style="margin: 10px 0; font-size:15px; font-style: italic; background: #fff8c4; padding: 6px 10px; border-radius: 4px; display: inline-block;">
+                ${hint}
+            </p>
+        `;
+    }
+
+    Swal.fire({
+        html: htmlContent,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#008000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: horillaMessages.confirm,
+        cancelButtonText: horillaMessages.cancel,
+        reverseButtons: true,
+        showClass: {
+            popup: `animate__animated animate__fadeInUp animate__faster`
+        },
+        hideClass: {
+            popup: `animate__animated animate__fadeOutDown animate__faster`
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (isCheckbox) {
+                element.checked = !wasChecked;
+            }
+            htmx.trigger(element, 'confirmed');
+        } else {
+            return false;
+        }
+    });
+}
+
+function hxConfirmForm(element, messageText) {
+    Swal.fire({
+        text: messageText,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#008000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: horillaMessages.confirm,
+        cancelButtonText: horillaMessages.cancel,
+        reverseButtons: true,
+        showClass: {
+            popup: `animate__animated animate__fadeInUp animate__faster`
+        },
+        hideClass: {
+            popup: `animate__animated animate__fadeOutDown animate__faster`
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            htmx.trigger(element.closest('form'), 'submit');
+        }
+    });
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+function showMessages() {
+    var messages = [];
+    var seenInBatch = new Set();
+
+    $("#messages-container .message").each(function () {
+        var $message = $(this);
+        var messageText = $message.data("message");
+        var messageKey = $message.data("level") + "|" + messageText;
+
+        if (!seenInBatch.has(messageKey)) {
+            messages.push({
+                level: $message.data("level"),
+                text: messageText
+            });
+            seenInBatch.add(messageKey);
+        }
+        $message.remove();
+    });
+
+    var delay = 0;
+    messages.forEach(function(msg) {
+        setTimeout(function() {
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: msg.level,
+                title: escapeHtml(msg.text),
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: `custom-toast toast-${msg.level}`
+                },
+                didOpen: (toast) => {
+                    toast.addEventListener("mouseenter", Swal.stopTimer);
+                    toast.addEventListener("mouseleave", Swal.resumeTimer);
+                }
+            });
+        }, delay);
+
+        delay += 4500; // 4000ms timer + 500ms gap between messages
+    });
+}
+
+
+
+function isElementChecked(element) {
+    let message = element.getAttribute('data-message');
+    if (element.checked)
+        Swal.fire({
+            html: message,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#008000",
+            cancelButtonColor: "#d33",
+            confirmButtonText: horillaMessages.confirm,
+            cancelButtonText: horillaMessages.cancel,
+            reverseButtons: true,
+            showClass: {
+                popup: `animate__animated animate__fadeInUp animate__faster`
+            },
+            hideClass: {
+                popup: `animate__animated animate__fadeOutDown animate__faster`
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                return true;
+            }
+            element.checked = false;
+            return false;
+        });
+}
+
+function initializeSelect2Pagination() {
+    const select2Elements = $('.select2-pagination:not(.select2-hidden-accessible)');
+    if (select2Elements.length === 0) return;
+
+    select2Elements.each(function (index) {
+        const $this = $(this);
+
+        // Prevent duplicate initialization
+        if ($this.data('select2-initialized')) {
+            return;
+        }
+
+        const url = $this.data('url');
+        const placeholder = $this.data('placeholder') || gettext("Select an option");
+
+        const initialData = $this.data('initial');
+        const fieldName = $this.data('field-name') || `field_${index}`;
+
+        const dependencyField = $this.data('dependency');
+        const dependencyModel = $this.data('dependency-model');
+        const dependencyFieldName = $this.data('dependency-field');
+
+        // NEW: Get filter class and parent model from data attributes
+        const filterClass = $this.data('filter-class');
+        const parentModel = $this.data('parent-model');
+
+        const isMultiple = $this.prop('multiple');
+        const elementId = $this.attr('id') || `select2_${fieldName}_${Math.random().toString(36).substr(2, 9)}`;
+
+        const htmxAttrs = {
+            'hx-get': $this.attr('hx-get'),
+            'hx-target': $this.attr('hx-target'),
+            'hx-swap': $this.attr('hx-swap'),
+            'hx-trigger': $this.attr('hx-trigger'),
+            'hx-include': $this.attr('hx-include'),
+        };
+
+        if (!$this.attr('id')) {
+            $this.attr('id', elementId);
+        }
+
+        if (!$this.is(':visible') && !$this.closest('.modal').length) {
+            return;
+        }
+
+        try {
+            $this.select2({
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        let dependencyValue = undefined;
+                        if (dependencyField) {
+                            const $dependentField = $(`#id_${dependencyField}`);
+                            dependencyValue = $dependentField.length ? $dependentField.val() : undefined;
+                        }
+
+                        // Build the data object
+                        const requestData = {
+                            q: params.term || '',
+                            page: params.page || 1,
+                            field_name: fieldName,
+                            form_class: $this.data('form-class'),
+                            dependency_value: dependencyValue,
+                            dependency_model: dependencyModel,
+                            dependency_field: dependencyFieldName,
+                        };
+
+                        // NEW: Add filter_class and parent_model if available
+                        if (filterClass) {
+                            requestData.filter_class = filterClass;
+                        }
+                        if (parentModel) {
+                            requestData.parent_model = parentModel;
+                        }
+
+                        // Add object_id if available (for edit forms to use object's company)
+                        const objectId = $this.data('object-id');
+                        if (objectId) {
+                            requestData.object_id = objectId;
+                        }
+
+                        return requestData;
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results || [],
+                            pagination: {
+                                more: data.pagination && data.pagination.more,
+                            },
+                        };
+                    },
+                    cache: false,
+                },
+                placeholder: placeholder,
+                minimumInputLength: 0,
+                theme: 'default',
+                width: '100%',
+                dropdownParent: $this.closest('.modal-content').length ? $this.closest('.modal-content') : $('body'),
+            });
+
+            // Mark as initialized
+            $this.data('select2-initialized', true);
+
+            Object.keys(htmxAttrs).forEach((attr) => {
+                if (htmxAttrs[attr]) {
+                    $this.attr(attr, htmxAttrs[attr]);
+                }
+            });
+
+            if (typeof htmx !== 'undefined') {
+                htmx.process($this[0]);
+            }
+
+            // Remove any existing handlers before binding
+            $this.off('select2:select select2:unselect');
+            $this.on('select2:select select2:unselect', function (e) {
+                $(this).trigger('change');
+                if (htmxAttrs['hx-get'] && typeof htmx !== 'undefined') {
+                    htmx.trigger(this, 'change');
+                }
+            });
+
+            if (initialData && initialData !== '') {
+                loadInitialData($this, url, initialData, fieldName, isMultiple);
+            }
+        } catch (error) {
+            console.error(`Error initializing Select2`, { fieldName }, error);
+        }
+    });
+}
+
+function loadInitialData($element, url, initialData, fieldName, isMultiple) {
+    let ids = [];
+
+    if (initialData === null || initialData === undefined || initialData === '') {
+        return;
+    }
+
+    if (typeof initialData === 'string') {
+        ids = isMultiple ? initialData.split(',').filter(id => id.trim()) : [initialData.trim()];
+    } else if (typeof initialData === 'number') {
+        ids = [initialData.toString()];
+    } else if (Array.isArray(initialData)) {
+        ids = initialData.map(id => id.toString()).filter(id => id.trim());
+    } else if (typeof initialData === 'object') {
+        if (initialData.id) {
+            ids = [initialData.id.toString()];
+        } else {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    ids = ids.filter(id => id && id.trim() !== '');
+
+    if (ids.length === 0) return;
+
+    $.ajax({
+        url: url,
+        dataType: 'json',
+        data: {
+            ids: ids.join(','),
+            field_name: fieldName
+        },
+        success: function (data) {
+            if (!data.results || data.results.length === 0) return;
+
+            if (!isMultiple) {
+                $element.find('option:not([value=""])').remove();
+            } else {
+                $element.empty();
+            }
+
+            data.results.forEach(function (item) {
+                const option = new Option(item.text, item.id, true, true);
+                $element.append(option);
+            });
+
+            $element.trigger('change');
+        },
+    });
+}
+
+function safeInitializeSelect2() {
+    const elementsToInitialize = $('.select2-pagination:not(.select2-hidden-accessible)');
+
+    if (elementsToInitialize.length > 0) {
+        initializeSelect2Pagination();
+
+        setTimeout(function () {
+            const stillNeedInit = $('.select2-pagination:not(.select2-hidden-accessible)');
+            if (stillNeedInit.length > 0) {
+                initializeSelect2Pagination();
+            }
+        }, 500);
+    }
+}
+
+window.reinitializeSelect2 = function () {
+    safeInitializeSelect2();
+};
+
+// Document Ready
+$(document).ready(function () {
+    // Initialize components
+    initializeSelect2Pagination();
+    safeInitializeSelect2();
+    showMessages();
+
+    // Initialize sidebar
+    SidebarManager.initFromUrl();
+
+    // Initialize all tables
+    $("[id^='table-container-']").each(function () {
+        const $tableContainer = $(this);
+        const viewId = $tableContainer.data("view-id");
+        const recordIds = JSON.parse($tableContainer.attr("data-record-ids") || "[]");
+        initializeRecordIds(recordIds, viewId);
+    });
+
+    // Select2 Basic Initialization
+    $('.js-example-basic-single:not(.select2-hidden-accessible)').select2({
+        templateResult: formatOption,
+        templateSelection: formatOption,
+    });
+
+    $('.js-example-basic-multiple:not(.select2-hidden-accessible)').each(function() {
+        $(this).select2({
+            placeholder: $(this).data('placeholder') || 'Select options...',
+            allowClear: true
+        });
+    });
+
+    // Custom Select Dropdown
+    document.querySelectorAll(".custom-select").forEach((select) => {
+        const selected = select.querySelector(".selected");
+        const dropdown = select.querySelector(".dropdown");
+        const options = select.querySelectorAll(".option");
+        const span = selected.querySelector("span");
+
+        selected.addEventListener("click", () => {
+            dropdown.classList.toggle("opacity-0");
+            dropdown.classList.toggle("scale-y-95");
+            dropdown.classList.toggle("pointer-events-none");
+        });
+
+        options.forEach((option) => {
+            option.addEventListener("click", (e) => {
+                e.preventDefault();
+                span.textContent = option.textContent;
+                dropdown.classList.add("opacity-0", "scale-y-95", "pointer-events-none");
+            });
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!select.contains(e.target)) {
+                dropdown.classList.add("opacity-0", "scale-y-95", "pointer-events-none");
+            }
+        });
+    });
+
+    // Event Listeners
+    $(".filtermenu").on("click", function () {
+        $("#filterpanel").toggleClass("hidden visible");
+    });
+
+    $(".closebtn").on("click", function () {
+        $("#filterpanel").removeClass("visible").addClass("hidden");
+    });
+
+    $("#tableBtn").on("click", function () {
+        $("[id^='tableview']").removeClass("hidden");
+        $("#kanbanview").addClass("hidden");
+    });
+
+    $("#kanbanBtn").on("click", function () {
+        $("#kanbanview").removeClass("hidden");
+        $("[id^='tableview']").addClass("hidden");
+    });
+
+    $("select").on("select2:select", function (e) {
+        $(this).closest("select")[0].dispatchEvent(new Event("change"));
+    });
+
+    // Kanban drag handlers
+    $(".kanban-block").each(function () {
+        const block = $(this);
+
+        block.on("dragover", function (e) {
+            if (draggedColumn) e.preventDefault();
+        });
+
+        block.on("dragenter", function (e) {
+            if (draggedColumn && block[0] !== draggedColumn[0]) {
+                block.addClass("swap-highlight");
+            }
+        });
+
+        block.on("dragleave", function (e) {
+            block.removeClass("swap-highlight");
+        });
+
+        block.on("drop", function (e) {
+            if (!draggedColumn || draggedColumn[0] === block[0]) return;
+
+            block.removeClass("swap-highlight");
+
+            const parent = block.parent();
+            const allBlocks = parent.children();
+            const draggedIndex = allBlocks.index(draggedColumn);
+            const targetIndex = allBlocks.index(block);
+
+            if (draggedIndex < targetIndex) {
+                draggedColumn.insertAfter(block);
+            } else {
+                draggedColumn.insertBefore(block);
+            }
+        });
+    });
+
+    const $navLinks = $("nav a.nav-link");
+
+    $("nav").on("click", "a.nav-link", function () {
+        const $clickedLink = $(this);
+        const clickedSection = $clickedLink.attr("id");
+        const currentActiveSection = SidebarManager.getActiveSection();
+
+        if (currentActiveSection) {
+            localStorage.setItem("lastActiveSection", currentActiveSection);
+        }
+
+        const isClickingSameSection = currentActiveSection === clickedSection;
+
+        SidebarManager.setActiveNavLink($clickedLink, clickedSection);
+
+        if (isClickingSameSection) {
+            localStorage.setItem("sidebarClicked", "false");
+            localStorage.setItem("lastActiveSection", "temp_reset");
+        }
+    });
+
+    $("body")
+        .on("click", "ul a.sidebar-link", function () {
+            const $link = $(this);
+            const currentSection = SidebarManager.getActiveSection();
+            SidebarManager.setActiveSubsectionLink($link, currentSection);
+            localStorage.setItem('last-visited-url', window.location.href);
+        })
+        .on("mouseenter", "ul a.sidebar-link", function () {
+            const $link = $(this);
+            if (!$link.hasClass("bg-primary-600")) {
+                $link.find("img").css("filter", SidebarManager.ACTIVE_FILTER);
+            }
+        })
+        .on("mouseleave", "ul a.sidebar-link", function () {
+            const $link = $(this);
+            if (!$link.hasClass("bg-primary-600")) {
+                $link.find("img").css("filter", SidebarManager.INACTIVE_FILTER);
+            }
+        });
+
+    const $tableContainer = $("#tableContainer");
+    $tableContainer.on("scroll", function () {
+        const scrollTop = $tableContainer.scrollTop();
+        const scrollHeight = $tableContainer[0].scrollHeight;
+        const clientHeight = $tableContainer[0].clientHeight;
+        const threshold = 100;
+
+        if (scrollHeight - scrollTop - clientHeight < threshold) {
+            const $sentinel = $tableContainer.find("tr.htmx-sentinel");
+            if ($sentinel.length && !$sentinel.hasClass("htmx-request")) {
+                htmx.trigger($sentinel[0], "htmx:trigger");
+            }
+        }
+    });
+
+    const hiddenReloadSidebar = document.getElementById("hiddenReloadSidebar");
+
+    if (hiddenReloadSidebar) {
+        hiddenReloadSidebar.addEventListener("click", function () {
+            const appLabel = this.getAttribute("data-app-label");
+            const section = SidebarManager.getSectionFromAppLabel(appLabel);
+
+            if (!section) {
+                console.warn("No section found for app label:", appLabel);
+                return;
+            }
+
+            const reloadUrl = `${window.location.pathname}?section=${section}`;
+
+            htmx.ajax("GET", reloadUrl)
+                .then(() => {
+                    SidebarManager.activateFirstSubsectionItem(section);
+                })
+                .catch((err) => {
+                    console.error("Failed to reload sub-sidebar for section:", section, err);
+                });
+        });
+    }
+});
+
+// Window load event
+$(window).on('load', function () {
+    safeInitializeSelect2();
+});
+
+
+// Event Delegation
+$(document).on("change", "input[data-role='row-select']", function () {
+    const viewId = getCurrentViewId(this);
+    const table = tableData.get(viewId);
+    if (!table) return;
+
+    const id = $(this).val();
+    if ($(this).prop("checked")) {
+        if (!table.selectedRecordIds.includes(id)) {
+            table.selectedRecordIds.push(id);
+        }
+    } else {
+        table.selectedRecordIds = table.selectedRecordIds.filter((selectedId) => selectedId !== id);
+        table.allSelected = false;
+    }
+
+    sessionStorage.setItem(`selectedRecordIds_${viewId}`, JSON.stringify(table.selectedRecordIds));
+    updateCheckboxStates(viewId);
+    updateActionButtonsVisibility(viewId);
+});
+
+$(document).on("change", "input[data-role='select-all']", function () {
+    const viewId = getCurrentViewId(this);
+    selectAll($(this).prop("checked"), viewId);
+    reorderTableRows(viewId);
+});
+
+$(document).on("click", "[id^='clear-select-btn-']", function () {
+    const viewId = getCurrentViewId(this);
+    clearSelections(viewId);
+});
+
+// Export form validation - works with both regular and HTMX submissions
+$("#exportForm").on("submit", function (e) {
+    const exportFormat = $("#exportFormat").val();
+    if (!exportFormat) {
+        alert("Please select an export format");
+        e.preventDefault();
+        return false;
+    }
+    // For HTMX, let it proceed - validation is done, download extension will handle the file
+    return true;
+});
+
+// HTMX Events
+document.addEventListener("DOMContentLoaded", initSidebar);
+document.body.addEventListener("htmx:afterSwap", initSidebar);
+document.body.addEventListener("htmx:afterOnLoad", initSidebar);
+
+// Flowbite Initialization on HTMX Load
+htmx.onLoad(function(content) {
+    initFlowbite();
+});
+
+document.body.addEventListener("htmx:afterSwap", function () {
+    const currentSection = SidebarManager.getActiveSection();
+    const $navLinks = $("nav a.nav-link");
+    const $sectionLink = $navLinks.filter(`#${currentSection}`);
+    if ($sectionLink.length) {
+        SidebarManager.setActiveNavLink($sectionLink, currentSection);
+    }
+    SidebarManager.activateFirstSubsectionItem(currentSection);
+
+    // Settings Content Script Reload
+    if (event.detail && event.detail.target && event.detail.target.id === 'settings-content') {
+        const scripts = event.detail.target.querySelectorAll('script');
+        scripts.forEach(script => {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.body.appendChild(newScript);
+            script.remove();
+        });
+    }
+});
+
+document.body.addEventListener("htmx:afterSettle", function (event) {
+    const currentSection = SidebarManager.getActiveSection();
+    const $navLinks = $("nav a.nav-link");
+    const $sectionLink = $navLinks.filter(`#${currentSection}`);
+    if ($sectionLink.length) {
+        SidebarManager.setActiveNavLink($sectionLink, currentSection);
+    }
+    SidebarManager.activateFirstSubsectionItem(currentSection);
+
+    // Reinitialize Select2 after HTMX content loads
+    var target = $(event.target);
+
+    target.find(".js-example-basic-single").each(function() {
+        if ($(this).hasClass("select2-hidden-accessible")) {
+            $(this).select2("destroy");
+            $(this).removeData('select2-initialized');
+        }
+    });
+
+    target.find(".js-example-basic-single:not(.select2-hidden-accessible)").select2({
+        templateResult: formatOption,
+        templateSelection: formatOption,
+        width: "100%"
+    });
+
+    initializeSelect2Pagination();
+
+    setTimeout(function() {
+        showMessages();
+    }, 200);
+
+    $('.js-example-basic-multiple').each(function() {
+        if ($(this).hasClass("select2-hidden-accessible")) {
+            return; // Already initialized
+        }
+        $(this).select2({
+            placeholder: $(this).data('placeholder') || 'Select options...',
+            allowClear: true
+        });
+    });
+});
+
+$(document).on("htmx:afterSwap", function (event) {
+    const $target = $(event.target);
+
+    let $dataContainer = null;
+    let viewId = null;
+
+    if ($target.is("[id^='data-container-']")) {
+        $dataContainer = $target;
+        viewId = $dataContainer.attr("id").replace("data-container-", "");
+    } else {
+        $dataContainer = $target.find("[id^='data-container-']");
+        if ($dataContainer.length) {
+            viewId = $dataContainer.attr("id").replace("data-container-", "");
+        }
+    }
+
+    if ($dataContainer && $dataContainer.length && viewId) {
+        const isInfiniteScroll = event.detail.elt.classList.contains("htmx-sentinel");
+        if (isInfiniteScroll) {
+            const $newRows = $(event.detail.xhr.response).filter("tr");
+            processInfiniteScrollRows(viewId, $newRows);
+        } else {
+            const $tableContainer = $(`#table-container-${viewId}`);
+            const recordIds = JSON.parse($tableContainer.attr("data-record-ids") || "[]");
+            initializeRecordIds(recordIds, viewId);
+            processNewRecords(viewId);
+        }
+    }
+
+
+    if (window.Dropdown) {
+        $('[data-dropdown-toggle]').each(function () {
+            var $toggle = $(this);
+            var targetId = $toggle.attr('data-dropdown-toggle');
+            var $target = $('#' + targetId);
+
+            if (!$target.data('flowbiteInitialized')) {
+                new Dropdown($target[0], $toggle[0], {
+                    placement: $toggle.attr('data-dropdown-placement') || 'bottom'
+                });
+                $target.data('flowbiteInitialized', true);
+            }
+        });
+    }
+});
+
+$(document).on("htmx:afterSettle", function (e) {
+    let elt = e.detail.elt;
+    $(elt).find("select")
+        .off("select2:select")
+        .on("select2:select", function () {
+            this.dispatchEvent(new Event("change"));
+        });
+    if ($(elt).find("select").length) {
+        initializeSelect2Pagination();
+    }
+});
+
+
+$(document).on('keydown', function (e) {
+    if (e.key === "Escape" || e.keyCode === 27) {
+        ModalManager.closeTop();
+    }
+});
+
+
+// Dropdown functionality
+document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('click', function (e) {
+        const wrapper = e.target.closest('.dropdown-wrapper');
+
+        if (wrapper) {
+            const dropdown = wrapper.querySelector('.dropdown-content');
+            const clickedDropdown = e.target.closest('.dropdown-content');
+
+            // If clicking inside dropdown content (on links), allow it to proceed
+            if (clickedDropdown) {
+                // Don't stop propagation for links inside dropdown
+                // Just close other dropdowns and let the click proceed
+                document.querySelectorAll('.dropdown-wrapper.active').forEach(other => {
+                    if (other !== wrapper) other.classList.remove('active');
+                });
+                return; // Let the event continue for HTMX
+            }
+
+            const trigger = Array.from(wrapper.children).find(el =>
+                el !== dropdown && (el.tagName === 'BUTTON' || el.tagName === 'A' || el.querySelector('svg'))
+            );
+
+            // Only stop propagation for the dropdown BUTTON/TRIGGER, not the content
+            if (trigger && trigger.contains(e.target)) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                document.querySelectorAll('.dropdown-wrapper.active').forEach(other => {
+                    if (other !== wrapper) other.classList.remove('active');
+                });
+
+                wrapper.classList.toggle('active');
+                return;
+            }
+        } else {
+            document.querySelectorAll('.dropdown-wrapper.active').forEach(wrapper => {
+                wrapper.classList.remove('active');
+            });
+        }
+    }, true); // Keep capture phase
+
+    document.body.addEventListener('htmx:afterRequest', function (e) {
+        const wrapper = e.target.closest('.dropdown-wrapper');
+        if (wrapper && wrapper.classList.contains('active')) {
+            wrapper.classList.remove('active');
+        }
+    });
+
+    // Filter field lists (Available / Visible) in Add column to list and Add column to details
+    document.body.addEventListener('input', function (e) {
+        var input = e.target;
+        if (!input.matches || !input.matches('.field-list-search')) return;
+        var listId = input.getAttribute('data-filter-list');
+        if (!listId) return;
+        var ul = document.getElementById(listId);
+        if (!ul) return;
+        var query = (input.value || '').trim().toLowerCase();
+        var items = ul.querySelectorAll('li');
+        items.forEach(function (li) {
+            var text = (li.textContent || '').toLowerCase();
+            li.style.display = query === '' || text.indexOf(query) !== -1 ? '' : 'none';
+        });
+    });
+
+    // Add column to list: client-side move/reorder (no request until Save)
+    function syncColumnSelectFromVisible(form) {
+        var visibleList = document.getElementById('visibleFields');
+        var select = form && form.querySelector('select[name="visible_fields"]');
+        if (!visibleList || !select) return;
+        var items = visibleList.querySelectorAll('li[data-field-name]');
+        var order = [];
+        items.forEach(function (li) {
+            order.push({ value: li.getAttribute('data-field-name'), text: li.getAttribute('data-verbose-name') });
+        });
+        select.innerHTML = '';
+        order.forEach(function (o) {
+            var opt = document.createElement('option');
+            opt.value = o.value;
+            opt.selected = true;
+            opt.textContent = o.text;
+            select.appendChild(opt);
+        });
+    }
+    function columnLiAsAvailable(li, form) {
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var linkClass = form.getAttribute('data-available-link-class') || 'field-list-move hover:border-primary-600 transition duration-300 hover:text-primary-600 px-[10px] py-[8px] w-full flex text-[#333] border border-[#dddddd] rounded-[5px] text-[.8rem] mb-1 text-left';
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('role', 'button');
+        a.setAttribute('data-action', 'add');
+        a.className = linkClass;
+        a.textContent = verboseName;
+        li.innerHTML = '';
+        li.setAttribute('data-field-name', fieldName);
+        li.setAttribute('data-verbose-name', verboseName);
+        li.appendChild(a);
+    }
+    function columnLiAsVisible(li, form) {
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var linkClass = form.getAttribute('data-visible-link-class') || 'field-list-move ps-8 pr-16 bg-primary-300 hover:border-primary-600 transition duration-300 hover:text-primary-600 px-[10px] py-[8px] w-full flex text-[#333] border border-[#dddddd] rounded-[5px] text-[.8rem]';
+        var wrap = document.createElement('div');
+        wrap.className = 'flex justify-between items-center relative';
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('role', 'button');
+        a.setAttribute('data-action', 'remove');
+        a.className = linkClass;
+        a.textContent = verboseName;
+        var btnWrap = document.createElement('div');
+        btnWrap.className = 'flex absolute right-0 h-full';
+        var up = document.createElement('button');
+        up.type = 'button';
+        up.setAttribute('data-action', 'move_up');
+        up.className = 'field-list-move border-[1px] border-r-[0px] border-[solid] w-8 text-primary-600 text-xs transition duration-300';
+        up.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+        var down = document.createElement('button');
+        down.type = 'button';
+        down.setAttribute('data-action', 'move_down');
+        down.className = 'field-list-move border-[1px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 rounded-r-[5px]';
+        down.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+        btnWrap.appendChild(up);
+        btnWrap.appendChild(down);
+        wrap.appendChild(a);
+        wrap.appendChild(btnWrap);
+        li.innerHTML = '';
+        li.setAttribute('data-field-name', fieldName);
+        li.setAttribute('data-verbose-name', verboseName);
+        li.appendChild(wrap);
+    }
+    document.body.addEventListener('click', function (e) {
+        var form = e.target.closest('#fieldSelectorForm');
+        var trigger = e.target.closest('.field-list-move');
+        if (!form || !trigger) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var action = trigger.getAttribute('data-action');
+        var li = trigger.closest('li[data-field-name]');
+        if (!li) return;
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var availableList = document.getElementById('availableFields');
+        var visibleList = document.getElementById('visibleFields');
+        var select = form.querySelector('select[name="visible_fields"]');
+        if (!availableList || !visibleList || !select) return;
+        if (action === 'add') {
+            columnLiAsVisible(li, form);
+            visibleList.appendChild(li);
+            var opt = document.createElement('option');
+            opt.value = fieldName;
+            opt.selected = true;
+            opt.textContent = verboseName;
+            select.appendChild(opt);
+        } else if (action === 'remove') {
+            columnLiAsAvailable(li, form);
+            availableList.appendChild(li);
+            var opts = select.querySelectorAll('option');
+            for (var i = 0; i < opts.length; i++) {
+                if (opts[i].value === fieldName) { opts[i].remove(); break; }
+            }
+        } else if (action === 'move_up') {
+            var prev = li.previousElementSibling;
+            if (prev) {
+                visibleList.insertBefore(li, prev);
+            } else {
+                visibleList.appendChild(li);
+            }
+            syncColumnSelectFromVisible(form);
+        } else if (action === 'move_down') {
+            var next = li.nextElementSibling;
+            if (next) {
+                visibleList.insertBefore(next, li);
+            } else {
+                visibleList.insertBefore(li, visibleList.firstChild);
+            }
+            syncColumnSelectFromVisible(form);
+        }
+    });
+
+    // Detail field selector: client-side move/reorder (no request until Save)
+    function syncDetailHiddenInputs(form, section) {
+        var visibleListId = section === 'header' ? 'headerVisibleFields' : 'detailsVisibleFields';
+        var containerId = section === 'header' ? 'header-fields-inputs' : 'details-fields-inputs';
+        var visibleList = document.getElementById(visibleListId);
+        var container = document.getElementById(containerId);
+        if (!visibleList || !container || !form) return;
+        var items = visibleList.querySelectorAll('li[data-field-name]');
+        var name = section === 'header' ? 'header_fields' : 'details_fields';
+        container.innerHTML = '';
+        items.forEach(function (item) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = item.getAttribute('data-field-name');
+            container.appendChild(input);
+        });
+    }
+    function syncDetailAvailablePlaceholder(availableList) {
+        if (!availableList) return;
+        var hasRealFields = availableList.querySelectorAll('li[data-field-name]').length > 0;
+        var placeholder = availableList.querySelector('li:not([data-field-name])');
+        var emptyText = availableList.getAttribute('data-empty-text') || 'All fields added';
+        if (hasRealFields && placeholder) {
+            placeholder.remove();
+        } else if (!hasRealFields && !placeholder) {
+            var li = document.createElement('li');
+            li.className = 'text-[.8rem] text-[#999] px-[10px] py-[8px]';
+            li.textContent = emptyText;
+            availableList.appendChild(li);
+        }
+    }
+    function detailFieldLiAsAvailable(li, form) {
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var section = li.getAttribute('data-section');
+        var linkClass = form.getAttribute('data-available-link-class') || 'detail-field-list-move hover:border-primary-600 transition duration-300 hover:text-primary-600 px-[10px] py-[8px] w-full flex text-[#333] border border-[#dddddd] rounded-[5px] text-[.8rem] mb-1 text-left';
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('role', 'button');
+        a.setAttribute('data-action', 'add');
+        a.className = linkClass;
+        a.textContent = verboseName;
+        li.innerHTML = '';
+        li.setAttribute('data-field-name', fieldName);
+        li.setAttribute('data-verbose-name', verboseName);
+        li.setAttribute('data-section', section);
+        li.appendChild(a);
+    }
+    function detailFieldLiAsVisible(li, form) {
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var section = li.getAttribute('data-section');
+        var linkClass = form.getAttribute('data-visible-link-class') || 'detail-field-list-move ps-8 pr-16 bg-primary-300 hover:border-primary-600 transition duration-300 hover:text-primary-600 px-[10px] py-[8px] w-full flex text-[#333] border border-[#dddddd] rounded-[5px] text-[.8rem]';
+        var wrap = document.createElement('div');
+        wrap.className = 'flex justify-between items-center relative';
+        var a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('role', 'button');
+        a.setAttribute('data-action', 'remove');
+        a.className = linkClass;
+        a.textContent = verboseName;
+        var btnWrap = document.createElement('div');
+        btnWrap.className = 'flex absolute right-0 h-full';
+        var up = document.createElement('button');
+        up.type = 'button';
+        up.setAttribute('data-action', 'move_up');
+        up.className = 'detail-field-list-move border-[1px] border-r-[0px] border-[solid] w-8 text-primary-600 text-xs transition duration-300';
+        up.innerHTML = '<i class="fa-solid fa-angle-up"></i>';
+        var down = document.createElement('button');
+        down.type = 'button';
+        down.setAttribute('data-action', 'move_down');
+        down.className = 'detail-field-list-move border-[1px] border-[solid] w-8 text-primary-600 text-xs transition duration-300 rounded-r-[5px]';
+        down.innerHTML = '<i class="fa-solid fa-angle-down"></i>';
+        btnWrap.appendChild(up);
+        btnWrap.appendChild(down);
+        wrap.appendChild(a);
+        wrap.appendChild(btnWrap);
+        li.innerHTML = '';
+        li.setAttribute('data-field-name', fieldName);
+        li.setAttribute('data-verbose-name', verboseName);
+        li.setAttribute('data-section', section);
+        li.appendChild(wrap);
+    }
+    document.body.addEventListener('click', function (e) {
+        var form = e.target.closest('#detailFieldSelectorForm');
+        var trigger = e.target.closest('.detail-field-list-move');
+        if (!form || !trigger) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var action = trigger.getAttribute('data-action');
+        var li = trigger.closest('li[data-section][data-field-name]');
+        if (!li) return;
+        var section = li.getAttribute('data-section');
+        var fieldName = li.getAttribute('data-field-name');
+        var verboseName = li.getAttribute('data-verbose-name');
+        var availableList = document.getElementById(section === 'header' ? 'headerAvailableFields' : 'detailsAvailableFields');
+        var visibleList = document.getElementById(section === 'header' ? 'headerVisibleFields' : 'detailsVisibleFields');
+        if (!availableList || !visibleList) return;
+        if (action === 'add') {
+            detailFieldLiAsVisible(li, form);
+            visibleList.appendChild(li);
+            syncDetailAvailablePlaceholder(availableList);
+            syncDetailHiddenInputs(form, section);
+        } else if (action === 'remove') {
+            detailFieldLiAsAvailable(li, form);
+            availableList.appendChild(li);
+            syncDetailAvailablePlaceholder(availableList);
+            syncDetailHiddenInputs(form, section);
+        } else if (action === 'move_up') {
+            var prev = li.previousElementSibling;
+            if (prev && prev.matches('li[data-field-name]')) {
+                visibleList.insertBefore(li, prev);
+            } else {
+                visibleList.appendChild(li);
+            }
+            syncDetailHiddenInputs(form, section);
+        } else if (action === 'move_down') {
+            var next = li.nextElementSibling;
+            if (next && next.matches('li[data-field-name]')) {
+                visibleList.insertBefore(next, li);
+            } else {
+                visibleList.insertBefore(li, visibleList.firstChild);
+            }
+            syncDetailHiddenInputs(form, section);
+        }
+    });
+
+    // Sync hidden inputs right before form submit so removed/moved fields are persisted
+    document.body.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (form && form.id === 'detailFieldSelectorForm') {
+            syncDetailHiddenInputs(form, 'header');
+            syncDetailHiddenInputs(form, 'details');
+        }
+    }, true);
+});
+
+/* ==========================================================================
+   Split view: active tile (red line) and sync on prev/next / HTMX load
+   Uses event delegation so it works when split view is loaded via navbar (HTMX).
+   ========================================================================== */
+(function () {
+    var ACTIVE_CLASS = 'split-view-tile-active';
+
+    function clearTileSelection() {
+        var list = document.getElementById('split-view-tiles');
+        if (!list) return;
+        var tiles = list.querySelectorAll('.split-view-tile');
+        tiles.forEach(function (el) {
+            el.classList.remove(ACTIVE_CLASS);
+        });
+    }
+
+    function setTileSelected(tile) {
+        if (!tile) return;
+        clearTileSelection();
+        tile.classList.add(ACTIVE_CLASS);
+        window._splitViewSelectedId = tile.getAttribute('data-id');
+    }
+
+    function setActiveTileById(id) {
+        if (!id) return;
+        var list = document.getElementById('split-view-tiles');
+        if (!list) return;
+        var t = list.querySelector('.split-view-tile[data-id="' + id + '"]');
+        if (t) {
+            clearTileSelection();
+            t.classList.add(ACTIVE_CLASS);
+            window._splitViewSelectedId = id;
+        }
+    }
+
+    // Tile click: delegate so it works when split view is loaded via HTMX (navbar)
+    document.body.addEventListener('click', function (e) {
+        var tile = e.target.closest('.split-view-tile');
+        if (!tile) return;
+        var list = document.getElementById('split-view-tiles');
+        if (!list || !list.contains(tile)) return;
+        if (!tile.getAttribute('hx-get')) return;
+        var tileId = tile.getAttribute('data-id');
+        if (!tileId) return;
+        setTileSelected(tile);
+    }, true);
+
+    // After detail panel swap: sync active tile (tile click or prev/next)
+    document.body.addEventListener('htmx:afterSwap', function (evt) {
+        if (evt.detail.target.id !== 'splitViewDetailPanel') return;
+        var selectedId = window._splitViewSelectedId;
+        window._splitViewSelectedId = null;
+        clearTileSelection();
+        if (!selectedId) {
+            var container = evt.detail.target;
+            var el = container.querySelector && container.querySelector('[data-object-id]');
+            if (el) selectedId = el.getAttribute('data-object-id');
+        }
+        if (selectedId) {
+            var list = document.getElementById('split-view-tiles');
+            if (list) {
+                var t = list.querySelector('.split-view-tile[data-id="' + selectedId + '"]');
+                if (t) {
+                    t.classList.add(ACTIVE_CLASS);
+                    t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                }
+            }
+        }
+    });
+})();

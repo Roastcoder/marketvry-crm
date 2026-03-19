@@ -1,0 +1,149 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<style>.delete-select { width: 200px; }</style>
+{% include "messages.html" %}
+<div class="bg-white rounded-lg shadow p-6 min-w-[700px]">
+    <div class="flex justify-between items-center mb-2">
+        <h3 class="text-md font-semibold mb-2">{% trans 'Individual Reassign or Delete Dependencies' %}</h3>
+        <button onclick="closeDeleteModal()" class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+            <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+    </div>
+    <p class="text-sm text-gray-600 mb-4">
+        {% trans 'Choose actions for each dependent' %} {{ model_verbose_name }} {% trans 'before deleting' %} "{{ object }}".
+    </p>
+
+    <form id="individual-reassign-form" method="post" action="{{ search_url }}" hx-post="{{ search_url }}" hx-push-url="false" hx-target="#modalBox" hx-swap="innerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
+        <input type="hidden" name="action" value="individual_action">
+        <input type="hidden" name="record_id" value="{{ record_id }}">
+        <input type="hidden" name="view_id" value="{{ view_id|safe }}">
+        <input type="hidden" name="selected_ids" value="{{ selected_ids_json|safe }}">
+
+        <div class="border border-primary-200 rounded-md overflow-hidden mb-4">
+            <div class="max-h-[50vh] overflow-y-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-primary-50 border-b border-primary-200 sticky top-0">
+                        <tr>
+                            <th class="py-3 px-3 font-semibold text-gray-700">{% trans 'Dependent Data' %}</th>
+                            <th class="py-3 px-3 font-semibold text-gray-700 w-40">
+                                <select name="bulk_target_id" id="bulk-target-select" class="js-example-basic-single headselect">
+                                    <option value="">{% trans 'Select Target' %}</option>
+                                    {% for target in available_targets %}
+                                        <option value="{{ target.id }}">{{ target }}</option>
+                                    {% endfor %}
+                                </select>
+                            </th>
+                            {% if is_nullable %}
+                            <th class="py-3 px-1 font-semibold text-gray-700">
+                                <form method="post" action="{{ search_url }}" hx-post="{{ search_url }}" hx-target="#deleteBox" hx-swap="innerHTML" hx-push-url="false"
+                                    class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="individual_action">
+                                    <input type="hidden" name="record_id" value="{{ record_id }}">
+                                    <input type="hidden" name="view_id" value="{{ view_id|safe }}">
+                                    <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
+                                    <input type="hidden" name="bulk_action" value="set_null">
+                                    <input type="hidden" name="selected_ids" value="{{ selected_ids_json|safe }}">
+                                    <button type="submit" title="{% trans 'Set null for all' %}"
+                                        class="bg-dark-25 flex justify-center hover:bg-dark-50 transition duration-300 items-center">
+                                        <img src="{% static 'assets/icons/set-null.svg' %}" alt="{% trans 'Set to Null' %}" width="17" />
+                                    </button>
+                                </form>
+                            </th>
+                            {% endif %}
+                            <th class="py-3 px-1 font-semibold text-gray-700">
+                                <form method="post" action="{{ search_url }}" hx-post="{{ search_url }}" hx-target="#deleteBox" hx-swap="innerHTML" hx-push-url="false"
+                                      class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="individual_action">
+                                    <input type="hidden" name="record_id" value="{{ record_id }}">
+                                    <input type="hidden" name="view_id" value="{{ view_id|safe }}">
+                                    <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
+                                    <input type="hidden" name="bulk_action" value="delete">
+                                    <input type="hidden" name="selected_ids" value="{{ selected_ids_json|safe }}">
+                                    <button type="submit" class="flex" title="{% trans 'Delete all' %}">
+                                        <img src="{% static 'assets/icons/a4-red.svg' %}" alt="{% trans 'Delete' %}" width="17" />
+                                    </button>
+                                </form>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in dependent_records %}
+                        <tr class="border-b border-primary-100" data-record-id="{{ record.id }}">
+                            <td class="py-2 px-3 text-gray-700 truncate max-w-[200px]" title="{{ record }}">{{ record }}</td>
+                            <td class="py-2 px-3">
+                                <div class="delete-select">
+                                    <select name="new_target_{{ record.id }}" class="js-example-basic-single row-target-select headselect">
+                                        <option value="" selected>{% trans 'Select Target' %}</option>
+                                        {% for target in available_targets %}
+                                            <option value="{{ target.id }}">{{ target }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </td>
+                            {% if is_nullable %}
+                            <td class="py-2 px-1">
+                                <form style="display: inline;" hx-post="{{ search_url }}" hx-target="#deleteBox" hx-swap="innerHTML" hx-push-url="false">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="set_null_action">
+                                    <input type="hidden" name="record_id" value="{{ record.id }}">
+                                    <input type="hidden" name="main_record_id" value="{{ record_id }}">
+                                    <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
+                                    <button type="submit"
+                                            hx-on::before-request="this.classList.add('opacity-50')"
+                                            hx-on::after-request="this.classList.remove('opacity-50')"
+                                            class="bg-dark-25 flex-1 flex justify-center hover:bg-dark-50 transition duration-300 items-center"
+                                            title="{% trans 'Set to Null' %}">
+                                        <img src="{% static 'assets/icons/set-null.svg' %}" alt="{% trans 'Set Null' %}" width="17" />
+                                    </button>
+                                </form>
+                            </td>
+                            {% endif %}
+                            <td class="py-2 px-1">
+                                <form style="display: inline;"
+                                      hx-post="{{ search_url }}"
+                                      hx-target="body"
+                                      hx-swap="beforeend"
+                                      hx-push-url="false"
+                                      hx-on::after-request="var tr=document.querySelector('tr[data-record-id=\'{{ record.id }}\']'); if(tr){var n=tr.nextElementSibling; if(n&&n.name&&n.name.indexOf('action_')===0)n.remove(); n=tr.nextElementSibling; if(n&&n.name&&n.name.indexOf('new_target_')===0)n.remove(); tr.remove();}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="{% if delete_mode == 'main_soft' %}soft_delete_record{% else %}delete_single_record{% endif %}">
+                                    <input type="hidden" name="record_id" value="{{ record.id }}">
+                                    <input type="hidden" name="main_record_id" value="{{ record_id }}">
+                                    <input type="hidden" name="delete_mode" value="{{ delete_mode }}">
+                                    <button type="submit"
+                                            hx-on:click="event.preventDefault(); hxConfirmForm(this, '{% if delete_mode == 'main_soft' %}{% trans 'Are you sure you want to soft delete this dependency ? ' %}{% else %}{% trans 'Are you sure you want to hard delete this dependency ? ' %}{% endif %}');">
+                                        <img src="{% static 'assets/icons/a4-red.svg' %}" alt="{% trans 'Delete' %}" width="17" />
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{% if is_nullable %}4{% else %}3{% endif %}" class="py-4 px-3 text-gray-500 text-center">{% trans 'No dependent records found.' %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <button type="button" onclick="closeDeleteModal()" class="text-sm px-6 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
+                {% trans 'Cancel' %}
+            </button>
+            <button type="submit" id="individual-confirm-btn" class="text-sm px-6 py-2 bg-[#21b442] text-white rounded-md hover:bg-[#198230]" hx-indicator="#individual-spinner">
+                <span class="flex items-center gap-2">
+                    <span id="individual-spinner" class="htmx-indicator">
+                        <img src="{% static '/assets/icons/spinner.svg' %}" alt="{% trans 'Loading...' %}" width="25" />
+                    </span>
+                    {% trans 'Confirm' %}
+                </span>
+            </button>
+        </div>
+    </form>
+</div>

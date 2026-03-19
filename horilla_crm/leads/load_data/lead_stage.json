@@ -1,0 +1,111 @@
+[
+    {
+        "model": "leads.leadstatus",
+        "pk": 1,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-04T07:44:11Z",
+            "created_by": 1,
+            "updated_at": "2025-06-04T07:44:11Z",
+            "updated_by": 1,
+            "name": "New",
+            "order": 1,
+            "color": null,
+            "is_final": false,
+            "probability": "10.00"
+        }
+    },
+    {
+        "model": "leads.leadstatus",
+        "pk": 2,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-04T16:49:19Z",
+            "created_by": 1,
+            "updated_at": "2025-06-04T16:49:19Z",
+            "updated_by": 1,
+            "name": "Contacted",
+            "order": 2,
+            "color": null,
+            "is_final": false,
+            "probability": "30.00"
+        }
+    },
+    {
+        "model": "leads.leadstatus",
+        "pk": 3,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-17T05:49:50Z",
+            "created_by": 1,
+            "updated_at": "2025-06-17T05:49:50Z",
+            "updated_by": 1,
+            "name": "Qualified",
+            "order": 3,
+            "color": null,
+            "is_final": false,
+            "probability": "60.00"
+        }
+    },
+    {
+        "model": "leads.leadstatus",
+        "pk": 4,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-17T05:50:39Z",
+            "created_by": 1,
+            "updated_at": "2025-06-17T05:50:39Z",
+            "updated_by": 1,
+            "name": "Proposal",
+            "order": 4,
+            "color": null,
+            "is_final": false,
+            "probability": "80.00"
+        }
+    },
+    {
+        "model": "leads.leadstatus",
+        "pk": 5,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-17T05:50:07Z",
+            "created_by": 1,
+            "updated_at": "2025-06-17T05:50:07Z",
+            "updated_by": 1,
+            "name": "Lost",
+            "order": 5,
+            "color": null,
+            "is_final": false,
+            "probability": "00.00"
+        }
+    },
+    {
+        "model": "leads.leadstatus",
+        "pk": 6,
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "company": 1,
+            "created_at": "2025-06-17T05:50:07Z",
+            "created_by": 1,
+            "updated_at": "2025-06-17T05:50:07Z",
+            "updated_by": 1,
+            "name": "Convert",
+            "order": 6,
+            "color": null,
+            "is_final": true,
+            "probability": "100.00"
+        }
+    }
+
+]

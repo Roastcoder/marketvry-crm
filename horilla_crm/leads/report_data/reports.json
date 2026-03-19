@@ -1,0 +1,98 @@
+[
+    {
+        "model": "horilla_reports.reportfolder",
+        "pk": 1,
+        "fields": {
+            "name": "Default Reports",
+            "parent": null
+        }
+    },
+    {
+        "model": "horilla_reports.reportfolder",
+        "pk": 2,
+        "fields": {
+            "name": "Lead Folder",
+            "parent": 1
+        }
+    },
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Leads by Source",
+            "module": {
+                "app_label": "leads",
+                "model": "lead"
+            },
+            "folder": 2,
+            "selected_columns": "title,first_name,last_name,lead_company,industry",
+            "row_groups": "lead_source",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "{}",
+            "chart_type": "pie",
+            "chart_field": null,
+            "chart_field_stacked": null
+        }
+    },
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Converted Leads",
+            "module": {
+                "app_label": "leads",
+                "model": "lead"
+            },
+            "folder": 2,
+            "selected_columns": "title,first_name,last_name,industry,annual_revenue",
+            "row_groups": "",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "{\"is_convert\": {\"value\": \"True\", \"operator\": \"exact\", \"logic\": \"and\", \"original_field\": \"is_convert\"}}",
+            "chart_type": "bar",
+            "chart_field": null,
+            "chart_field_stacked": null
+
+        }
+    },
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Leads by Owner",
+            "module": {
+                "app_label": "leads",
+                "model": "lead"
+            },
+            "folder": 2,
+            "selected_columns": "title,first_name,last_name,annual_revenue",
+            "row_groups": "lead_owner",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "",
+            "chart_type": "bar",
+            "chart_field": null,
+            "chart_field_stacked": null
+
+        }
+    },
+    {
+        "model": "horilla_reports.report",
+        "fields": {
+            "name": "Leads by Status",
+            "module": {
+                "app_label": "leads",
+                "model": "lead"
+            },
+            "folder": 2,
+            "selected_columns": "title,first_name,last_name,annual_revenue",
+            "row_groups": "lead_status",
+            "column_groups": "",
+            "aggregate_columns": "",
+            "filters": "",
+            "chart_type": "donut",
+            "chart_field": null,
+            "chart_field_stacked": null
+
+        }
+    }
+
+]

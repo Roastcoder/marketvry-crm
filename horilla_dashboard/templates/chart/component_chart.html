@@ -1,0 +1,31 @@
+<div id="component-chart-{{ component_id }}" class="w-full h-full" style="min-height: 200px;"></div>
+<script>
+(function() {
+    const chartDom = document.getElementById('component-chart-{{ component_id }}');
+    if (chartDom && typeof EChartsConfig !== 'undefined' && typeof echarts !== 'undefined') {
+        const compKey = 'dashboard-component-{{ component_id }}';
+        if (window.chartInstances && window.chartInstances[compKey]) {
+            try { window.chartInstances[compKey].instance.dispose(); } catch (e) {}
+        }
+        const myChart = echarts.init(chartDom);
+        const config = {{ chart_config_json|safe }};
+        const option = EChartsConfig.getChartOption(config);
+        myChart.setOption(option);
+        // Dashboard cards often use overflow-hidden ancestors; force tooltip on body when supported
+        if (config.type && String(config.type).toLowerCase().indexOf('stacked') !== -1) {
+            try {
+                myChart.setOption({
+                    tooltip: {
+                        appendToBody: true,
+                        confine: false,
+                        extraCssText: 'max-height:70vh;overflow-y:auto;padding:10px 12px;z-index:99999;'
+                    }
+                }, false);
+            } catch (e) {}
+        }
+        EChartsConfig.attachClickHandler(myChart, config.urls, config);
+        if (typeof window.chartInstances === 'undefined') window.chartInstances = {};
+        window.chartInstances[compKey] = { instance: myChart, config: config };
+    }
+})();
+</script>

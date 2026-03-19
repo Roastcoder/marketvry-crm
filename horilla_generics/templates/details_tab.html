@@ -1,0 +1,39 @@
+{% load static i18n %}
+{% load horilla_tags %}
+<div class="h-full overflow-y-auto overflow-hidden custom-scroll p-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for col in body %}
+      {% with field_name=col.1 %}
+        {% with field_perm=field_permissions|get_item:field_name|default:"readwrite" %}
+          {% if field_perm != "hidden" %}
+            <div id="field-{{ field_name }}">
+              <label for="{{col.0}}-details-tab" class="text-xs text-color-600">
+                {{col.0}}
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  id="{{col.0}}-details-tab"
+                  name="{{col.0}}_details_tab"
+                  value="{% display_field_value obj field_name request.user %}"
+                  class="text-color-600 p-2 placeholder:text-xs font-normal pr-[40px] w-full border border-dark-50 rounded-md mt-1 focus-visible:outline-0 placeholder:text-dark-100 text-sm [transition:.3s] focus:border-primary-600"
+                  readonly
+                />
+
+                {% if edit_field and field_name not in non_editable_fields and field_perm == "readwrite" and can_update %}
+                  <button
+                    class="absolute right-3 top-0 bottom-0 m-auto cursor-pointer hover:scale-110 transition-transform"
+                    hx-get="{% url 'horilla_generics:edit_field' pk=obj.pk field_name=field_name app_label=app_label model_name=model_name %}?pipeline_field={{ pipeline_field }}"
+                    hx-target="#field-{{ field_name }}"
+                    hx-swap="outerHTML">
+                    <img src="{% static './assets/icons/edit.svg' %}" alt="{% trans 'Edit' %}" width="13" />
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+</div>

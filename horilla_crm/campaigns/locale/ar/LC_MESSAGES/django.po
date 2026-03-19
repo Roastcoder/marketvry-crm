@@ -1,0 +1,235 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Campaigns"
+msgstr "الحملات"
+
+msgid "Select Campaign"
+msgstr "اختر الحملة"
+
+msgid "Select campaign"
+msgstr "اختر الحملة"
+
+msgid "Please select campaign."
+msgstr "يرجى اختيار الحملة."
+
+msgid "This campaign already has a parent campaign assigned."
+msgstr "هذه الحملة لها حملة رئيسية محددة بالفعل."
+
+msgid "An campaign cannot be its own parent."
+msgstr "لا يمكن للحملة أن تكون هي الحملة الرئيسية لنفسها."
+
+msgid "Please select a valid campaign."
+msgstr "يرجى اختيار حملة صالحة."
+
+msgid "Planned"
+msgstr "مخطط"
+
+msgid "Sent"
+msgstr "مرسل"
+
+msgid "Recieved"
+msgstr "تم الاستلام"
+
+msgid "Responded"
+msgstr "تم الرد"
+
+msgid "Lead"
+msgstr "عميل محتمل"
+
+msgid "Contact"
+msgstr "جهة اتصال"
+
+msgid "Campaign"
+msgstr "الحملة"
+
+msgid "Member Status"
+msgstr "حالة العضو"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Campaign Member"
+msgstr "عضو الحملة"
+
+msgid "Campaign Members"
+msgstr "أعضاء الحملة"
+
+msgid "New"
+msgstr "جديد"
+
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+msgid "Completed"
+msgstr "مكتمل"
+
+msgid "Aborted"
+msgstr "ملغى"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Event"
+msgstr "الفعالية"
+
+msgid "Social Media"
+msgstr "وسائل التواصل الاجتماعي"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Webinar"
+msgstr "ويبينار"
+
+msgid "Referral"
+msgstr "إحالة"
+
+msgid "Advertisement"
+msgstr "إعلان"
+
+msgid "Campaign Name"
+msgstr "اسم الحملة"
+
+msgid "Campaign Owner"
+msgstr "مالك الحملة"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Expected Revenue"
+msgstr "الإيرادات المتوقعة"
+
+msgid "Budget Cost"
+msgstr "تكلفة الميزانية"
+
+msgid "Actual Cost"
+msgstr "التكلفة الفعلية"
+
+msgid "Expected Response (%)"
+msgstr "الاستجابة المتوقعة (%)"
+
+msgid "Number Sent in Campaign"
+msgstr "عدد المرسلين في الحملة"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Parent Campaign"
+msgstr "الحملة الرئيسية"
+
+msgid "Leads in Campaign"
+msgstr "العملاء المحتملين في الحملة"
+
+msgid "Converted Leads in Campaign"
+msgstr "العملاء المحتملين المحولين في الحملة"
+
+msgid "Contacts in Campaign"
+msgstr "جهات الاتصال في الحملة"
+
+msgid "Opportunities in Campaign"
+msgstr "الفرص في الحملة"
+
+msgid "Won Opportunities in Campaign"
+msgstr "الفرص المكتسبة في الحملة"
+
+msgid "Value Opportunities in Campaign"
+msgstr "قيمة الفرص في الحملة"
+
+msgid "Value Won Opportunities in Campaign"
+msgstr "قيمة الفرص المكتسبة في الحملة"
+
+msgid "Responses in Campaign"
+msgstr "الردود في الحملة"
+
+msgid "Campaign Hierarchy"
+msgstr "تسلسل الحملة"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Duplicate"
+msgstr "نسخ"
+
+msgid "Campaign Information"
+msgstr "معلومات الحملة"
+
+msgid "Financial Information"
+msgstr "المعلومات المالية"
+
+msgid "Additional Information"
+msgstr "معلومات إضافية"
+
+msgid "Change Owner"
+msgstr "تغيير المالك"
+
+msgid "View Hierarchy"
+msgstr "عرض التسلسل الهرمي"
+
+msgid "Add Child Campaign"
+msgstr "إضافة حملة فرعية"
+
+msgid "You must be logged in to perform this action."
+msgstr "يجب تسجيل الدخول للقيام بهذا الإجراء."
+
+msgid "No parent campaign specified in the request."
+msgstr "لم يتم تحديد حملة رئيسية في الطلب."
+
+msgid "A campaign cannot be its own parent."
+msgstr "لا يمكن للحملة أن تكون الحملة الرئيسية لنفسها."
+
+msgid "This campaign already has a parent campaign."
+msgstr "هذه الحملة لديها حملة رئيسية بالفعل."
+
+msgid "Child campaign assigned successfully!"
+msgstr "تم تعيين الحملة الفرعية بنجاح!"
+
+msgid "Invalid parent campaign ID format."
+msgstr "تنسيق معرف الحملة الرئيسية غير صالح."
+
+msgid "You don't have permission to perform this action."
+msgstr "ليس لديك الإذن للقيام بهذا الإجراء."
+
+msgid "This campaign doesn't have a parent campaign."
+msgstr "هذه الحملة لا تحتوي على حملة رئيسية."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_campaign.campaign_name} from {parent_campaign."
+"campaign_name}'s child campaigns."
+msgstr ""
+"تمت إزالة {child_campaign.campaign_name} بنجاح من الحملات الفرعية لـ "
+"{parent_campaign.campaign_name}."
+
+msgid "An error occurred while removing the child campaign."
+msgstr "حدث خطأ أثناء إزالة الحملة الفرعية."
+
+msgid "Add to Campaign"
+msgstr "إضافة إلى الحملة"
+
+msgid "Add Campaign Members"
+msgstr "إضافة أعضاء للحملة"

@@ -1,0 +1,314 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Module for creating and customizing reports across all system modules."
+msgstr ""
+"Modul zum Erstellen und Anpassen von Berichten über alle Systemmodule hinweg."
+
+msgid "Reports"
+msgstr "Berichte"
+
+msgid "Analytics"
+msgstr "Analysen"
+
+msgid "Folder Name"
+msgstr "Ordnername"
+
+msgid "Folder"
+msgstr "Ordner"
+
+msgid "Folder Owner"
+msgstr "Ordnerinhaber"
+
+msgid "Report Folder"
+msgstr "Berichtsordner"
+
+msgid "Report Folders"
+msgstr "Berichtsordner"
+
+msgid "Column Chart"
+msgstr "Säulendiagramm"
+
+msgid "Line Chart"
+msgstr "Liniendiagramm"
+
+msgid "Pie Chart"
+msgstr "Kreisdiagramm"
+
+msgid "Funnel"
+msgstr "Trichterdiagramm"
+
+msgid "Bar Chart"
+msgstr "Balkendiagramm"
+
+msgid "Donut"
+msgstr "Ringdiagramm"
+
+msgid "Stacked Vertical Chart"
+msgstr "Gestapeltes vertikales Diagramm"
+
+msgid "Stacked Horizontal Chart"
+msgstr "Gestapeltes horizontales Diagramm"
+
+msgid "Scatter Chart"
+msgstr "Streudiagramm"
+
+msgid "Report Owner"
+msgstr "Berichtsinhaber"
+
+msgid "Report Name"
+msgstr "Berichtsname"
+
+msgid "Module"
+msgstr "Modul"
+
+msgid "Chart Field"
+msgstr "Diagrammfeld"
+
+msgid "Secondary Field"
+msgstr "Sekundäres Feld"
+
+msgid "Report"
+msgstr "Bericht"
+
+msgid " All Reports"
+msgstr " Alle Berichte"
+
+msgid "Folders"
+msgstr "Ordner"
+
+msgid "All Folders"
+msgstr "Alle Ordner"
+
+msgid "Favourites"
+msgstr "Favoriten"
+
+msgid "All Reports"
+msgstr "Alle Berichte"
+
+msgid "You are already selected this field"
+msgstr "Dieses Feld wurde bereits ausgewählt"
+
+msgid "No matching columns found"
+msgstr "Keine passenden Spalten gefunden"
+
+msgid "No fields found matching your search"
+msgstr "Keine Felder gefunden, die Ihrer Suche entsprechen"
+
+msgid "R"
+msgstr "R"
+
+msgid "C"
+msgstr "C"
+
+msgid "A"
+msgstr "A"
+
+msgid "Down"
+msgstr ""
+
+msgid "Add to Dashboard"
+msgstr "Zum Dashboard hinzufügen"
+
+msgid "Record Count"
+msgstr "Anzahl der Datensätze"
+
+msgid "Is"
+msgstr "Ist"
+
+msgid "Contains"
+msgstr "Enthält"
+
+msgid "Greater than"
+msgstr "Größer als"
+
+msgid "Less than"
+msgstr "Kleiner als"
+
+msgid "Greater or equal"
+msgstr "Größer oder gleich"
+
+msgid "Less or equal"
+msgstr "Kleiner oder gleich"
+
+msgid "Close"
+msgstr ""
+
+msgid "AND"
+msgstr "UND"
+
+msgid "OR"
+msgstr "ODER"
+
+msgid "Summary Report"
+msgstr "Zusammenfassender Bericht"
+
+msgid "Total Count"
+msgstr "Gesamtanzahl"
+
+msgid "Total"
+msgstr "Gesamt"
+
+msgid "Subtotal"
+msgstr "Zwischensumme"
+
+msgid "Grand Total"
+msgstr "Gesamtsumme"
+
+msgid "Count"
+msgstr "Anzahl"
+
+msgid "Overall Grand Total"
+msgstr "Gesamtsumme insgesamt"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Configuration not supported"
+msgstr "Konfiguration wird nicht unterstützt"
+
+msgid "Columns"
+msgstr "Spalten"
+
+msgid "Grouping"
+msgstr "Gruppierung"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Search"
+msgstr ""
+
+msgid "Selected Columns"
+msgstr "Ausgewählte Spalten"
+
+msgid "Grouped Columns"
+msgstr "Gruppierte Spalten"
+
+msgid "Row Groups"
+msgstr "Zeilengruppen"
+
+msgid "Column Groups"
+msgstr "Spaltengruppen"
+
+msgid "Aggregate Columns"
+msgstr "Aggregierte Spalten"
+
+msgid "Sum"
+msgstr "Summe"
+
+msgid "Avg"
+msgstr "Durchschnitt"
+
+msgid "Max"
+msgstr "Maximum"
+
+msgid "Min"
+msgstr "Minimum"
+
+msgid "Seacrch"
+msgstr ""
+
+msgid "Apply Filters"
+msgstr "Filter anwenden"
+
+msgid "Report:"
+msgstr "Bericht:"
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Edit"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "You have unsaved changes. Click"
+msgstr "Sie haben nicht gespeicherte Änderungen. Klicken Sie auf"
+
+msgid "to keep your changes or"
+msgstr "um Ihre Änderungen zu behalten oder"
+
+msgid "Discard"
+msgstr "Verwerfen"
+
+msgid "to revert."
+msgstr "um zurückzusetzen."
+
+msgid "Detail table"
+msgstr "Detailtabelle"
+
+msgid "Pivot table"
+msgstr "Pivot-Tabelle"
+
+msgid "Report Chart"
+msgstr "Berichtsdiagramm"
+
+msgid "Change Chart"
+msgstr "Diagramm ändern"
+
+msgid "Change Field"
+msgstr "Feld ändern"
+
+msgid "Export as PDF"
+msgstr ""
+
+msgid "Export as PNG"
+msgstr ""
+
+msgid "Record Count:"
+msgstr "Anzahl der Datensätze:"
+
+msgid "Move"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Select Default Reports"
+msgstr "Standardberichte auswählen"
+
+msgid "Select All"
+msgstr "Alle auswählen"
+
+msgid "Create"
+msgstr "Erstellen"
+
+msgid "No reports found."
+msgstr "Keine Berichte gefunden."
+
+msgid "New Report"
+msgstr "Neuer Bericht"
+
+msgid "Load Default Reports"
+msgstr "Standardberichte laden"
+
+msgid "New Folder"
+msgstr "Neuer Ordner"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Type"
+msgstr "Typ"

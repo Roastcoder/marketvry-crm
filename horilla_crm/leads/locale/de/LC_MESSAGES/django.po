@@ -1,0 +1,553 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Leads"
+msgstr "Interessenten"
+
+msgid "CRM"
+msgstr "CRM"
+
+msgid "CRM module for managing leads, contacts, and opportunities."
+msgstr "CRM-Modul zur Verwaltung von Interessenten, Kontakten und Chancen."
+
+msgid "Horilla CRM"
+msgstr "Horilla CRM"
+
+msgid "Welcome to Horilla CRM"
+msgstr "Willkommen bei Horilla CRM"
+
+msgid "Please sign up to access Horilla CRM"
+msgstr "Bitte registrieren Sie sich, um auf Horilla CRM zuzugreifen"
+
+msgid "Is Final Stage"
+msgstr "Ist Endphase"
+
+msgid "Mail to Lead"
+msgstr "E-Mail an Interessenten"
+
+msgid "Lead"
+msgstr "Interessent"
+
+msgid "Web to Lead"
+msgstr "Web zu Interessent"
+
+msgid "Sales"
+msgstr "Vertrieb"
+
+msgid "Status Name"
+msgstr "Statusname"
+
+msgid "Status Order"
+msgstr "Statusreihenfolge"
+
+msgid "Status Color"
+msgstr "Statusfarbe"
+
+msgid "Leave blank for default (primary theme colour)."
+msgstr "Leer lassen für Standard (primäre Designfarbe)."
+
+msgid "Probability"
+msgstr "Wahrscheinlichkeit"
+
+msgid "Default probability percentage for this stage"
+msgstr "Standard-Wahrscheinlichkeitsprozentsatz für diese Phase"
+
+msgid "Lead Stage"
+msgstr "Interessentenphase"
+
+msgid "Lead Stages"
+msgstr "Interessentenphasen"
+
+msgid "Order must be a non-negative integer."
+msgstr "Die Reihenfolge muss eine nicht-negative ganze Zahl sein."
+
+msgid "Website"
+msgstr "Webseite"
+
+msgid "Referral"
+msgstr "Empfehlung"
+
+msgid "Event"
+msgstr "Ereignis"
+
+msgid "Campaign"
+msgstr "Kampagne"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Social Media"
+msgstr "Soziale Medien"
+
+msgid "Partner"
+msgstr "Partner"
+
+msgid "Other"
+msgstr "Andere"
+
+msgid "Finance"
+msgstr "Finanzen"
+
+msgid "Healthcare"
+msgstr "Gesundheitswesen"
+
+msgid "Manufacturing"
+msgstr "Fertigung"
+
+msgid "Agriculture"
+msgstr "Landwirtschaft"
+
+msgid "Construction"
+msgstr "Bauwesen"
+
+msgid "Banking"
+msgstr "Bankwesen"
+
+msgid "Education"
+msgstr "Bildung"
+
+msgid "Insurance"
+msgstr "Versicherung"
+
+msgid "Lead Owner"
+msgstr "Interessenteninhaber"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "First Name"
+msgstr "Vorname"
+
+msgid "Last Name"
+msgstr "Nachname"
+
+msgid "Contact Number"
+msgstr "Kontaktnummer"
+
+msgid "Fax"
+msgstr "Fax"
+
+msgid "Lead Source"
+msgstr "Quelle des Interessenten"
+
+msgid "Company"
+msgstr "Firma"
+
+msgid "Total Employees"
+msgstr "Gesamtmitarbeiter"
+
+msgid "Industry"
+msgstr "Branche"
+
+msgid "Annual Revenue"
+msgstr "Jahresumsatz"
+
+msgid "City"
+msgstr "Stadt"
+
+msgid "State"
+msgstr "Bundesland"
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Zip"
+msgstr "Postleitzahl"
+
+msgid "Requirements"
+msgstr "Anforderungen"
+
+msgid "Lead Score"
+msgstr "Interessentenbewertung"
+
+msgid "Incoming Mail"
+msgstr "Eingehende Mail"
+
+msgid ""
+"Comma-separated list of allowed sender email addresses. Leave blank to "
+"accept all."
+msgstr ""
+"Kommagetrennte Liste erlaubter Absender-E-Mail-Adressen. Leer lassen, um "
+"alle zu akzeptieren."
+
+msgid "Accept Emails From"
+msgstr "E-Mails akzeptieren von"
+
+msgid ""
+"Comma-separated keywords to filter emails. Email must contain at least one "
+"keyword in subject OR body."
+msgstr ""
+"Kommagetrennte Schlüsselwörter zum Filtern von E-Mails. Die E-Mail muss "
+"mindestens ein Schlüsselwort im Betreff ODER im Text enthalten."
+
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+msgid "Last Fetched On"
+msgstr "Zuletzt abgerufen am"
+
+msgid "Mail to Lead Config"
+msgstr "Mail-to-Lead-Konfiguration"
+
+msgid "English"
+msgstr "Englisch"
+
+msgid "Arabic"
+msgstr "Arabisch"
+
+msgid "German"
+msgstr "Deutsch"
+
+msgid "French"
+msgstr "Französisch"
+
+msgid "Form Name"
+msgstr "Formularname"
+
+msgid "Selected Fields"
+msgstr "Ausgewählte Felder"
+
+msgid "Enable Return URL"
+msgstr "Rückkehr-URL aktivieren"
+
+msgid "Return URL"
+msgstr "Rückkehr-URL"
+
+msgid "Success Message"
+msgstr "Erfolgsmeldung"
+
+msgid "Success Description"
+msgstr "Erfolgsbeschreibung"
+
+msgid "Enable Recaptcha"
+msgstr "Recaptcha aktivieren"
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Header Color"
+msgstr "Kopfzeilenfarbe"
+
+msgid "Lead Capture Form"
+msgstr "Interessentenformular"
+
+msgid "Lead Capture Forms"
+msgstr "Interessentenformulare"
+
+msgid "Rule Name"
+msgstr "Regelname"
+
+msgid "Opportunity"
+msgstr "Verkaufschance"
+
+msgid "Account"
+msgstr "Konto"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Module"
+msgstr "Modul"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Scoring Rule"
+msgstr "Bewertungsregel"
+
+msgid "Scoring Rules"
+msgstr "Bewertungsregeln"
+
+msgid "Criterion Name"
+msgstr "Kriteriumsname"
+
+msgid "Points to Award"
+msgstr "Zu vergebende Punkte"
+
+msgid "Add"
+msgstr "Hinzufügen"
+
+msgid "Sub"
+msgstr "Subtrahieren"
+
+msgid "Operation Type"
+msgstr "Operationstyp"
+
+msgid "Order"
+msgstr "Reihenfolge"
+
+msgid "Scoring Criterion"
+msgstr "Bewertungskriterium"
+
+msgid "Scoring Criteria"
+msgstr "Bewertungskriterien"
+
+msgid "Field Name"
+msgstr "Feldname"
+
+msgid "Operator"
+msgstr "Operator"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "AND"
+msgstr "UND"
+
+msgid "OR"
+msgstr "ODER"
+
+msgid "Logical Operator"
+msgstr "Logischer Operator"
+
+msgid "Scoring Condition"
+msgstr "Bewertungsbedingung"
+
+msgid "Scoring Conditions"
+msgstr "Bewertungsbedingungen"
+
+msgid "Opened"
+msgstr "Geöffnet"
+
+msgid "Clicked"
+msgstr "Geklickt"
+
+msgid "Bounced"
+msgstr "Zurückgewiesen"
+
+
+msgid "Add Column to List"
+msgstr "Spalte zur Liste hinzufügen"
+
+msgid "Is Active"
+msgstr "Ist aktiv"
+
+msgid "Create New Rule Criteria"
+msgstr "Neue Regelkriterien erstellen"
+
+msgid "Lead Conversion"
+msgstr "Interessenten-Konvertierung"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Create New"
+msgstr "Neu erstellen"
+
+msgid "Select Existing"
+msgstr "Bestehendes auswählen"
+
+msgid "Owner"
+msgstr "Besitzer"
+
+msgid "Convert"
+msgstr "Konvertieren"
+
+msgid "Account Name"
+msgstr "Kontoname"
+
+msgid "Select Contact"
+msgstr "Kontakt auswählen"
+
+msgid "Opportunity Name"
+msgstr "Chancenname"
+
+msgid "Select Opportunity"
+msgstr "Chance auswählen"
+
+msgid "Please select an account first"
+msgstr "Bitte zuerst ein Konto auswählen"
+
+msgid "Select an account to see available opportunities"
+msgstr "Wählen Sie ein Konto, um verfügbare Chancen anzuzeigen"
+
+
+msgid "Success"
+msgstr "Erfolg"
+
+msgid "Your lead has been converted"
+msgstr "Ihr Interessent wurde konvertiert"
+
+msgid "Comapny"
+msgstr "Unternehmen"
+
+msgid "User"
+msgstr "Benutzer"
+
+msgid "crown"
+msgstr "Krone"
+
+msgid "Go to Leads"
+msgstr "Zu Interessenten gehen"
+
+msgid "Manage Custom Stages"
+msgstr "Benutzerdefinierte Phasen verwalten"
+
+msgid "Drag"
+msgstr "Ziehen"
+
+msgid "Add Stage"
+msgstr "Phase hinzufügen"
+
+msgid " Changes"
+msgstr " Änderungen"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Initialize Database"
+msgstr "Datenbank initialisieren"
+
+msgid "Get started by using default stages or adding your custom stages."
+msgstr ""
+"Beginnen Sie mit den Standardphasen oder fügen Sie Ihre benutzerdefinierten "
+"Phasen hinzu."
+
+msgid "Default Stages"
+msgstr "Standardphasen"
+
+msgid "Stages"
+msgstr "Phasen"
+
+msgid "Select Lead Stages for"
+msgstr "Interessentenphasen auswählen für"
+
+msgid "Custom Stages"
+msgstr "Benutzerdefinierte Phasen"
+
+msgid "Criteria"
+msgstr "Kriterien"
+
+msgid "Points"
+msgstr "Punkte"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Nothing to show yet. Please add your Criteria"
+msgstr "Noch nichts zum Anzeigen. Bitte fügen Sie Ihre Kriterien hinzu"
+
+msgid "Enter return url"
+msgstr "Rückkehr-URL eingeben"
+
+msgid "Enter success message"
+msgstr "Erfolgsmeldung eingeben"
+
+msgid "Enter success description"
+msgstr "Erfolgsbeschreibung eingeben"
+
+msgid "Contact Us"
+msgstr "Kontaktieren Sie uns"
+
+#, python-format
+msgid "Enter %(vname)s"
+msgstr "Geben Sie %(vname)s ein"
+
+#, python-format
+msgid "Select %(vname)s"
+msgstr "Wählen Sie %(vname)s aus"
+
+msgid "Submit"
+msgstr "Absenden"
+
+msgid "Select fields to preview form"
+msgstr "Felder zur Formularvorschau auswählen"
+
+msgid "Your lead capture form is ready to use."
+msgstr "Ihr Interessentenformular ist einsatzbereit."
+
+msgid "IFRAME EMBED CODE"
+msgstr "IFRAME Einbettungscode"
+
+msgid "Copy Embed"
+msgstr "Einbettung kopieren"
+
+msgid ""
+"Copy and paste this embed code into your website's HTML where you want the "
+"form to appear."
+msgstr ""
+"Kopieren Sie diesen Einbettungscode und fügen Sie ihn in den HTML-Code Ihrer "
+"Website ein, wo das Formular erscheinen soll."
+
+msgid "GENERATED HTML CODE"
+msgstr "Generierter HTML-Code"
+
+msgid "Copy Code"
+msgstr "Code kopieren"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Form Builder"
+msgstr "Formular-Generator"
+
+msgid "Fields"
+msgstr "Felder"
+
+msgid "Click fields to add"
+msgstr "Felder anklicken zum Hinzufügen"
+
+msgid "Select Lead Owner"
+msgstr "Interessenteninhaber auswählen"
+
+msgid "Generate"
+msgstr "Generieren"
+
+msgid "Enter"
+msgstr "Eingeben"
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Submitting..."
+msgstr "Wird gesendet..."
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Loading..."
+msgstr "Wird geladen..."
+
+msgid "Page Not Found"
+msgstr "Seite nicht gefunden"
+
+msgid "Converted Lead"
+msgstr "Konvertierter Lead"
+
+msgid "Duplicate"
+msgstr "Duplizieren"
+
+msgid "Basic Information"
+msgstr "Grundlegende Informationen"
+
+msgid "Company Details"
+msgstr "Unternehmensdetails"
+
+msgid "Location"
+msgstr "Standort"
+
+msgid "Change Owner"
+msgstr "Besitzer ändern"

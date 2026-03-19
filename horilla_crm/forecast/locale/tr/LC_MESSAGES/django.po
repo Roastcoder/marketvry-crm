@@ -1,0 +1,337 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Forecast"
+msgstr ""
+
+msgid "Update Target"
+msgstr ""
+
+msgid "Deal Revenue Amount"
+msgstr ""
+
+msgid "Deal Revenue Expected Amount"
+msgstr ""
+
+msgid "Deal Quantity"
+msgstr ""
+
+msgid "Forecast Type Name"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Forecast Type"
+msgstr ""
+
+msgid "Include Pipeline"
+msgstr ""
+
+msgid "Include Best Case"
+msgstr ""
+
+msgid "Include Commit"
+msgstr ""
+
+msgid "Include Closed"
+msgstr ""
+
+msgid "Forecast Types"
+msgstr ""
+
+msgid "Field Name"
+msgstr ""
+
+msgid "Operator"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Logical Operator"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
+msgid "Forecast Condition"
+msgstr ""
+
+msgid "Forecast Conditions"
+msgstr ""
+
+msgid "Draft"
+msgstr ""
+
+msgid "Submitted"
+msgstr ""
+
+msgid "Approved"
+msgstr ""
+
+msgid "Rejected"
+msgstr ""
+
+msgid "Forecast Name"
+msgstr ""
+
+msgid "Period"
+msgstr ""
+
+msgid "Quarter"
+msgstr ""
+
+msgid "Fiscal Year"
+msgstr ""
+
+msgid "Forecast Owner"
+msgstr ""
+
+msgid "Target Amount"
+msgstr ""
+
+msgid "Pipeline Amount"
+msgstr ""
+
+msgid "Best Case Amount"
+msgstr ""
+
+msgid "Commit Amount"
+msgstr ""
+
+msgid "Closed Amount"
+msgstr ""
+
+msgid "Actual Amount"
+msgstr ""
+
+msgid "Target Quantity"
+msgstr ""
+
+msgid "Pipeline Quantity"
+msgstr ""
+
+msgid "Best Case Quantity"
+msgstr ""
+
+msgid "Commit Quantity"
+msgstr ""
+
+msgid "Closed Quantity"
+msgstr ""
+
+msgid "Actual Quantity"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Submitted At"
+msgstr ""
+
+msgid "Approved At"
+msgstr ""
+
+msgid "Approved By"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Forecasts"
+msgstr ""
+
+msgid "Assigned User"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Forecast Period"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Target amount (revenue or quantity)"
+msgstr ""
+
+msgid "Currency"
+msgstr ""
+
+msgid "Currency code (e.g., USD, EUR, INR)"
+msgstr ""
+
+msgid "Current Achievement"
+msgstr ""
+
+msgid "Current achieved amount (auto-calculated)"
+msgstr ""
+
+msgid "Forecast Target"
+msgstr ""
+
+msgid "Forecast Targets"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "User Revenue Target"
+msgstr ""
+
+msgid "Individual revenue target for this user"
+msgstr ""
+
+msgid "User Quantity Target"
+msgstr ""
+
+msgid "Individual quantity target for this user"
+msgstr ""
+
+msgid "Current Revenue Achieved"
+msgstr ""
+
+msgid "Current achieved revenue for this user"
+msgstr ""
+
+msgid "Current Quantity Achieved"
+msgstr ""
+
+msgid "Current achieved quantity for this user"
+msgstr ""
+
+msgid "Is Active"
+msgstr ""
+
+msgid "Forecast Target User"
+msgstr ""
+
+msgid "Forecast Target Users"
+msgstr ""
+
+msgid "My Forecast"
+msgstr ""
+
+msgid "All Users"
+msgstr ""
+
+msgid "Select Fiscal Year"
+msgstr ""
+
+msgid "- Current"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "deals"
+msgstr ""
+
+msgid "Total:"
+msgstr ""
+
+msgid "opportunities"
+msgstr ""
+
+msgid "Total Quantity:"
+msgstr ""
+
+msgid "Total Amount:"
+msgstr ""
+
+msgid "Select User"
+msgstr ""
+
+msgid "Select Period"
+msgstr ""
+
+msgid "Select Forecast Type"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Conditions"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Activate company"
+msgstr ""
+
+msgid "Please create or activate your company."
+msgstr ""
+
+msgid "Not found"
+msgstr ""
+
+msgid "No Forecast Type set. Set it from settings."
+msgstr ""
+
+msgid "Go To Forecast Type"
+msgstr ""
+
+msgid "Achievement"
+msgstr ""
+
+msgid "Gap"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "Commit Forecast"
+msgstr ""
+
+msgid "Best Case"
+msgstr ""
+
+msgid "Open Pipeline"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Periods"
+msgstr ""
+
+msgid "Up trend"
+msgstr ""
+
+msgid "Down trend"
+msgstr ""
+
+msgid "Loading more users for"
+msgstr ""
+
+msgid "No forecast data available for this period"
+msgstr ""
+
+msgid "Forecast Type:"
+msgstr ""
+
+msgid "Permission Denied"
+msgstr ""
+
+msgid "You do not have permission to view this page."
+msgstr ""

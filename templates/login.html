@@ -1,0 +1,172 @@
+{% load static i18n horilla_tags %}
+<!DOCTYPE html>
+<html class="{% if request.session.theme == 'dark' %}dark{% endif %}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ TITLE }} - Login</title>
+
+    <!-- Head Start: Blocking initialization scripts -->
+    {% load_registered_html "head_start" "login" as head_start_html %}
+    {% for tpl in head_start_html %} {% include tpl %} {% endfor %}
+
+    <!-- Theme Initialization (Blocking) -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem("theme") || "light";
+            const html = document.documentElement;
+
+            if (theme === "dark") {
+                html.classList.add("dark");
+                html.style.colorScheme = "dark";
+            } else {
+                html.classList.remove("dark");
+                html.style.colorScheme = "light";
+            }
+        })();
+    </script>
+
+    <!-- Core Scripts -->
+    <script src="{% static 'assets/js/tailwind/tailwind.js' %}"></script>
+    <script src="{% static 'assets/js/tailwind.config.js' %}"></script>
+    <script src="{% static 'assets/js/htmx/htmx.min.js' %}"></script>
+    <script src="{% static 'assets/js/cloudflare/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/cloudflare/chart.min.js' %}"></script>
+
+    <!-- UI Library Scripts -->
+    <script src="{% static 'assets/js/flowbite/flowbite.min.js' %}"></script>
+    <script src="{% static 'assets/js/sweetalert2.js' %}"></script>
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'assets/css/flowbite/flowbite.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/fontawesome/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/dark.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/calendar.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/sweetalert_toast/toast.css' %}" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="{% static 'assets/css/googlefonts/css2.css' %}" />
+
+    <!-- Head End: Non-blocking head assets -->
+    {% load_registered_html "head_end" "login" as head_end_html %}
+    {% for tpl in head_end_html %} {% include tpl %} {% endfor %}
+</head>
+
+<body class="bg-[#f8f8f9] font-[Inter,_sans-serif]">
+
+    <!-- Body Start: Early body initialization -->
+    {% load_registered_html "body_start" "login" as body_start_html %}
+    {% for tpl in body_start_html %} {% include tpl %} {% endfor %}
+
+    <!-- Apply Dark Mode to Body -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem("theme");
+            if (theme === "dark") {
+                document.body.classList.add("dark");
+            }
+        })();
+    </script>
+
+    <!-- Main Content Wrapper -->
+    <div class="h-screen w-full flex items-center justify-center">
+        <!-- Messages Container -->
+        {% include "messages.html" %}
+
+        {% block login %}
+        <!-- LOGIN FORM -->
+        <div id="sec1" class="bg-white p-[50px] rounded-md [box-shadow:0px_0px_20px_#ebebeb] w-[450px]">
+            <img src="{% static LOGO_PATH %}" alt="{% trans 'Logo' %}" class="m-auto mb-4" />
+            <h1 class="text-3xl font-bold mb-2 text-center">{{ LOGIN_WELCOME_LINE }}</h1>
+            <p class="mb-5 text-center text-sm text-color-600">
+                {{ LOGIN_TAG_LINE }}
+            </p>
+
+            <form method="post" action="{% url 'horilla_core:login' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}" />
+
+                <div class="mb-3">
+                    <label for="username" class="text-sm text-color-600">{% trans "Username" %}</label>
+                    <input id="username" type="text" name="username" autocomplete="off" placeholder="Enter Username"
+                        required
+                        class="text-color-600 w-full border border-dark-50 rounded-md p-3 mt-1 placeholder:text-dark-100 text-sm focus:border-primary-600 focus-visible:outline-0" />
+                </div>
+
+                <label for="passwordInput" class="text-sm text-color-600">{% trans "Password" %}</label>
+                <div class="relative {% if not show_forgot_password %}mb-4{% endif %}">
+                    <input id="passwordInput" type="password" name="password" autocomplete="off"
+                        placeholder="Enter Password" required
+                        class="text-color-600 p-3 pr-[40px] w-full border border-dark-50 rounded-md mt-1 placeholder:text-dark-100 text-sm focus:border-primary-600 focus-visible:outline-0" />
+                    <button type="button" onclick="togglePassword()"
+                        class="absolute right-3 top-0 bottom-0 m-auto cursor-pointer">
+                        <img id="eyeIcon" src="{% static 'assets/icons/eye.svg' %}"
+                            alt="{% trans 'Toggle visibility' %}" />
+                        <img id="eyeHideIcon" src="{% static 'assets/icons/eye-hide.svg' %}" width="21"
+                            alt="{% trans 'Toggle visibility' %}" class="hidden" />
+                    </button>
+                </div>
+
+                {% if show_forgot_password %}
+                    <div class="flex justify-end">
+                        <button type="button" hx-get="{% url 'horilla_core:forgot_password' %}" hx-target="#sec1"
+                            hx-select="#sec2" hx-push-url="true" hx-swap="outerHTML"
+                            class="text-sm font-medium text-red-500 mb-3 mt-2 cursor-pointer text-red-600">
+                            {% trans "Forgot Password?" %}
+                        </button>
+                    </div>
+                {% endif %}
+
+                <button type="submit"
+                    class="p-3 bg-primary-600 hover:bg-secondary-600 w-full flex gap-3 justify-center rounded-md text-white transition duration-300">
+                    <img src="{% static 'assets/icons/sign.svg' %}" alt="{% trans 'Arrow' %}" />
+                    {% trans "Sign In" %}
+                </button>
+            </form>
+
+            {% if initialize_database %}
+                <div class="grid grid-cols-2 gap-2 mt-5">
+                    <button
+                        class="cursor-pointer btn-with-icon flex gap-3 text-sm px-[15px] py-[13px] rounded-md text-[#34c558] bg-[#e6fff5] hover:bg-[#34c558] hover:text-[white] transition duration-300 whitespace-nowrap"
+                        hx-get="{% url 'horilla_core:load_data' %}" hx-target="#sec1" hx-swap="outerHTML" hx-push-url="true"
+                        hx-select="#load-sec">
+                        {% trans "Load Demo Data" %}
+                        <img src="{% static 'assets/icons/ar1.svg' %}" alt="{% trans 'Arrow' %}" />
+                    </button>
+                    <button
+                        class="btn-with-icon flex gap-3 text-sm px-[15px] py-[13px] rounded-md text-[#E54F38] bg-[#ffefed] hover:bg-[#e54f38] hover:text-[white] transition duration-300 cursor-pointer whitespace-nowrap"
+                        hx-get="{% url 'horilla_core:initialize_database' %}" hx-target="#sec1" hx-swap="outerHTML"
+                        hx-push-url="true" hx-select="#initialize-sec">
+                        {% trans "Initialize Database" %}
+                        <img src="{% static 'assets/icons/ar2.svg' %}" alt="{% trans 'Arrow' %}" />
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        {% endblock login %}
+    </div>
+
+    <!-- HTMX CSRF Token Configuration -->
+    <script>
+        document.body.addEventListener("htmx:configRequest", (event) => {
+            event.detail.headers["X-CSRFToken"] = "{{ csrf_token }}";
+        });
+    </script>
+
+
+    <!-- Global Scripts -->
+    <script src="{% url 'javascript-catalog' %}"></script>
+    <script src="{% static 'assets/js/global.js' %}"></script>
+
+    <!-- Body End: Deferred scripts & event bindings -->
+    {% load_registered_html "body_end" "login" as body_end_html %}
+    {% for tpl in body_end_html %} {% include tpl %} {% endfor %}
+</body>
+
+</html>

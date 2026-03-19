@@ -1,0 +1,66 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+{% include "messages.html" %}
+<div class="split-detail-fragment p-5" data-object-id="{{ obj.id }}">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-primary-100 pb-3 mb-4">
+        <h2 class="text-lg font-semibold text-color-800">
+            {% if header_fields %}
+                {{ obj|get_field_value:header_fields.0.1 }}
+            {% elif body.0 %}
+                {{ obj|get_field_value:body.0.1 }}
+            {% endif %}
+        </h2>
+        <div class="flex items-center">
+            {% if actions %}
+                {% filter_actions_by_permission actions obj as allowed_actions %}
+                {% if allowed_actions %}
+                <div class="flex items-center tablebtn">
+                    {% for action in allowed_actions %}
+                    {{ action|render_action_button:obj }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
+            <div class="flex gap-0 ml-2 overflow-hidden [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)]">
+                <a {% if has_previous %}
+                    hx-get="{% url app_label|add:':'|add:url_name previous_id %}?layout=split&{{ request.GET.urlencode }}"
+                    hx-target="#splitViewDetailPanel"
+                    hx-swap="innerHTML"
+                    hx-indicator="#loading-indicator"
+                   {% endif %}
+                   title="{% trans 'Previous' %}"
+                   class="w-10 h-7 bg-primary-300 flex justify-center border-r border-r-[white] text-primary-600 transition duration-300 items-center rounded-l-[5px] {% if not has_previous %}opacity-40 pointer-events-none{% endif %}">
+                    <i class="fa-solid fa-chevron-left text-color-600 text-sm"></i>
+                </a>
+                <a {% if has_next %}
+                    hx-get="{% url app_label|add:':'|add:url_name next_id %}?layout=split&{{ request.GET.urlencode }}"
+                    hx-target="#splitViewDetailPanel"
+                    hx-swap="innerHTML"
+                    hx-indicator="#loading-indicator"
+                   {% endif %}
+                   title="{% trans 'Next' %}"
+                   class="w-10 h-7 bg-primary-300 flex justify-center border-r border-r-[white] text-primary-600 transition duration-300 items-center rounded-r-[5px] {% if not has_next %}opacity-40 pointer-events-none{% endif %}">
+                    <i class="fa-solid fa-chevron-right text-color-600 text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% if pipeline_field %}
+    <div class="border-b border-primary-100 pb-4 mb-4">
+        <div class="custom-scroll relative overflow-x-auto [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] p-4 bg-white rounded-md">
+            {% with pipeline_htmx_target="#splitViewDetailPanel" pipeline_htmx_swap="innerHTML" pipeline_split_view=True %}
+            {% include 'partials/pipeline_choices.html' %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm mb-4 w-full max-w-4xl overflow-y-auto custom-scroll {% if pipeline_field %}h-[calc(100vh-410px)]{% else %}h-[calc(100vh-310px)]{% endif %}">
+        {% for col in body %}
+        <div class="flex flex-col gap-0.5 min-w-0">
+            <span class="text-xs font-semibold tracking-wide text-color-500">{{ col.0 }}</span>
+            <span class="font-normal text-color-800 break-words">{% display_field_value obj col.1 request.user %}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>

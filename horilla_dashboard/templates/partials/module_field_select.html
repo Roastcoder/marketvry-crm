@@ -1,0 +1,11 @@
+<select name="{{ field_name }}" id="{{ field_id }}" class="js-example-basic-single headselect"
+    hx-get="{% url 'horilla_generics:get_field_value_widget' %}"
+    hx-target="#id_value_{{ row_id }}_container"
+    hx-swap="innerHTML"
+    hx-include="[name='{{ field_name }}'],#id_value_{{ row_id }},[name='module']"
+    hx-vals='{"model_name": "{{ model_name }}", "row_id": "{{ row_id }}"}'
+    hx-trigger="change,load">
+{% for value, label in field_choices %}
+    <option value="{{ value }}">{{ label }}</option>
+{% endfor %}
+</select>

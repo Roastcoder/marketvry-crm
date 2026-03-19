@@ -1,0 +1,21 @@
+<select name="mail_to" id="id_mail_to" class="js-example-basic-multiple headselect w-full" multiple="multiple" data-placeholder="Select user fields">
+{% for value, label in user_fields %}
+  <option value="{{ value }}"{% if value in selected_values %} selected="selected"{% endif %}>{{ label }}</option>
+{% endfor %}
+</select>
+{% if include_select2_script %}
+<script>
+setTimeout(function() {
+    if (window.jQuery && jQuery.fn.select2) {
+        var select = document.getElementById('id_mail_to');
+        if (select && !jQuery(select).hasClass('select2-hidden-accessible')) {
+            jQuery(select).select2({
+                placeholder: 'Select user fields',
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    }
+}, 100);
+</script>
+{% endif %}

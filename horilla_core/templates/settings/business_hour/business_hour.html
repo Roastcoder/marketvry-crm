@@ -1,0 +1,17 @@
+{% load static i18n horilla_tags %}
+
+<button id="reloadBusinessHourButton" hidden
+    hx-get="{% url 'horilla_core:business_hour_view' %}?{{ request.GET.urlencode }}"
+    hx-target="#inner-tab-business-hour-view-content"
+    hx-swap="innerHTML">reload</button>
+<div class="flex flex-wrap justify-between items-center h-14">
+    <h3 class="text-md font-semibold">{% trans 'Business Hours' %}</h3>
+    {% has_perm "horilla_core.add_businesshour" as can_add_business_hour %}
+    {% if can_add_business_hour%}
+        <button class="text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]"
+            hx-get="{% url 'horilla_core:business_hour_create_form' %}" hx-target="#modalBox" hx-swap="innerHTML" onclick="openModal()">
+            {% trans 'Add Business Hour' %}
+        </button>
+    {% endif%}
+</div>
+<div id="mainSession"  hx-get="{% url 'horilla_core:business_hour_list_view' %}" hx-trigger="load"></div>

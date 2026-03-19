@@ -1,0 +1,41 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<div class="p-5 simple-detail-content">
+  {% include "messages.html" %}
+  <div class="bg-white p-4 rounded-md [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)]">
+    <div class="flex items-center justify-between gap-2 mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">
+        {% if body.0 %}{{ obj|get_field_value:body.0.1|default:"—" }}{% else %}—{% endif %}
+      </h2>
+      <div class="flex gap-1">
+        {% if has_previous %}
+          <a class="p-1.5 rounded hover:bg-gray-100" title="{% trans 'Previous' %}"
+            hx-get="{% url app_label|add:':'|add:url_name previous_id %}?simple_detail=1"
+            hx-target="#splitViewDetailPanelContent"
+            hx-swap="innerHTML"
+            hx-push-url="true">
+            <img class="svg-themed w-4 h-4" src="{% static 'assets/icons/menuarrow.svg' %}" alt="{% trans 'Previous' %}" />
+          </a>
+        {% endif %}
+        {% if has_next %}
+          <a class="p-1.5 rounded hover:bg-gray-100 -rotate-180" title="{% trans 'Next' %}"
+            hx-get="{% url app_label|add:':'|add:url_name next_id %}?simple_detail=1"
+            hx-target="#splitViewDetailPanelContent"
+            hx-swap="innerHTML"
+            hx-push-url="true">
+            <img class="svg-themed w-4 h-4" src="{% static 'assets/icons/menuarrow.svg' %}" alt="{% trans 'Next' %}" />
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="grid grid-cols-1 gap-3 text-sm">
+      {% for col in body|slice:"1:" %}
+        <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
+          <span class="text-gray-500 min-w-[140px]">{{ col.0 }}</span>
+          <span class="font-medium">{% display_field_value obj col.1 request.user %}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,337 @@
+"""
+Views for managing user permissions in the permissions module."""
+
+# Third-party imports (Django)
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Permission
+from django.views import View
+
+# First-party / Horilla imports
+from horilla.apps import apps
+from horilla.auth.models import User
+from horilla.http import HttpResponse, JsonResponse
+from horilla.registry.permission_registry import PERMISSION_EXEMPT_MODELS
+from horilla.shortcuts import get_object_or_404
+from horilla.utils.decorators import (
+    htmx_required,
+    method_decorator,
+    permission_required_or_denied,
+)
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.views.groups_and_permissions.permission_utils import PermissionUtils
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied(
+        [
+            "auth.view_permission",
+            "auth.view_group",
+            "auth.change_permission",
+            "auth.change_group",
+        ]
+    ),
+    name="dispatch",
+)
+class UpdateUserPermissionsView(LoginRequiredMixin, View):
+    """
+    Toggle permission for a specific user when checkbox is clicked.
+    """
+
+    def post(self, request, user_id):
+        """Toggle permission for a specific user."""
+        try:
+            user = get_object_or_404(User, id=user_id)
+        except Exception:
+            messages.error(request, _("User does not exist"))
+            return HttpResponse("<script>$('#reloadButton').click();</script>")
+
+        perm_id = request.POST.get("permission_id")
+        checked = request.POST.get("checked") == "true"
+
+        try:
+            permission = Permission.objects.get(id=perm_id)
+        except Permission.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Permission not found"})
+
+        if checked:
+            user.user_permissions.add(permission)
+            messages.success(
+                request,
+                f"Permission '{permission.name}' added to {user.get_full_name()}.",
+            )
+        else:
+            user.user_permissions.remove(permission)
+            messages.success(
+                request,
+                f"Permission '{permission.name}' removed from {user.get_full_name()}.",
+            )
+
+        return HttpResponse("<script>$('#reloadMessagesButton').click();</script>")
+
+
+@method_decorator(
+    permission_required_or_denied(
+        [
+            "auth.view_permission",
+            "auth.view_group",
+            "auth.change_permission",
+            "auth.change_group",
+        ]
+    ),
+    name="dispatch",
+)
+class UpdateUserModelPermissionsView(LoginRequiredMixin, View):
+    """
+    Toggle all permissions for a specific model for a user when select all checkbox is clicked.
+    """
+
+    def post(self, request, user_id):
+        """Toggle all permissions for a specific model for a user."""
+        try:
+            user = get_object_or_404(User, id=user_id)
+        except Exception:
+            messages.error(self.request, _("User Does not Exist"))
+            return HttpResponse("<script>$('#reloadButton').click();</script>")
+
+        model_name = request.POST.get("model_name")
+        app_label = request.POST.get("app_label")
+        checked = request.POST.get("checked") == "true"
+
+        if not model_name or not app_label:
+            return JsonResponse(
+                {"success": False, "message": "Model information not provided"}
+            )
+
+        try:
+            permissions = PermissionUtils.get_model_permissions(app_label, model_name)
+            if not permissions:
+                return JsonResponse(
+                    {"success": False, "message": "No permissions found for this model"}
+                )
+
+            permission_objects = Permission.objects.filter(
+                id__in=[p["id"] for p in permissions]
+            )
+
+            if checked:
+                user.user_permissions.add(*permission_objects)
+                messages.success(
+                    request,
+                    f"All permissions added for {model_name} to user {user.username}.",
+                )
+            else:
+                user.user_permissions.remove(*permission_objects)
+                messages.success(
+                    request,
+                    f"All permissions removed for {model_name} from user {user.username}.",
+                )
+
+            # Return success response
+            return HttpResponse(status=200)
+
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "message": f"Error updating permissions: {str(e)}"}
+            )
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied(
+        [
+            "auth.view_permission",
+            "auth.view_group",
+            "auth.change_permission",
+            "auth.change_group",
+        ]
+    ),
+    name="dispatch",
+)
+class UpdateUserAllPermissionsView(LoginRequiredMixin, View):
+    """
+    Toggle ALL permissions for a user when master select all checkbox is clicked.
+    """
+
+    def post(self, request, user_id):
+        """Toggle ALL permissions for a user."""
+        try:
+            user = get_object_or_404(User, id=user_id)
+        except Exception:
+            messages.error(self.request, _("User Does not Exist"))
+            return HttpResponse("<script>$('#reloadButton').click();</script>")
+
+        checked = request.POST.get("checked") == "true"
+
+        try:
+            all_permissions = []
+            for model in apps.get_models():
+                model_name = model.__name__
+                if model_name in PERMISSION_EXEMPT_MODELS:
+                    continue
+                permissions = PermissionUtils.get_model_permissions(
+                    model._meta.app_label, model_name
+                )
+                all_permissions.extend(
+                    Permission.objects.filter(id__in=[p["id"] for p in permissions])
+                )
+
+            if not all_permissions:
+                return JsonResponse(
+                    {"success": False, "message": "No permissions found"}
+                )
+
+            if checked:
+                user.user_permissions.add(*all_permissions)
+                messages.success(
+                    request, f"All permissions granted to user {user.username}."
+                )
+            else:
+                user.user_permissions.remove(*all_permissions)
+                messages.success(
+                    request, f"All permissions revoked from user {user.username}."
+                )
+
+            # Return success response
+            return HttpResponse(status=200)
+
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "message": f"Error updating permissions: {str(e)}"}
+            )
+
+
+@method_decorator(
+    permission_required_or_denied(
+        [
+            "auth.view_permission",
+            "auth.view_group",
+            "auth.change_permission",
+            "auth.change_group",
+        ]
+    ),
+    name="dispatch",
+)
+class BulkUpdateUserModelPermissionsView(LoginRequiredMixin, View):
+    """
+    Toggle all permissions for a specific model for multiple users when select all checkbox is clicked.
+    """
+
+    def post(self, request):
+        """Toggle all permissions for a specific model for multiple users."""
+        user_ids = request.POST.getlist("users")
+        model_name = request.POST.get("model_name")
+        app_label = request.POST.get("app_label")
+        checked = request.POST.get("checked") == "true"
+
+        if not user_ids:
+            return JsonResponse({"success": False, "message": "No users selected"})
+
+        if not model_name or not app_label:
+            return JsonResponse(
+                {"success": False, "message": "Model information not provided"}
+            )
+
+        try:
+            users = User.objects.filter(id__in=user_ids, is_superuser=False)
+            if not users.exists():
+                return JsonResponse(
+                    {"success": False, "message": "No valid users found"}
+                )
+
+            permissions = PermissionUtils.get_model_permissions(app_label, model_name)
+            if not permissions:
+                return JsonResponse(
+                    {"success": False, "message": "No permissions found for this model"}
+                )
+
+            permission_objects = Permission.objects.filter(
+                id__in=[p["id"] for p in permissions]
+            )
+
+            for user in users:
+                if checked:
+                    user.user_permissions.add(*permission_objects)
+                else:
+                    user.user_permissions.remove(*permission_objects)
+
+            if checked:
+                messages.success(
+                    request,
+                    f"All {model_name} permissions added to {users.count()} user(s).",
+                )
+            else:
+                messages.success(
+                    request,
+                    f"All {model_name} permissions removed from {users.count()} user(s).",
+                )
+
+            return HttpResponse(status=200)
+
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "message": f"Error updating permissions: {str(e)}"}
+            )
+
+
+@method_decorator(
+    permission_required_or_denied(
+        [
+            "auth.view_permission",
+            "auth.view_group",
+            "auth.change_permission",
+            "auth.change_group",
+        ]
+    ),
+    name="dispatch",
+)
+class BulkUpdateUserAllPermissionsView(LoginRequiredMixin, View):
+    """
+    Toggle ALL permissions for multiple users when master select all checkbox is clicked.
+    """
+
+    def post(self, request):
+        """Toggle ALL permissions for multiple users."""
+        user_ids = request.POST.getlist("users")
+        checked = request.POST.get("checked") == "true"
+
+        if not user_ids:
+            return JsonResponse({"success": False, "message": "No users selected"})
+
+        try:
+            users = User.objects.filter(id__in=user_ids, is_superuser=False)
+            if not users.exists():
+                return JsonResponse(
+                    {"success": False, "message": "No valid users found"}
+                )
+
+            all_permissions = []
+            for model in apps.get_models():
+                model_name = model.__name__
+                if model_name in PERMISSION_EXEMPT_MODELS:
+                    continue
+                permissions = PermissionUtils.get_model_permissions(
+                    model._meta.app_label, model_name
+                )
+                all_permissions.extend(
+                    Permission.objects.filter(id__in=[p["id"] for p in permissions])
+                )
+
+            if not all_permissions:
+                return JsonResponse(
+                    {"success": False, "message": "No permissions found"}
+                )
+
+            for user in users:
+                if checked:
+                    user.user_permissions.add(*all_permissions)
+                else:
+                    user.user_permissions.remove(*all_permissions)
+
+            return HttpResponse(status=200)
+
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "message": f"Error updating permissions: {str(e)}"}
+            )

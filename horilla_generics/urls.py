@@ -1,0 +1,151 @@
+"""
+URL patterns for horilla_generics.
+
+Provides routes for global search, kanban and AJAX helper views.
+"""
+
+# First-party / Horilla imports
+from horilla.urls import path
+from horilla_generics import views
+
+app_name = "horilla_generics"
+
+urlpatterns = [
+    path(
+        "update-kanban-item/<str:app_label>/<str:model_name>/",
+        views.HorillaKanbanView.as_view(),
+        name="update_kanban_item",
+    ),
+    path(
+        "update-kanban-column-order/<str:app_label>/<str:model_name>/",
+        views.HorillaKanbanView.as_view(),
+        name="update_kanban_column_order",
+    ),
+    path(
+        "kanban-load-more/<str:app_label>/<str:model_name>/",
+        views.helpers.KanbanLoadMoreView.as_view(),
+        name="kanban_load_more",
+    ),
+    path(
+        "group-by-load-more/<str:app_label>/<str:model_name>/",
+        views.helpers.GroupByLoadMoreView.as_view(),
+        name="group_by_load_more",
+    ),
+    path(
+        "create-kanban-group/",
+        views.helpers.HorillaKanbanGroupByView.as_view(),
+        name="create_kanban_group",
+    ),
+    path(
+        "timeline-settings/",
+        views.helpers.TimelineSettingsFormView.as_view(),
+        name="timeline_settings",
+    ),
+    path(
+        "column-selector/",
+        views.helpers.ListColumnSelectFormView.as_view(),
+        name="column_selector",
+    ),
+    path(
+        "reset-columns-to-default/",
+        views.helpers.ResetColumnToDefaultView.as_view(),
+        name="reset_columns_to_default",
+    ),
+    path(
+        "detail-field-selector/",
+        views.helpers.DetailFieldSelectorView.as_view(),
+        name="detail_field_selector",
+    ),
+    path(
+        "save-detail-fields/",
+        views.helpers.SaveDetailFieldsView.as_view(),
+        name="save_detail_fields",
+    ),
+    path(
+        "reset-detail-fields/",
+        views.helpers.ResetDetailFieldsView.as_view(),
+        name="reset_detail_fields",
+    ),
+    path(
+        "save-filter-list/",
+        views.helpers.SaveFilterListView.as_view(),
+        name="save_filter_list",
+    ),
+    path("pin-views/", views.helpers.PinView.as_view(), name="pin_view"),
+    path(
+        "delete-saved-list/",
+        views.helpers.DeleteSavedListView.as_view(),
+        name="delete_saved_list",
+    ),
+    path(
+        "update-pipeline/<int:pk>/",
+        views.helpers.HorillaDetailView.as_view(),
+        name="update_pipeline",
+    ),
+    path(
+        "edit/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
+        views.helpers.EditFieldView.as_view(),
+        name="edit_field",
+    ),
+    path(
+        "cancel/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
+        views.helpers.CancelEditView.as_view(),
+        name="cancel_edit",
+    ),
+    path(
+        "update/<int:pk>/<str:field_name>/<str:app_label>/<str:model_name>/",
+        views.helpers.UpdateFieldView.as_view(),
+        name="update_field",
+    ),
+    path(
+        "dynamic-create/<str:app_label>/<str:model_name>/",
+        views.HorillaDynamicCreateView.as_view(),
+        name="dynamic_create",
+    ),
+    path(
+        "related-list-content/<int:pk>/",
+        views.HorillaRelatedListContentView.as_view(),
+        name="related_list_content",
+    ),
+    path(
+        "<str:app_label>/<str:model_name>/select2/",
+        views.helpers.HorillaSelect2DataView.as_view(),
+        name="model_select2",
+    ),
+    path("search/", views.GlobalSearchView.as_view(), name="global_search"),
+    path(
+        "remove-condition-row/<str:row_id>/",
+        views.helpers.RemoveConditionRowView.as_view(),
+        name="remove_condition_row",
+    ),
+    path(
+        "get-field-value-widget/",
+        views.helpers.GetFieldValueWidgetView.as_view(),
+        name="get_field_value_widget",
+    ),
+    path(
+        "get-model-field-choices/",
+        views.helpers.GetModelFieldChoicesView.as_view(),
+        name="get_model_field_choices",
+    ),
+    path(
+        "notes-attachment-create/",
+        views.HorillaNotesAttachmentCreateView.as_view(),
+        name="notes_attachment_create",
+    ),
+    path(
+        "notes-attachment-edit/<int:pk>/",
+        views.HorillaNotesAttachmentCreateView.as_view(),
+        name="notes_attachment_edit",
+    ),
+    path(
+        "notes-attachment-views/<int:pk>/",
+        views.HorillaNotesAttachementDetailView.as_view(),
+        name="notes_attachment_view",
+    ),
+    path(
+        "notes-attachment-delete/<int:pk>/",
+        views.HorillaNotesAttachmentDeleteView.as_view(),
+        name="notes_attachment_delete",
+    ),
+]

@@ -1,0 +1,4 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+{% include "partials/list_view_rows.html" with queryset=queryset has_next=has_next next_page=next_page group_by_load_more_url=group_by_load_more_url data_container_id=data_container_id %}

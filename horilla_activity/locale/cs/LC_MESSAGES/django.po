@@ -1,0 +1,205 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+
+msgid ""
+"Module for tracking and managing activities such as tasks,calls, events, and "
+"emails."
+msgstr ""
+
+msgid "Activity"
+msgstr ""
+
+msgid "Activities"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Meeting"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Log Call"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "Inbound"
+msgstr ""
+
+msgid "Outbound"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Activity Type"
+msgstr ""
+
+msgid "Related Content Type"
+msgstr ""
+
+msgid "Related Object ID"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Start Date"
+msgstr ""
+
+msgid "End Date"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "All Day"
+msgstr ""
+
+msgid "Assigned To"
+msgstr ""
+
+msgid "Participants"
+msgstr ""
+
+msgid "Meeting Host"
+msgstr ""
+
+msgid "Activity Owner"
+msgstr ""
+
+msgid "Priority"
+msgstr ""
+
+msgid "Due Date"
+msgstr ""
+
+msgid "Recipient Email"
+msgstr ""
+
+msgid "Call Duration"
+msgstr ""
+
+msgid "Call Duration (Seconds)"
+msgstr ""
+
+msgid "Call Type"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Call Purpose"
+msgstr ""
+
+msgid "Tasks"
+msgstr ""
+
+msgid "Meetings"
+msgstr ""
+
+msgid "Call"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid "Pending Tasks"
+msgstr ""
+
+msgid "Completed Tasks"
+msgstr ""
+
+msgid "Add Task"
+msgstr ""
+
+msgid "Pending Meetings"
+msgstr ""
+
+msgid "Completed Meetings"
+msgstr ""
+
+msgid "Add Meetings"
+msgstr ""
+
+msgid "Pending Calls"
+msgstr ""
+
+msgid "Completed Calls"
+msgstr ""
+
+msgid "Add Call"
+msgstr ""
+
+msgid "Mails"
+msgstr ""
+
+msgid "Drafts"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
+msgid "Pending Events"
+msgstr ""
+
+msgid "Completed Events"
+msgstr ""
+
+msgid "Add Events"
+msgstr ""
+
+msgid "Send Email"
+msgstr ""
+
+msgid "Related To"
+msgstr ""
+
+msgid "Duplicate"
+msgstr ""
+
+msgid "Schedule"
+msgstr ""

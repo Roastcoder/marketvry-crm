@@ -1,0 +1,211 @@
+"""
+horilla_mail URL Configuration
+"""
+
+from horilla.urls import path
+from horilla_mail import views
+
+app_name = "horilla_mail"
+
+urlpatterns = [
+    path("mail-server/", views.MailServerView.as_view(), name="mail_server_view"),
+    path(
+        "mail-server-navbar/",
+        views.MailServerNavbar.as_view(),
+        name="mail_server_navbar_view",
+    ),
+    path(
+        "mail-server-list/",
+        views.MailServerListView.as_view(),
+        name="mail_server_list_view",
+    ),
+    path(
+        "mail-server-form-view/",
+        views.OutgoingMailServerFormView.as_view(),
+        name="mail_server_form_view",
+    ),
+    path(
+        "mail-server/select-type/",
+        views.MailServerTypeSelectionView.as_view(),
+        name="mail_server_type_selection",
+    ),
+    path(
+        "mail-server-update/<int:pk>/",
+        views.OutgoingMailServerFormView.as_view(),
+        name="mail_server_update_view",
+    ),
+    path(
+        "mail-server-delete/<int:pk>/",
+        views.MailServerDeleteView.as_view(),
+        name="mail_server_delete_view",
+    ),
+    path(
+        "send-test-email/",
+        views.MailServerTestEmailView.as_view(),
+        name="send_test_email_view",
+    ),
+    path("send-mail/", views.HorillaMailFormView.as_view(), name="send_mail_view"),
+    path(
+        "send-mail-draft/<int:pk>/",
+        views.HorillaMailFormView.as_view(),
+        name="send_mail_draft_view",
+    ),
+    path(
+        "field-selection/",
+        views.HorillaMailFieldSelectionView.as_view(),
+        name="field_selection",
+    ),
+    path("preview-mail/", views.HorillaMailPreviewView.as_view(), name="preview_mail"),
+    path(
+        "sent-preview-mail/<int:pk>/",
+        views.HorillaMailPreviewView.as_view(),
+        name="sent_preview_mail",
+    ),
+    path(
+        "horilla-mail-delete/<int:pk>/",
+        views.HorillaMailtDeleteView.as_view(),
+        name="horilla_mail_delete",
+    ),
+    path(
+        "check-draft-changes/",
+        views.CheckDraftChangesView.as_view(),
+        name="check_draft_changes",
+    ),
+    path("save-draft/", views.SaveDraftView.as_view(), name="save_draft"),
+    path("discard-draft/", views.DiscardDraftView.as_view(), name="discard_draft"),
+    path(
+        "email-suggestions/",
+        views.EmailSuggestionView.as_view(),
+        name="email_suggestions",
+    ),
+    path("add-email/", views.AddEmailView.as_view(), name="add_email"),
+    path("remove-email/", views.RemoveEmailView.as_view(), name="remove_email"),
+    path(
+        "schedule-mail-form/",
+        views.ScheduleMailModallView.as_view(),
+        name="schedule_mail_form",
+    ),
+    path("schedule-mail/", views.ScheduleMailView.as_view(), name="schedule_mail_view"),
+    path(
+        "reschedule-mail-form/<int:pk>/",
+        views.ScheduleMailModallView.as_view(),
+        name="reschedule_mail_form",
+    ),
+    path(
+        "reschedule-mail/<int:pk>/",
+        views.ScheduleMailView.as_view(),
+        name="reschedule_mail_view",
+    ),
+    # mail template urls
+    path(
+        "mail-template-view/",
+        views.MailTemplateView.as_view(),
+        name="mail_template_view",
+    ),
+    path(
+        "mail-template-navbar/",
+        views.MailTemplateNavbar.as_view(),
+        name="mail_template_navbar_view",
+    ),
+    path(
+        "mail-template-list/",
+        views.MailTemplateListView.as_view(),
+        name="mail_template_list_view",
+    ),
+    path(
+        "mail-template-create-view/",
+        views.MailTemplateCreateUpdateView.as_view(),
+        name="mail_template_create_view",
+    ),
+    path(
+        "mail-template-update/<int:pk>/",
+        views.MailTemplateCreateUpdateView.as_view(),
+        name="mail_template_update_view",
+    ),
+    path(
+        "mail-template-preview-view/",
+        views.MailTemplatePreviewView.as_view(),
+        name="mail_template_preview_view",
+    ),
+    path(
+        "select-mail-template/",
+        views.MailTemplateSelectView.as_view(),
+        name="select_mail_template",
+    ),
+    path(
+        "get-template-content/",
+        views.TemplateContentView.as_view(),
+        name="get_template_content",
+    ),
+    path(
+        "mail-template-delete/<int:pk>/",
+        views.MailTemplateDeleteView.as_view(),
+        name="mail_template_delete_view",
+    ),
+    path(
+        "mail-template-detail/<int:pk>/",
+        views.MailTemplateDetailView.as_view(),
+        name="mail_template_detail_view",
+    ),
+    path(
+        "save-as-mail-template/",
+        views.SaveAsMailTemplateView.as_view(),
+        name="save_as_mail_template",
+    ),
+    # outlook urls
+    path(
+        "outlook-mail-server-form-view/",
+        views.OutlookMailServerFormView.as_view(),
+        name="outlook_mail_server_form_view",
+    ),
+    path(
+        "outlook-mail-server-update/<int:pk>/",
+        views.OutlookMailServerFormView.as_view(),
+        name="outlook_mail_server_update_view",
+    ),
+    path(
+        "outlook-mail-server-login/<int:pk>/",
+        views.OutlookLoginView.as_view(),
+        name="outlook_mail_server_login",
+    ),
+    path(
+        "callback/",
+        views.OutlookCallbackView.as_view(),
+        name="outlook_callback",
+    ),
+    path(
+        "refresh-token/<int:pk>/",
+        views.OutlookRefreshTokenView.as_view(),
+        name="outlook_refresh_token",
+    ),
+    path(
+        "incoming-mail-server/",
+        views.IncomingMailServerView.as_view(),
+        name="incoming_mail_server_view",
+    ),
+    path(
+        "incoming-mail-server-navbar/",
+        views.IncomingMailServerNavbar.as_view(),
+        name="incoming_mail_server_navbar_view",
+    ),
+    path(
+        "incoming-mail-server-list/",
+        views.IncomingMailServerListView.as_view(),
+        name="incoming_mail_server_list_view",
+    ),
+    path(
+        "incoming-mail-server-form-view/",
+        views.IncomingMailServerFormView.as_view(),
+        name="incoming_mail_server_form_view",
+    ),
+    path(
+        "incoming-mail-server-update/<int:pk>/",
+        views.IncomingMailServerFormView.as_view(),
+        name="incoming_mail_server_update_view",
+    ),
+    path(
+        "incoming-mail-server/select-type/",
+        views.IncomingMailServerTypeSelectionView.as_view(),
+        name="incoming_mail_server_type_selection",
+    ),
+]

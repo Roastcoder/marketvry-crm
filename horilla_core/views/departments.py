@@ -1,0 +1,187 @@
+"""
+This view handles the methods for department view
+"""
+
+# Third-party imports (Django)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.functional import cached_property
+
+from horilla.http import HttpResponse
+
+# First-party imports (Horilla)
+from horilla.urls import reverse_lazy
+from horilla.utils.decorators import (
+    htmx_required,
+    method_decorator,
+    permission_required,
+    permission_required_or_denied,
+)
+from horilla.utils.translation import gettext_lazy as _
+from horilla_core.filters import DepartmentFilter
+from horilla_core.models import Department
+from horilla_generics.views import (
+    HorillaListView,
+    HorillaNavView,
+    HorillaSingleDeleteView,
+    HorillaSingleFormView,
+    HorillaView,
+)
+
+
+class DepartmentView(LoginRequiredMixin, HorillaView):
+    """
+    Templateviews for department page
+    """
+
+    template_name = "department/department_view.html"
+    nav_url = reverse_lazy("horilla_core:department_nav_view")
+    list_url = reverse_lazy("horilla_core:department_list_view")
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(permission_required("horilla_core.view_department"), name="dispatch")
+class DepartmentNavbar(LoginRequiredMixin, HorillaNavView):
+    """
+    Navbar fro department
+    """
+
+    nav_title = Department._meta.verbose_name_plural
+    search_url = reverse_lazy("horilla_core:department_list_view")
+    main_url = reverse_lazy("horilla_core:department_view")
+    filterset_class = DepartmentFilter
+    one_view_only = True
+    all_view_types = False
+    reload_option = False
+    model_name = "Department"
+    model_app_label = "horilla_core"
+    nav_width = False
+    gap_enabled = False
+    url_name = "department_list_view"
+
+    @cached_property
+    def new_button(self):
+        """
+        Return the configuration for the 'Create Department' button
+        if the user has add permission.
+        """
+        if self.request.user.has_perm("horilla_core.add_department"):
+            return {
+                "url": f"""{ reverse_lazy('horilla_core:department_create_form')}?new=true""",
+                "attrs": {"id": "department-create"},
+            }
+        return None
+
+    @cached_property
+    def actions(self):
+        """
+        Return navbar actions available for the department list.
+        """
+        if self.request.user.has_perm("horilla_core.view_department"):
+            return [
+                {
+                    "action": _("Add Column to List"),
+                    "attrs": f"""
+                            hx-get="{reverse_lazy('horilla_generics:column_selector')}?app_label={self.model_app_label}&model_name={self.model_name}&url_name={self.url_name}"
+                            onclick="openModal()"
+                            hx-target="#modalBox"
+                            hx-swap="innerHTML"
+                            """,
+                }
+            ]
+        return None
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.view_department"), name="dispatch"
+)
+class DepartmentListView(LoginRequiredMixin, HorillaListView):
+    """
+    List view of department
+    """
+
+    model = Department
+    view_id = "department_list"
+    filterset_class = DepartmentFilter
+    search_url = reverse_lazy("horilla_core:department_list_view")
+    main_url = reverse_lazy("horilla_core:department_view")
+    table_width = False
+    # bulk_select_option = False
+    bulk_update_option = False
+    table_height_as_class = "h-[500px]"
+
+    columns = ["department_name", "description"]
+
+    actions = [
+        {
+            "action": "Edit",
+            "src": "assets/icons/edit.svg",
+            "img_class": "w-4 h-4",
+            "permission": "horilla_core.change_department",
+            "attrs": """
+                hx-get="{get_edit_url}?new=true"
+                hx-target="#modalBox"
+                hx-swap="innerHTML"
+                onclick="openModal()"
+                """,
+        },
+        {
+            "action": "Delete",
+            "src": "assets/icons/a4.svg",
+            "img_class": "w-4 h-4",
+            "permission": "horilla_core.delete_department",
+            "attrs": """
+                    hx-post="{get_delete_url}"
+                    hx-target="#deleteModeBox"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+                    hx-vals='{{"check_dependencies": "true"}}'
+                    onclick="openDeleteModeModal()"
+                """,
+        },
+    ]
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.add_department"), name="dispatch"
+)
+class DepartmentFormView(LoginRequiredMixin, HorillaSingleFormView):
+    """
+    create and update from view for department
+    """
+
+    model = Department
+    fields = ["department_name", "description"]
+    full_width_fields = ["department_name", "description"]
+    modal_height = False
+    form_title = _("Department")
+
+    @cached_property
+    def form_url(self):
+        """
+        Resolve the form submission URL for create or update operation.
+        """
+        pk = self.kwargs.get("pk") or self.request.GET.get("id")
+        if pk:
+            return reverse_lazy(
+                "horilla_core:department_update_form", kwargs={"pk": pk}
+            )
+        return reverse_lazy("horilla_core:department_create_form")
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.delete_department", modal=True),
+    name="dispatch",
+)
+class DepartmentDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """
+    Delete view for Department. Handles deletion and returns an HTMX
+    response to reload the department list.
+    """
+
+    model = Department
+
+    def get_post_delete_response(self):
+        return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")

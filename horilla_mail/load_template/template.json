@@ -1,0 +1,16 @@
+[
+    {
+        "model": "horilla_mail.horillamailtemplate",
+        "fields": {
+            "is_active": true,
+            "additional_info": null,
+            "title": "User Template",
+            "subject": "Welcome to {{ instance.company }} - Get Started",
+            "body": "<div style=\"max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333;\">\n    <h1 style=\"text-align: center; color: #1a1a1a; font-size: 28px; margin-bottom: 30px;\">Welcome to {{ instance.company }}</h1>\n    \n    <p>Hi {{ instance.first_name }} {{ instance.last_name }},</p>\n    \n    <p>Welcome aboard! Your account has been successfully created in <strong>{{ instance.company }}</strong>. You can now access your {{ instance.company }} application.</p>\n    \n    <div style=\"background-color: #fef5f5; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 4px;\">\n        <p style=\"margin: 10px 0;\"><span style=\"color: #27ae60;\">✅</span> Your account has been created and is ready to use.</p>\n        <p style=\"margin: 10px 0;\"><span style=\"color: #e74c3c;\">🔔</span> Below are your login credentials. Please keep them secure.</p>\n    </div>\n    \n    <p style=\"margin: 5px 0;\"><strong>Username:</strong> <code style=\"background-color: #f8f8f8;border-radius: 4px; font-family: 'Courier New', monospace;\">{{ instance.username }}</code></p><p style=\"margin: 5px 0;\"><strong>Password:</strong> <code style=\"background-color: rgb(248, 248, 248); border-radius: 4px; font-family: &quot;Courier New&quot;, monospace;\">{{ instance.contact_number }}</code></p>\n    \n\n    <p style=\"text-align: center; margin: 10px 0;\">\n        <a href=\"{{ request.scheme }}://{{ request.get_host }}\" style=\"background-color: #e74c3c; color: #ffffff; text-decoration: none; padding: 8px 12px; border-radius: 5px; display: inline-block; font-weight: 500;\">Login</a>\n    </p>\n    \n    <div style=\"text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #888; font-size: 13px;\"><p>This is an automated message from {{ instance.company }}.<br>\n        If you did not request this account, please contact us immediately.</p>\n    </div>\n</div>",
+            "content_type": {
+                "app_label" : "horilla_core",
+                "model": "horillauser"
+            }
+        }
+    }
+]

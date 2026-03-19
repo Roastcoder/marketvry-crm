@@ -1,0 +1,6 @@
+{% load horilla_tags %}
+<div id="data-container-{{ view_id }}"
+     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4"
+     data-view-id="{{ view_id }}">
+    {% include "partials/card_view_cards.html" %}
+</div>

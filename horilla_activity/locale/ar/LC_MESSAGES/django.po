@@ -1,0 +1,207 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid ""
+"Module for tracking and managing activities such as tasks,calls, events, and "
+"emails."
+msgstr ""
+"وحدة لتتبع وإدارة الأنشطة مثل المهام والمكالمات والأحداث ورسائل البريد "
+"الإلكتروني."
+
+msgid "Activity"
+msgstr "نشاط"
+
+msgid "Activities"
+msgstr "الأنشطة"
+
+msgid "Event"
+msgstr "حدث"
+
+msgid "Meeting"
+msgstr "اجتماع"
+
+msgid "Task"
+msgstr "مهمة"
+
+msgid "Log Call"
+msgstr "تسجيل مكالمة"
+
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+msgid "Completed"
+msgstr "مكتمل"
+
+msgid "High"
+msgstr "عالي"
+
+msgid "Medium"
+msgstr "متوسط"
+
+msgid "Low"
+msgstr "منخفض"
+
+msgid "Inbound"
+msgstr "وارد"
+
+msgid "Outbound"
+msgstr "صادر"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Activity Type"
+msgstr "نوع النشاط"
+
+msgid "Related Content Type"
+msgstr "نوع المحتوى المرتبط"
+
+msgid "Related Object ID"
+msgstr "معرّف الكائن المرتبط"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "All Day"
+msgstr "طوال اليوم"
+
+msgid "Assigned To"
+msgstr "مُسند إلى"
+
+msgid "Participants"
+msgstr "المشاركون"
+
+msgid "Meeting Host"
+msgstr "مضيف الاجتماع"
+
+msgid "Activity Owner"
+msgstr "مالك النشاط"
+
+msgid "Priority"
+msgstr "الأولوية"
+
+msgid "Due Date"
+msgstr "تاريخ الاستحقاق"
+
+msgid "Recipient Email"
+msgstr "البريد الإلكتروني للمستلم"
+
+msgid "Call Duration"
+msgstr "مدة المكالمة"
+
+msgid "Call Duration (Seconds)"
+msgstr "مدة المكالمة (بالثواني)"
+
+msgid "Call Type"
+msgstr "نوع المكالمة"
+
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgid "Call Purpose"
+msgstr "غرض المكالمة"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Meetings"
+msgstr "الاجتماعات"
+
+msgid "Call"
+msgstr "مكالمة"
+
+msgid "Email"
+msgstr "بريد إلكتروني"
+
+msgid "Events"
+msgstr "الأحداث"
+
+msgid "Pending Tasks"
+msgstr "المهام قيد الانتظار"
+
+msgid "Completed Tasks"
+msgstr "المهام المكتملة"
+
+msgid "Add Task"
+msgstr "إضافة مهمة"
+
+msgid "Pending Meetings"
+msgstr "الاجتماعات قيد الانتظار"
+
+msgid "Completed Meetings"
+msgstr "الاجتماعات المكتملة"
+
+msgid "Add Meetings"
+msgstr "إضافة اجتماعات"
+
+msgid "Pending Calls"
+msgstr "المكالمات قيد الانتظار"
+
+msgid "Completed Calls"
+msgstr "المكالمات المكتملة"
+
+msgid "Add Call"
+msgstr "إضافة مكالمة"
+
+msgid "Mails"
+msgstr "الرسائل"
+
+msgid "Drafts"
+msgstr "المسودات"
+
+msgid "Scheduled"
+msgstr "مجدول"
+
+msgid "Pending Events"
+msgstr "الأحداث قيد الانتظار"
+
+msgid "Completed Events"
+msgstr "الأحداث المكتملة"
+
+msgid "Add Events"
+msgstr "إضافة أحداث"
+
+msgid "Send Email"
+msgstr "إرسال بريد إلكتروني"
+
+msgid "Related To"
+msgstr "مرتبط بـ"
+
+msgid "Duplicate"
+msgstr "تكرار"
+
+msgid "Schedule"
+msgstr "جدولة"

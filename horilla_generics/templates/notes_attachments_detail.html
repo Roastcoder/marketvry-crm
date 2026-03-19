@@ -1,0 +1,144 @@
+{% load static %}
+{% load i18n %}
+
+<div class="p-5" id="detail-container">
+    <button id="detailReloadButton"  hidden hx-get="{{ request.path }}?{{request.GET.urlencode}}" hx-target="#detail-container" hx-swap="outerHTML">click</button>
+
+    <!-- Header -->
+    <div class="flex justify-between mb-3">
+        <h2 class="text-lg font-semibold">{{ object.title }}</h2>
+        <button onclick="closeContentModal();" class="ms-4 text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+            <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+    </div>
+
+    {% if object.file %}
+        <!-- File Preview Section -->
+        <div class="max-h-[500px] overflow-hidden overflow-y-auto pe-2">
+            <div class="file-preview relative">
+                <a href="{{ object.file.url }}"  download
+                    class="absolute right-1 top-1 text-sm p-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                    </svg>
+                </a>
+
+                <!-- Conditional rendering -->
+                {% if object.file.name|lower|slice:"-4:" in ".jpg.png.gif.svg" or object.file.name|lower|slice:"-5:" == ".jpeg" %}
+                    <a  href="{{ object.file.url }}" class="preview-placeholder m-auto bg-white text-center">
+                        <img src="{{ object.file.url }}" alt="{{ object.file.name }}" class="max-h-[300px] m-auto rounded shadow" />
+
+                    </a>
+                {% else %}
+                    <div class="file-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                    </div>
+                    <!-- File name -->
+                    <div class="file-name">{{ object.file.name }}</div>
+                    <!-- Open link -->
+                    <a href="{{ object.file.url }}" target="_blank" class="open-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                        </svg>
+                        {% trans "Open file in new tab" %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+
+    <!-- Notes Section -->
+    {% if object.description %}
+        <div class="notes-section mb-3">
+            <div class="notes-header">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                </svg>
+                {% trans "Notes" %}
+            </div>
+            <div class="">
+                {{  object.description|safe  }}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="details-grid">
+        <div class="detail-card">
+            <div class="detail-label">{% trans "Created By" %}</div>
+            <div class="detail-value">{{ object.created_by.get_full_name }}</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">{% trans "Created At" %}</div>
+            <div class="detail-value">{{ object.created_at|date:"M d, Y, h:i A" }}</div>
+        </div>
+        {% if object.file %}
+            <div class="detail-card">
+                <div class="detail-label">{% trans "File Size" %}</div>
+                <div class="detail-value">{{ object.file.size|filesizeformat }}</div>
+            </div>
+        {% endif %}
+        <div class="detail-card">
+            <div class="detail-label">{% trans "Related To" %}</div>
+            <div class="detail-value">{{ object.related_object }}</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons & Navigation -->
+    <div class="flex flex-wrap justify-between gap-2 md:gap-1 pt-5">
+        <!-- Actions -->
+        {% if perms.horilla_core.change_horillaattachment or perms.horilla_core.change_own_horillaattachment and object.created_by == request.user or perms.horilla_core.delete_horillaattachment %}
+            <div class="flex gap-1">
+                {% if perms.horilla_core.change_horillaattachment or perms.horilla_core.change_own_horillaattachment and object.created_by == request.user %}
+                    <a hx-get="{% url 'horilla_generics:notes_attachment_edit' object.pk %}"
+                        hx-target="#modalBox"
+                        hx-on:click="openModal();"
+                        class="w-24 justify-center px-4 py-2 bg-primary-600 text-white rounded-md text-xs flex items-center gap-2 hover:bg-primary-800 transition duration-300 disabled:cursor-not-allowed">
+                        <img src="{% static 'assets/icons/edit_white.svg' %}" alt="{% trans 'Edit' %}" class="w-3 h-3 flex gap-4 filter brightness-0 invert" style="">
+                        {% trans "Edit" %}
+                    </a>
+                {% endif %}
+
+                {% if perms.horilla_core.delete_horillaattachment %}
+                    <a hx-get="{% url 'horilla_generics:notes_attachment_delete' object.pk %}"
+                        hx-target="#deleteModeBox"
+                        hx-swap="innerHTML"
+                        hx-on:click="openDeleteModeModal()"
+                        hx-vals='{"check_dependencies" : "true"}'
+                        title="{% trans 'Delete Attachment' %}"
+                        class="w-24 justify-center px-4 py-2 bg-[white] rounded-md text-xs flex items-center gap-2 border border-primary-500 hover:border-primary-600 transition duration-300 disabled:cursor-not-allowed text-primary-600">
+                        <img src="{% static 'assets/icons/a4.svg' %}" alt="{% trans 'Delete' %}" class="w-3 h-3 flex gap-4 brightness-0 saturate-100" style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Prev/Next Buttons -->
+        {% if instance_ids %}
+            <div class="flex gap-1 ml-auto">
+                <button data-action="previous"
+                    hx-get="{{ previous_url }}?{{ ids_key }}={{ object.pk }}&{{ request.GET.urlencode }}"
+                    hx-on:click="$('#detail-container').toggleClass('animate-pulse');"
+                    hx-target="#contentModalBox"
+                    hx-swap="innerHTML"
+                    class="p-2 w-8 h-8 justify-center bg-primary-600 text-white rounded-full text-xs flex items-center gap-2 hover:bg-primary-800 transition duration-300">
+                    <i class="fa-solid fa-angle-left"></i>
+                </button>
+                <button data-action="next"
+                    hx-get="{{ next_url }}?{{ ids_key }}={{ object.pk }}&{{ request.GET.urlencode }}"
+                    hx-on:click="$('#detail-container').toggleClass('animate-pulse');"
+                    hx-target="#contentModalBox"
+                    hx-swap="innerHTML"
+                    class="p-2 w-8 h-8 justify-center bg-primary-600 text-white rounded-full text-xs flex items-center gap-2 hover:bg-primary-800 transition duration-300">
+                    <i class="fa-solid fa-angle-right"></i>
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>

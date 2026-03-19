@@ -1,0 +1,290 @@
+body.dark {
+  color: white;
+  background-color: black;
+}
+body.dark .bg-\[\#fff\],
+body.dark .dropdown-content a:hover,
+body.dark .probar li .bg-\[\#F0F0F0\],
+body.dark .bg-gray-50,
+body.dark .bg-gray-100,
+body.dark .bg-blue-50,
+body.dark .bg-gray-200,
+body.dark .bg-dark-50,
+body.dark .bg-\[\#f8f8f9\],
+body.dark .module-icon,
+body.dark .bg-\[white\],
+body.dark .tabloading,
+body.dark .bg-\[\#f8fafc\]{
+  background-color: black !important;
+}
+body.dark .bg-white {
+  background-color: rgb(42 42 42) !important;
+}
+body.dark input,
+body.dark textarea,
+body.dark .select2-container--default .select2-selection--single,
+body.dark .select2-container--default .select2-selection--multiple,
+body.dark .note-toolbar,
+body.dark .note-btn{
+  background-color: black !important;
+}
+body.dark .nav-link img {
+  filter: brightness(0) invert(1);
+}
+body.dark .bg-primary-50,
+body.dark .bg-primary-100,
+body.dark .select2-dropdown,
+body.dark .bg-dark-25,
+body.dark .bg-yellow-50,
+body.dark div:where(.swal2-popup),
+body.dark .bg-\[\#f1f1f1\],
+body.dark .bg-primary-200,
+body.dark .bg-\[\#e9edf0\],
+body.dark .hover\:bg-primary-100:hover,
+body.dark .bg-blue-100,
+body.dark .panel-default>.panel-heading,
+body.dark .module-card
+{
+  background-color: #2f2f2f !important;
+}
+body.dark .header{
+  background: transparent;
+}
+body.dark .text-secondary-900,
+body.dark .text-color-600,
+body.dark .text-gray-700{
+  color: #ebebeb;
+}
+body.dark .nav-link:hover,
+body.dark .hover\:bg-\[\#f3f4f6\]:hover,
+body.dark #tab-campaigns button:hover,
+body.dark .progress li .sec::before,
+body.dark input[type="checkbox"],
+body.dark .swal2-popup.swal2-toast.custom-toast,
+body.dark .panel-default>.panel-heading,
+body.dark .note-editor.note-frame .note-editing-area .note-editable{
+  background-color: #5d5d5d !important;
+}
+/* Dropdown item hover (layout + actions) – match detail view: black in dark */
+body.dark .hover\:bg-gray-50:hover {
+  background-color: black !important;
+}
+body.dark h1,
+body.dark .member-header,
+body.dark .probar li div,
+body.dark .list-disc,
+body.dark .border-\[\#dddddd\],
+body.dark .swal2-popup.swal2-toast.custom-toast .swal2-title,
+body.dark .module-description ,
+body.dark .module-name,
+body.dark .text-\[\#756f6fd1\],
+body.dark .text-gray-900{
+  color: rgb(255 255 255 / 95%) !important;
+}
+body.dark h3,
+body.dark .text-\[\#3d3d3d\] {
+  color: rgb(255 255 255 / 90%) !important;
+}
+body.dark p,
+body.dark .swal2-html-container,
+body.dark .member-footer div.name,
+body.dark .text-dark-200,
+body.dark .bg-primary-200 {
+  color: rgb(255 255 255 / 80%) !important;
+}
+body.dark .border-r,
+body.dark .border-b,
+body.dark .border-t,
+body.dark .border,
+body.dark .dropdown-content,
+body.dark .select2-container--default .select2-selection--single,
+body.dark .border-\[\#efefef\],
+body.dark .select2-dropdown,
+body.dark
+  .select2-container--default
+  .select2-search--dropdown
+  .select2-search__field,
+body.dark .border-\[2px\],
+body.dark .border-primary-400,
+body.dark .select2-container--default .select2-selection--multiple,
+body.dark .member-view-box,
+body.dark .fc-theme-standard td,
+body.dark .fc-theme-standard th,
+body.dark .fc-theme-standard .fc-scrollgrid,
+body.dark .border-\[\#e5e5e5\],
+body.dark .border-\[\#dddddd\],
+body.dark button,
+body.dark .note-toolbar,
+body.dark .border-\[\#e9e9e9\],
+body.dark .panel-default>.panel-heading,
+body.dark .module-card{
+  border-color: #565656 !important;
+}
+body.dark .border::placeholder {
+  color: #b5b5b5 !important;
+}
+body.dark #settings-sidebar a,
+body.dark span,
+body.dark button,
+body.dark .dropdown-content a,
+body.dark label {
+  color: rgb(255 255 255 / 80%) !important;
+}
+body.dark #settings-sidebar a:hover,
+body.dark .dropdown-content a:hover {
+  color: white !important;
+}
+body.dark button.text-gray-500 img,
+body.dark #profile-edit-btn img,
+body.dark #navBar img,
+body.dark .bg-dark-25 img,
+body.dark #dropdownLeftEndButton img,
+/* Chart view actions (same down.svg as report chart; invisible on dark bg without invert) */
+body.dark #chartViewActionsButton img,
+body.dark
+  .after\:bg-\[url\(\/static\/assets\/icons\/right-arrow\.svg\)\]::after,
+body.dark #tab-campaigns button img,
+body.dark #related-tab-contents button img,
+body.dark #modalCloseButton,
+body.dark .drag-handle img,
+body.dark #exportDropdownButton img,
+body.dark #toggleBtn img ,
+body.dark #nav-actions img,
+body.dark button.absolute img,
+body.dark .dropdown-wrapper .text-gray-600 img,
+body.dark .cursor-pointer img {
+  filter: brightness(0) invert(1);
+}
+body.dark .svg-themed,
+body.dark button .svg-themed,
+body.dark button.cursor-pointer .svg-themed {
+  filter: none !important;
+}
+body.dark #settings-sidebar .border-t:first-child {
+  border-color: transparent !important;
+}
+body.dark .custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #7f7f7f #424242;
+}
+body.dark .bg-primary-300 {
+  background-color: #3f3f3f !important;
+}
+
+/* Split view: override active tile colors in dark theme */
+body.dark {
+  --split-view-active-bg: #3f3f3f;     /* darker background */
+  --split-view-active-border: #f07a6a; /* lighter primary accent */
+}
+
+/* Split view: tile hover in dark theme */
+body.dark #split-view-tiles .split-view-tile:hover {
+  background-color: #3f3f3f !important;
+}
+body.dark .canvas-wrap {
+  background: #6a6a6a;
+}
+body.dark .member-view-box {
+  background-color: #252525;
+}
+body.dark .fc .fc-daygrid-day.fc-day-today {
+  background-color: rgb(96 96 96) !important;
+  color: #ffffff !important;
+}
+body.dark .bg-\[\#ffefed\],
+body.dark .bg-\[\#f3f4f6\] {
+  background-color: rgb(82 82 82) !important;
+}
+body.dark .probar li .bg-primary-400 {
+  background-color: #e54f384f;
+}
+body.dark .probar li .hover\:bg-primary-600:hover {
+  background-color: #e54f38;
+}
+body.dark .probar li .hover\:bg-\[\#838181\]:hover {
+  background-color: #5d5d5d !important;
+}
+body.dark .htmx-indicator {
+  background-color: black;
+}
+body.dark .black{
+  background-color: black !important;
+}
+body.dark .text-red-500{
+  color: red !important;
+}
+body.dark .bg-\[\#efefef96\] {
+  background-color: #5c5c5c96;
+}
+body.dark #calendarPreviewModal .text-primary-600{
+  background-color: black !important;
+}
+body.dark .bg-\[\#e6fff5\]{
+  background-color: #525252;
+}
+body.dark .bg-\[\#e6fff5\]:hover, body.dark .bg-\[\#ffefed\]:hover{
+  color: #e54f38 !important;
+}
+
+/* Group-by view: container and cards in dark theme */
+body.dark .bg-\[\#e9edf0ba\] {
+  background-color: #1e1e1e !important;
+}
+body.dark .group-by-details {
+  border-color: #565656 !important;
+}
+body.dark .group-by-header-band {
+  background-color: #383838 !important;
+  border-color: #565656 !important;
+}
+body.dark .group-by-details .group-by-summary span.text-primary-600 {
+  color: #f07a6a !important;
+}
+body.dark .group-by-details .group-by-summary .fa-chevron-down {
+  color: #f07a6a !important;
+}
+
+/* Calendar: dark theme variables so year/month view cells and text are visible */
+body.dark .fc,
+body.dark .fc .fc-scrollgrid {
+  --fc-page-bg-color: #2a2a2a;
+  --fc-neutral-bg-color: #3f3f3f;
+  --fc-neutral-text-color: rgba(255, 255, 255, 0.9);
+  --fc-border-color: #565656;
+}
+body.dark .fc .fc-multimonth-daygrid {
+  background: #2a2a2a !important;
+}
+/* Calendar year view: ensure date numbers are visible in dark theme */
+body.dark .fc .fc-daygrid-day-number,
+body.dark .fc .fc-multimonth .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Calendar detail popup: dark background; labels/links use primary (match light theme), values stay light */
+body.dark #calendarPopup {
+  background-color: #2f2f2f !important;
+  border-color: #565656 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+/* Only value cells (not labels): light text for readability */
+body.dark #popupContent .grid > div:not(.text-primary-600) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+/* Labels: keep primary-600 color in dark theme (same as white theme) */
+body.dark #popupContent .text-primary-600 {
+  color: #f07a6a !important;
+}
+body.dark #popupContent h5.bg-primary-300 {
+  background-color: #3f3f3f !important;
+  color: #f07a6a !important;
+}
+body.dark #popupContent button.bg-primary-100 {
+  background-color: #3f3f3f !important;
+  border-color: #565656 !important;
+  color: #e54f38 !important;
+}
+body.dark #popupContent button.bg-primary-100:hover {
+  background-color: #4a3f3f !important;
+  color: #f07a6a !important;
+}

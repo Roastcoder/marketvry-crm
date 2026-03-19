@@ -1,0 +1,450 @@
+"""Aggregate view modules for the `horilla_core.views` package."""
+
+from horilla_core.views.core import (
+    HomePageView,
+    ReloadMessages,
+    SaveActiveTabView,
+    LoginUserView,
+    LogoutView,
+    SettingView,
+    MySettingView,
+    SwitchCompanyView,
+    ToggleAllCompaniesView,
+    CompanyDetailsTab,
+    GetCountrySubdivisionsView,
+    FaviconRedirectView,
+    protected_media
+)
+
+from horilla_core.views.branches import (
+    BranchesView,
+    BranchNavbar,
+    BranchListView,
+    BranchDetailView,
+    BranchDeleteView,
+    CompanyInformationTabView,
+    CompanyInformationView,
+    CompanyMultiFormView,
+    CompanyFormView,
+)
+
+from horilla_core.views.fiscal_year import (
+    CompanyFiscalYearTab,
+    FiscalYearFormView,
+    FiscalYearFieldsView,
+    CalculateWeekStartDayView,
+    FiscalYearCalendarPreviewView,
+    FiscalYearCalendarView,
+)
+
+from horilla_core.views.multiple_currency import (
+    CompanyMultipleCurrency,
+    FetchExchangeRateView,
+    CurrencyListView,
+    ChangeDefaultCurrencyView,
+    ChangeDefaultCurrencyFormView,
+    AddCurrencyView,
+    ConversionRateFormView,
+    DatedConversionRateFormView,
+    DatedCurrencyListView,
+    CurrencyDeleteView,
+)
+
+from horilla_core.views.roles import (
+    RolesView,
+    AddRole,
+    AddUserToRole,
+    RoleUsersListView,
+    UsersInRoleView,
+    RoleUsersNavView,
+    DeleteUserFromRole,
+    RoleDeleteView,
+    RoleNavbar,
+    RolesHierarchyView,
+    RoleListView,
+)
+
+from horilla_core.views.departments import (
+    DepartmentView,
+    DepartmentNavbar,
+    DepartmentListView,
+    DepartmentFormView,
+    DepartmentDeleteView,
+)
+
+from horilla_core.views.customer_role import (
+    CustomerRoleView,
+    CustomerRoleNavbar,
+    CustomerRoleListView,
+    CustomerRoleFormView,
+    CustomerRoleDeleteView,
+)
+
+from horilla_core.views.export_data import (
+    ExportView,
+    ExportScheduleModalView,
+    ExportScheduleCreateView,
+    ScheduleExportListView,
+    ScheduleExportDeleteView,
+)
+
+from horilla_core.views.groups_and_permissions import (
+    ModelFieldsModalView,
+    SaveBulkFieldPermissionsView,
+    UpdateFieldPermissionView,
+    SaveAllFieldPermissionsView,
+    GroupPermissionView,
+    GroupPermissionTabView,
+    GroupTab,
+    RolePermissionsView,
+    SearchRoleModelsView,
+    SearchUserModelsView,
+    SearchAssignModelsView,
+    RoleMembersView,
+    PermissionTab,
+    UpdateUserPermissionsView,
+    LoadUserPermissionsView,
+    LoadMoreUsersView,
+    UpdateRolePermissionsView,
+    AssignUsersView,
+    UpdateRoleModelPermissionsView,
+    UpdateRoleAllPermissionsView,
+    UpdateUserModelPermissionsView,
+    UpdateUserAllPermissionsView,
+    BulkUpdateUserModelPermissionsView,
+    BulkUpdateUserAllPermissionsView,
+    SuperUserView,
+    SuperUserNavbar,
+    SuperUserTab,
+    ToggleSuperuserView,
+    AddSuperUsersView,
+)
+
+from horilla_core.views.import_data import (
+    ImportView,
+    ImportTabView,
+    ImportDataView,
+    ImportStep1View,
+    ImportStep2View,
+    ImportStep3View,
+    ImportStep4View,
+    GetModelFieldsView,
+    UpdateFieldStatusView,
+    GetUniqueValuesView,
+    UpdateValueMappingStatusView,
+    DownloadErrorFileView,
+    ImportHistoryView,
+    DownloadImportedFileView,
+    DownloadTemplateModalView,
+    DownloadTemplateView,
+)
+
+from horilla_core.views.initialiaze_database import (
+    InitializeDatabaseConditionView,
+    InitializeDatabase,
+    InitializeDatabaseUser,
+    InitializeDatabaseCompany,
+    SignUpFormView,
+    InitializeCompanyFormView,
+    InitializeRoleView,
+)
+
+from horilla_core.views.load_data import (
+    LoadDatabaseConditionView,
+    LoadDatabase,
+    ConfigureDemoData,
+    LoadDemoDatabase,
+)
+
+from horilla_core.views.partner_role import (
+    PartnerRoleView,
+    PartnerRoleNavbar,
+    PartnerRoleListView,
+    PartnerRoleFormView,
+    PartnerRoleDeleteView,
+)
+
+from horilla_core.views.recycle_bin import (
+    RecycleBinView,
+    RecycleBinNavbar,
+    RecycleBinListView,
+    RecycleDeleteView,
+    BulkDeleteRecycleBinView,
+    RecycleRestoreView,
+    BulkRestoreRecycleView,
+    EmptyRecycleBinView,
+    BinPolicyView,
+)
+
+from horilla_core.views.user_holidays import (
+    UserHolidayView,
+    UserHolidayNavbar,
+    UserHolidayListView,
+    UserHolidayDetailView,
+)
+
+from horilla_core.views.regional_formating import ReginalFormatingView
+
+from horilla_core.views.team_role import (
+    TeamRoleView,
+    TeamRoleNavbar,
+    TeamRoleListView,
+    TeamRoleFormView,
+    TeamRoleDeleteView,
+)
+
+from horilla_core.views.user_login_history import (
+    UserLoginHistoryView,
+    UserLoginHistoryNavbar,
+    UserloginHistoryListView,
+)
+
+from horilla_core.views.users import (
+    UserView,
+    UserNavbar,
+    UserListView,
+    UserKanbanView,
+    UserGroupByView,
+    UserFormView,
+    GetCompanyRelatedFieldsView,
+    ChangeUserCompanyView,
+    UserFormViewSingle,
+    UserDeleteView,
+    UserDetailView,
+    MyProfileView,
+    LoginHistoryView,
+    LoginHistoryNavbar,
+    LoginHistoryListView,
+)
+
+from horilla_core.views.version_info import VersionInfotemplateView
+
+from horilla_core.views.change_password import (
+    ChangePasswordView,
+    ChangePasswordFormView,
+)
+
+from horilla_core.views.forgot_password import (
+    ForgotPasswordView,
+    PasswordResetConfirmView,
+)
+
+from horilla_core.views.business_hour import (
+    BusinessHourView,
+    BusinessHourListView,
+    BusinessHourFormView,
+    BusinessHourDeleteView,
+    BusinessHourDetailView,
+)
+
+from horilla_core.views.holiday import (
+    HolidayView,
+    HolidayListView,
+    HolidayFormView,
+    HolidayDeleteView,
+    HolidayDetailView,
+)
+
+__all__ = [
+    # core.py
+    "protected_media",
+    "HomePageView",
+    "ReloadMessages",
+    "SaveActiveTabView",
+    "LoginUserView",
+    "LogoutView",
+    "SettingView",
+    "MySettingView",
+    "SwitchCompanyView",
+    "ToggleAllCompaniesView",
+    "CompanyDetailsTab",
+    "GetCountrySubdivisionsView",
+    "FaviconRedirectView",
+    # branches.py
+    "BranchesView",
+    "BranchNavbar",
+    "BranchListView",
+    "BranchDetailView",
+    "BranchDeleteView",
+    "CompanyInformationTabView",
+    "CompanyInformationView",
+    "CompanyMultiFormView",
+    "CompanyFormView",
+    # fiscal_year.py
+    "CompanyFiscalYearTab",
+    "FiscalYearFormView",
+    "FiscalYearFieldsView",
+    "CalculateWeekStartDayView",
+    "FiscalYearCalendarPreviewView",
+    "FiscalYearCalendarView",
+    # multiple_currency.py
+    "CompanyMultipleCurrency",
+    "FetchExchangeRateView",
+    "CurrencyListView",
+    "ChangeDefaultCurrencyView",
+    "ChangeDefaultCurrencyFormView",
+    "AddCurrencyView",
+    "ConversionRateFormView",
+    "DatedConversionRateFormView",
+    "DatedCurrencyListView",
+    "CurrencyDeleteView",
+    # roles.py
+    "RolesView",
+    "AddRole",
+    "AddUserToRole",
+    "RoleUsersListView",
+    "UsersInRoleView",
+    "RoleUsersNavView",
+    "DeleteUserFromRole",
+    "RoleDeleteView",
+    "RoleNavbar",
+    "RolesHierarchyView",
+    "RoleListView",
+    # departments.py
+    "DepartmentView",
+    "DepartmentNavbar",
+    "DepartmentListView",
+    "DepartmentFormView",
+    "DepartmentDeleteView",
+    # customer_role.py
+    "CustomerRoleView",
+    "CustomerRoleNavbar",
+    "CustomerRoleListView",
+    "CustomerRoleFormView",
+    "CustomerRoleDeleteView",
+    # export_data.py
+    "ExportView",
+    "ExportScheduleModalView",
+    "ExportScheduleCreateView",
+    "ScheduleExportListView",
+    "ScheduleExportDeleteView",
+    # groups_and_permissions.py
+    "ModelFieldsModalView",
+    "SaveBulkFieldPermissionsView",
+    "UpdateFieldPermissionView",
+    "SaveAllFieldPermissionsView",
+    "GroupPermissionView",
+    "GroupPermissionTabView",
+    "GroupTab",
+    "RolePermissionsView",
+    "SearchRoleModelsView",
+    "SearchUserModelsView",
+    "SearchAssignModelsView",
+    "RoleMembersView",
+    "PermissionTab",
+    "UpdateUserPermissionsView",
+    "LoadUserPermissionsView",
+    "LoadMoreUsersView",
+    "UpdateRolePermissionsView",
+    "AssignUsersView",
+    "UpdateRoleModelPermissionsView",
+    "UpdateRoleAllPermissionsView",
+    "UpdateUserModelPermissionsView",
+    "UpdateUserAllPermissionsView",
+    "BulkUpdateUserModelPermissionsView",
+    "BulkUpdateUserAllPermissionsView",
+    "SuperUserView",
+    "SuperUserNavbar",
+    "SuperUserTab",
+    "ToggleSuperuserView",
+    "AddSuperUsersView",
+    # import_data.py
+    "ImportView",
+    "ImportTabView",
+    "ImportDataView",
+    "ImportStep1View",
+    "ImportStep2View",
+    "ImportStep3View",
+    "ImportStep4View",
+    "GetModelFieldsView",
+    "UpdateFieldStatusView",
+    "GetUniqueValuesView",
+    "UpdateValueMappingStatusView",
+    "DownloadErrorFileView",
+    "ImportHistoryView",
+    "DownloadImportedFileView",
+    "DownloadTemplateModalView",
+    "DownloadTemplateView",
+    # initialiaze_database.py
+    "InitializeDatabaseConditionView",
+    "InitializeDatabase",
+    "InitializeDatabaseUser",
+    "InitializeDatabaseCompany",
+    "SignUpFormView",
+    "InitializeCompanyFormView",
+    "InitializeRoleView",
+    # load_data.py
+    "LoadDatabaseConditionView",
+    "LoadDatabase",
+    "ConfigureDemoData",
+    "LoadDemoDatabase",
+    # partner_role.py
+    "PartnerRoleView",
+    "PartnerRoleNavbar",
+    "PartnerRoleListView",
+    "PartnerRoleFormView",
+    "PartnerRoleDeleteView",
+    # recycle_bin.py
+    "RecycleBinView",
+    "RecycleBinNavbar",
+    "RecycleBinListView",
+    "RecycleDeleteView",
+    "BulkDeleteRecycleBinView",
+    "RecycleRestoreView",
+    "BulkRestoreRecycleView",
+    "EmptyRecycleBinView",
+    "BinPolicyView",
+    # user_holidays.py
+    "UserHolidayView",
+    "UserHolidayNavbar",
+    "UserHolidayListView",
+    "UserHolidayDetailView",
+    # regional_formating.py
+    "ReginalFormatingView",
+    # team_role.py
+    "TeamRoleView",
+    "TeamRoleNavbar",
+    "TeamRoleListView",
+    "TeamRoleFormView",
+    "TeamRoleDeleteView",
+    # user_login_history.py
+    "UserLoginHistoryView",
+    "UserLoginHistoryNavbar",
+    "UserloginHistoryListView",
+    # users.py
+    "UserView",
+    "UserNavbar",
+    "UserListView",
+    "UserKanbanView",
+    "UserGroupByView",
+    "UserFormView",
+    "GetCompanyRelatedFieldsView",
+    "ChangeUserCompanyView",
+    "UserFormViewSingle",
+    "UserDeleteView",
+    "UserDetailView",
+    "MyProfileView",
+    "LoginHistoryView",
+    "LoginHistoryNavbar",
+    "LoginHistoryListView",
+    # version_info.py
+    "VersionInfotemplateView",
+    # change_password.py
+    "ChangePasswordView",
+    "ChangePasswordFormView",
+    # forgot_password.py
+    "ForgotPasswordView",
+    "PasswordResetConfirmView",
+    # business_hour.py
+    "BusinessHourView",
+    "BusinessHourListView",
+    "BusinessHourFormView",
+    "BusinessHourDeleteView",
+    "BusinessHourDetailView",
+    # holiday.py
+    "HolidayView",
+    "HolidayListView",
+    "HolidayFormView",
+    "HolidayDeleteView",
+    "HolidayDetailView",
+]

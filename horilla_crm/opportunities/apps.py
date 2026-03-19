@@ -1,0 +1,53 @@
+"""App configuration for the opportunities module."""
+
+from horilla.apps import AppLauncher
+from horilla.utils.translation import gettext_lazy as _
+
+
+class OpportunitiesConfig(AppLauncher):
+    """Opportunities App Configuration"""
+
+    default = True
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "horilla_crm.opportunities"
+    verbose_name = _("Opportunities")
+
+    url_prefix = "opportunities/"
+    url_module = "horilla_crm.opportunities.urls"
+    url_namespace = "opportunities"
+
+    auto_import_modules = [
+        "registration",
+        "signals",
+        "menu",
+        "dashboard",
+    ]
+
+    demo_data = {
+        "files": [
+            (8, "load_data/opportunity_stage.json"),
+            (9, "load_data/opportunity.json"),
+        ],
+        "order": 3,
+    }
+
+    report_files = [
+        "report_data/reports.json",
+    ]
+
+    def get_api_paths(self):
+        """
+        Return API path configurations for this app.
+
+        Returns:
+            list: List of dictionaries containing path configuration
+        """
+        return [
+            {
+                "pattern": "crm/opportunities/",
+                "view_or_include": "horilla_crm.opportunities.api.urls",
+                "name": "horilla_crm_opportunities_api",
+                "namespace": "horilla_crm_opportunities",
+            }
+        ]

@@ -1,0 +1,163 @@
+{% load static i18n %}
+{% load horilla_tags %}
+
+<div id="big-deal-container" class="border border-primary-300 rounded-md">
+    <button id="reloadButton" hidden  hx-get="{{ request.path }}?{{request.GET.urlencode}}" hx-target="#big-deal-container" hx-trigger="click" hx-swap="outerHTML" hx-select="#big-deal-container">click</button>
+    {% include "messages.html" %}
+    {% for automation in automations %}
+        <div class="{% if not forloop.first %}border-t border-primary-300{% endif %}">
+            <a type="button"
+                class="cursor-pointer flex justify-between items-center w-full px-4 py-3 text-left text-gray-800 font-medium transition"
+                onclick="toggleAccordionBigDeal(this)">
+                <div class="flex gap-3 w-full font-medium text-sm">
+                    {{ automation.title }}
+                </div>
+
+                <div class="flex items-center gap-4">
+                    {% has_perm "horilla_automations.change_horillaautomation" as can_edit %}
+                    {% if can_edit %}
+                    <button
+                        hx-get="{% url 'opportunities:big_deal_automation_update' automation.pk %}"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        onclick="openModal(); event.stopPropagation();">
+                        <img src="{% static 'assets/icons/a1.svg' %}" alt="{% trans 'Edit' %}" width="20" height="20" />
+                    </button>
+                    {% endif %}
+                    {% has_perm "horilla_automations.delete_horillaautomation" as can_delete %}
+                    {% if can_delete %}
+                    <button
+                        hx-get="{% url 'horilla_automations:automation_delete_view' automation.pk %}"
+                        hx-target="#deleteModeBox"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        hx-vals='{"check_dependencies": "false"}'
+                        onclick="openDeleteModeModal(); event.stopPropagation();">
+                        <img src="{% static 'assets/icons/a4.svg' %}" alt="{% trans 'Delete' %}" width="20" height="20" />
+                    </button>
+                    {% endif %}
+                    <svg class="w-4 transform transition-transform"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </a>
+            <div class="accordion-content text-sm text-dark-500" style="max-height: 0; overflow: hidden;">
+                <div class="px-4 border-t border-primary-300 pt-3 pb-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for condition in automation.conditions.all %}
+                            {% if condition.field %}
+                                {% with model_class=automation.model.model_class %}
+                                    <div class="text-sm flex">
+                                        <span class=" w-40">
+                                            {% if condition.field == "amount" %}
+                                                {% trans "Trigger Amount" %}
+                                            {% elif condition.field == "probability" %}
+                                                {% trans "Trigger Probability" %}
+                                            {% else %}
+                                                {% if model_class %}
+                                                    {{ model_class|verbose_name:condition.field }}
+                                                {% else %}
+                                                    {{ condition.field|title }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </span>
+                                        <span class="flex-1 ">
+                                            <span class="pe-2">:</span>
+                                            {% if condition.operator == "isnull" %}
+                                                {% trans "Is Null" %}
+                                            {% elif condition.operator == "isnotnull" %}
+                                                {% trans "Is Not Null" %}
+                                            {% elif condition.field == "amount" %}
+                                                {% if condition.operator %}{{ condition.get_operator_display }} {% endif %}{{ condition.value|default:"" }}
+                                            {% elif condition.field == "probability" %}
+                                                {% if condition.operator %}{{ condition.get_operator_display }} {% endif %}{{ condition.value|default:"" }}%
+                                            {% else %}
+                                                {% if condition.operator %}{{ condition.get_operator_display }} {% endif %}{{ condition.value|default:"" }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if automation.mail_to %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Notify Emails" %}</span>
+                                <span class="flex-1 "><span class="pe-2">:</span>{{ automation.mail_to }}</span>
+                            </div>
+                        {% endif %}
+
+                        {% if automation.also_sent_to.exists %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Notify CC Emails" %}</span>
+                                <span class="flex-1 ">
+                                    <span class="pe-2">:</span>
+                                    {% for user in automation.also_sent_to.all %}
+                                        {{ user.email }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if automation.mail_template %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Mail Template" %}</span>
+                                <span class="flex-1 "><span class="pe-2">:</span>{{ automation.mail_template.title }}</span>
+                            </div>
+                        {% endif %}
+
+                        {% if automation.mail_server %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Sender Email" %}</span>
+                                <span class="flex-1"><span class="pe-2">:</span>{{ automation.mail_server.from_email }}</span>
+                            </div>
+                        {% endif %}
+
+                        {% if automation.trigger %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Trigger" %}</span>
+                                <span class="flex-1 ">
+                                    <span class="pe-2">:</span>
+                                    {{ automation.get_trigger_display}}
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if automation.delivery_channel %}
+                            <div class="text-sm flex">
+                                <span class=" w-40">{% trans "Delivery Channel" %}</span>
+                                <span class="flex-1 ">
+                                    <span class="pe-2">:</span>
+                                    {{automation.get_delivery_channel_display}}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="px-4 py-8 text-center text-gray-500">
+            <p>{% trans "Nothing to show yet. Please add your big deal alerts" %}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    function toggleAccordionBigDeal(button) {
+        const content = button.nextElementSibling;
+        const svg = button.querySelector('svg');
+
+        if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+            content.style.maxHeight = '0px';
+            svg.style.transform = 'rotate(0deg)';
+        } else {
+            var extraHeight = 32;
+            content.style.maxHeight = (content.scrollHeight + extraHeight) + 'px';
+            svg.style.transform = 'rotate(180deg)';
+        }
+    }
+</script>

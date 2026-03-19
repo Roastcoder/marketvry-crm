@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-13 10:49+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Module for managing calendar events and schedules."
+msgstr "وحدة لإدارة أحداث التقويم والجداول."
+
+msgid "Calendar"
+msgstr "التقويم"
+
+msgid "Schedule"
+msgstr "الجدول"
+
+msgid "Task"
+msgstr "مهمة"
+
+msgid "Event"
+msgstr "حدث"
+
+msgid "Meeting"
+msgstr "اجتماع"
+
+msgid "Un Availability"
+msgstr "عدم التوفر"
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "Calendar Type"
+msgstr "نوع التقويم"
+
+msgid "Color"
+msgstr "اللون"
+
+msgid "Is Selected"
+msgstr "محدد"
+
+msgid "User Calendar Preference"
+msgstr "تفضيل تقويم المستخدم"
+
+msgid "User Calendar Preferences"
+msgstr "تفضيلات تقويم المستخدم"
+
+msgid "From"
+msgstr "من"
+
+msgid "To"
+msgstr "إلى"
+
+msgid "Reason"
+msgstr "السبب"
+
+msgid "User Unavailability"
+msgstr "عدم توفر المستخدم"
+
+msgid "User Unavailabilities"
+msgstr "حالات عدم توفر المستخدم"
+
+msgid "Mark Unavailable"
+msgstr "تحديد كغير متاح"
+
+msgid "previous"
+msgstr ""
+
+msgid "Today"
+msgstr "اليوم"
+
+msgid "next"
+msgstr ""
+
+msgid "Day"
+msgstr "يوم"
+
+msgid "Week"
+msgstr "أسبوع"
+
+msgid "Month"
+msgstr "شهر"
+
+msgid "Year"
+msgstr "سنة"
+
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Assigned to"
+msgstr "مُسند إلى"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Mark as Complete"
+msgstr "تحديد كمكتمل"
+
+msgid "Info"
+msgstr "معلومات"
+
+msgid "New Activity"
+msgstr "نشاط جديد"
+
+msgid "Mark as Unavailable"
+msgstr "تحديد كغير متاح"
+
+msgid "My Calendars"
+msgstr "تقويماتي"
+
+msgid "Dropdown"
+msgstr ""
+
+msgid "Display This Only"
+msgstr "عرض هذا فقط"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Events"
+msgstr "الأحداث"
+
+msgid "Meetings"
+msgstr "الاجتماعات"
+
+msgid "Unavailability"
+msgstr "عدم التوفر"
+
+msgid "Preferences saved successfully"
+msgstr "تم حفظ التفضيلات بنجاح"
+
+msgid "Marked as completed successfully."
+msgstr "تم التحديد كمكتمل بنجاح."
+
+msgid "Mark Unavailability"
+msgstr "تحديد عدم التوفر"

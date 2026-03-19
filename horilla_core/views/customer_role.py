@@ -1,0 +1,210 @@
+"""
+This view handles the methods for team role view
+"""
+
+# Third-party imports (Django)
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.functional import cached_property
+
+from horilla.http import HttpResponse
+
+# First-party imports (Horilla)
+from horilla.urls import reverse_lazy
+from horilla.utils.decorators import (
+    htmx_required,
+    method_decorator,
+    permission_required,
+    permission_required_or_denied,
+)
+from horilla.utils.translation import gettext_lazy as _
+
+# First-party / Horilla apps
+from horilla_core.filters import CustomerRoleFilter
+from horilla_core.models import CustomerRole
+from horilla_generics.views import (
+    HorillaListView,
+    HorillaNavView,
+    HorillaSingleDeleteView,
+    HorillaSingleFormView,
+    HorillaView,
+)
+
+
+class CustomerRoleView(LoginRequiredMixin, HorillaView):
+    """
+    Template view for customer role page
+    """
+
+    template_name = "customer_role/customer_role_view.html"
+    nav_url = reverse_lazy("horilla_core:customer_role_nav_view")
+    list_url = reverse_lazy("horilla_core:customer_role_list_view")
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required("horilla_core.view_customerrole"), name="dispatch"
+)
+class CustomerRoleNavbar(LoginRequiredMixin, HorillaNavView):
+    """
+    Navbar fro customer role
+    """
+
+    nav_title = CustomerRole._meta.verbose_name_plural
+    search_url = reverse_lazy("horilla_core:customer_role_list_view")
+    main_url = reverse_lazy("horilla_core:customer_role_view")
+    filterset_class = CustomerRoleFilter
+    one_view_only = True
+    all_view_types = False
+    filter_option = False
+    reload_option = False
+    model_name = "CustomerRole"
+    model_app_label = "horilla_core"
+    nav_width = False
+    gap_enabled = False
+    url_name = "customer_role_list_view"
+    border_enabled = False
+
+    @cached_property
+    def new_button(self):
+        """
+        Return configuration for the 'Create Customer Role' button
+        if the user has add permission.
+        """
+        if self.request.user.has_perm("horilla_core.add_customerrole"):
+            return {
+                "url": f"""{ reverse_lazy('horilla_core:customer_role_create_form')}?new=true""",
+                "attrs": {"id": "customer-role-create"},
+            }
+        return None
+
+    @cached_property
+    def actions(self):
+        """
+        Return navbar actions available for the customer role list.
+        """
+        if self.request.user.has_perm("horilla_core.view_customerrole"):
+            return [
+                {
+                    "action": _("Add Column to List"),
+                    "attrs": f"""
+                            hx-get="{reverse_lazy('horilla_generics:column_selector')}?app_label={self.model_app_label}&model_name={self.model_name}&url_name={self.url_name}"
+                            onclick="openModal()"
+                            hx-target="#modalBox"
+                            hx-swap="innerHTML"
+                            """,
+                }
+            ]
+        return None
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.view_customerrole"), name="dispatch"
+)
+class CustomerRoleListView(LoginRequiredMixin, HorillaListView):
+    """
+    List view of customer role
+    """
+
+    model = CustomerRole
+    view_id = "customer_role_list"
+    filterset_class = CustomerRoleFilter
+    search_url = reverse_lazy("horilla_core:customer_role_list_view")
+    main_url = reverse_lazy("horilla_core:customer_role_view")
+    table_width = False
+    bulk_select_option = False
+    header_attrs = [
+        {"description": {"style": "width: 300px;"}},
+    ]
+
+    columns = ["customer_role_name", "description"]
+
+    actions = [
+        {
+            "action": "Edit",
+            "src": "assets/icons/edit.svg",
+            "img_class": "w-4 h-4",
+            "permission": "horilla_core.change_customerrole",
+            "attrs": """
+                        hx-get="{get_edit_url}?new=true"
+                        hx-target="#modalBox"
+                        hx-swap="innerHTML"
+                        onclick="openModal()"
+                        """,
+        },
+        {
+            "action": "Delete",
+            "src": "assets/icons/a4.svg",
+            "img_class": "w-4 h-4",
+            "permission": "horilla_core.delete_customerrole",
+            "attrs": """
+                    hx-post="{get_delete_url}"
+                    hx-target="#deleteModeBox"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+                    hx-vals='{{"check_dependencies": "true"}}'
+                    onclick="openDeleteModeModal()"
+                """,
+        },
+    ]
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.add_customerrole"), name="dispatch"
+)
+class CustomerRoleFormView(LoginRequiredMixin, HorillaSingleFormView):
+    """
+    create and update from view for customer role
+    """
+
+    model = CustomerRole
+    fields = ["customer_role_name", "description"]
+    full_width_fields = ["customer_role_name", "description"]
+    modal_height = False
+    form_title = _("Customer Role")
+    save_and_new = False
+
+    @cached_property
+    def form_url(self):
+        """
+        Resolve form submission URL for create or update operation.
+        """
+        pk = self.kwargs.get("pk") or self.request.GET.get("id")
+        if pk:
+            return reverse_lazy(
+                "horilla_core:customer_role_update_form", kwargs={"pk": pk}
+            )
+        return reverse_lazy("horilla_core:customer_role_create_form")
+
+    def post(self, request, *args, **kwargs):
+        """Delegate to parent post for form submission."""
+        return super().post(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        if pk:
+            try:
+                self.model.objects.get(pk=pk)
+            except self.model.DoesNotExist:
+                messages.error(request, "The requested data does not exist.")
+                return HttpResponse("<script>$('reloadButton').click();</script>")
+
+        return super().get(request, *args, **kwargs)
+
+
+@method_decorator(htmx_required, name="dispatch")
+@method_decorator(
+    permission_required_or_denied("horilla_core.delete_customerrole", modal=True),
+    name="dispatch",
+)
+class CustomerRoleDeleteView(LoginRequiredMixin, HorillaSingleDeleteView):
+    """
+    Delete view for customer role.
+    """
+
+    model = CustomerRole
+
+    def get_post_delete_response(self):
+        return HttpResponse("<script>htmx.trigger('#reloadButton','click');</script>")

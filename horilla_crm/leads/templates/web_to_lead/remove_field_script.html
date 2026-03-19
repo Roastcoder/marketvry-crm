@@ -1,0 +1,5 @@
+<script>
+    var btn = document.querySelector('[data-field=' + {{ field_name_escaped|safe }} + '].available-field');
+    if(btn) btn.style.display = 'block';
+    htmx.trigger('#colorPicker', 'change');
+</script>

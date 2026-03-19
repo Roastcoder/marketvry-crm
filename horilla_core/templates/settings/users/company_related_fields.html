@@ -1,0 +1,69 @@
+<!-- templates/horilla_core/partials/company_related_fields.html -->
+{% load i18n %}
+
+<!-- Role Field (out-of-band swap to update role_container) -->
+<div id="role_container" hx-swap-oob="outerHTML" class="flex flex-col">
+    <div class="flex justify-between items-center mb-1">
+        <label for="id_role" class="text-xs text-color-600">
+            {% trans "Role" %}
+        </label>
+    </div>
+    <div class="relative">
+        <select name="role" id="id_role" class="js-example-basic-single headselect text-color-600 p-2 w-full border border-dark-50 rounded-md focus-visible:outline-0 text-sm focus:border-primary-600">
+            <option value="">---------</option>
+            {% for role in roles %}
+                <option value="{{ role.pk }}" {% if selected_role == role.pk %}selected{% endif %}>
+                    {{ role.role_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- Department Field -->
+<div id="department_container" class="flex flex-col">
+    <div class="flex justify-between items-center mb-1">
+        <label for="id_department" class="text-xs text-color-600">
+            {% trans "Department" %}
+        </label>
+    </div>
+    <div class="relative">
+        <select name="department" id="id_department" class="js-example-basic-single headselect text-color-600 p-2 w-full border border-dark-50 rounded-md focus-visible:outline-0 text-sm focus:border-primary-600">
+            <option value="">---------</option>
+            {% for department in departments %}
+                <option value="{{ department.pk }}" {% if selected_department == department.pk %}selected{% endif %}>
+                    {{ department.department_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- Currency Field -->
+<div id="currency_container" class="flex flex-col">
+    <div class="flex justify-between items-center mb-1">
+        <label for="id_currency" class="text-xs text-color-600">
+            {% trans "Preferred Currency" %}
+        </label>
+    </div>
+    <div class="relative">
+        <select name="currency" id="id_currency" class="js-example-basic-single headselect text-color-600 p-2 w-full border border-dark-50 rounded-md focus-visible:outline-0 text-sm focus:border-primary-600">
+            <option value="">---------</option>
+            {% for currency in currencies %}
+                <option value="{{ currency.pk }}" {% if selected_currency == currency.pk %}selected{% endif %}>
+                    {{ currency.currency }}{% if currency.is_default %} (Default){% endif %}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<script>
+    // Re-initialize Select2 after HTMX swap
+    document.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'company-related-fields') {
+            // Re-initialize Select2 for the new select elements
+            $('#id_role, #id_department, #id_currency').select2();
+        }
+    });
+</script>

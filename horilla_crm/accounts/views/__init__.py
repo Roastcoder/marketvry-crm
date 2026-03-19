@@ -1,0 +1,63 @@
+"""Aggregate and re-export account-related views for convenience imports."""
+
+from horilla_crm.accounts.views.core import (
+    AccountView,
+    AccountsNavbar,
+    AccountListView,
+    AccountGroupByView,
+    AccountsKanbanView,
+    AccountCardView,
+    AccountDetailView,
+    AccountDetailViewTabs,
+    AccountDetailsTab,
+    AccountActivityTab,
+    AccountHistoryTab,
+    AccountRelatedListsTab,
+    AccountHierarchyView,
+    AccountsNotesAndAttachments,
+    AccountSplitView,
+    AccountChartView,
+    AccountTimelineView,
+)
+from horilla_crm.accounts.views.actions import (
+    AccountFormView,
+    AccountsSingleFormView,
+    AccountChangeOwnerForm,
+    AddRelatedContactFormView,
+    AddChildAccountFormView,
+    AccountPartnerFormView,
+    ChildAccountDeleteView,
+    PartnerAccountDeleteView,
+    AccountDeleteView,
+)
+
+__all__ = [
+    # core
+    "AccountView",
+    "AccountsNavbar",
+    "AccountListView",
+    "AccountGroupByView",
+    "AccountsKanbanView",
+    "AccountDetailView",
+    "AccountDetailViewTabs",
+    "AccountDetailsTab",
+    "AccountActivityTab",
+    "AccountHistoryTab",
+    "AccountRelatedListsTab",
+    "AccountHierarchyView",
+    "AccountsNotesAndAttachments",
+    "AccountCardView",
+    "AccountSplitView",
+    "AccountChartView",
+    "AccountTimelineView",
+    # account_form
+    "AccountFormView",
+    "AccountsSingleFormView",
+    "AccountChangeOwnerForm",
+    "AddRelatedContactFormView",
+    "AddChildAccountFormView",
+    "AccountPartnerFormView",
+    "ChildAccountDeleteView",
+    "PartnerAccountDeleteView",
+    "AccountDeleteView",
+]

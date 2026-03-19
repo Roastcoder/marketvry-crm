@@ -1,0 +1,39 @@
+{% load static i18n %}
+<div class="p-5">
+    <div class="flex justify-end mb-2">
+        <button onclick="closeContentModal()" class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+            <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+    </div>
+
+    <div>
+        <div class="border border-dark-50 rounded-lg p-4 bg-white max-h-[500px] overflow-y-auto">
+            <div class="text-sm text-gray-600 mb-3 font-medium border-b border-dark-50 pb-2">
+                {% trans "Email Template Preview" %}
+            </div>
+
+            <!-- Subject Preview -->
+            {% if subject %}
+
+                <div class="mb-4">
+                    <p class="text-xs text-gray-500">{% trans "Subject" %}</p>
+                        <p>
+                            {{ subject|escape }}
+                        </p>
+
+                </div>
+            {% endif %}
+
+            <!-- Body Preview -->
+            <div class="email-preview-content pt-3">
+                {% if body %}
+                    {{ body|safe }}
+                {% else %}
+                    <p class="text-gray-400 italic">
+                        {% trans "No content to preview" %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

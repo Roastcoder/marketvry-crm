@@ -1,0 +1,97 @@
+{% load static %}
+{% load i18n %}
+
+<div class="p-5 bg-white rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-3">
+        <h2 class="text-md font-semibold">{% trans "Load Automation" %}</h2>
+        <button type="button" onclick="closeModal()" class="text-gray-500 hover:text-red-500 text-xl cursor-pointer">
+            <img src="{% static 'assets/icons/close.svg' %}" alt="{% trans 'Close' %}" />
+        </button>
+    </div>
+    {% if automations %}
+      <form
+        id="load-automation-form"
+        hx-post="{% url 'horilla_automations:create_selected_automations' %}"
+        hx-target="#modalBox"
+        hx-swap="innerHTML">
+        <div class="mb-4">
+          <label for="id_mail_server" class="block text-sm mb-1">
+            {% trans "Mail Server" %} <span class="text-red-500">*</span>
+          </label>
+          <select
+            name="mail_server"
+            id="id_mail_server"
+            class="js-example-basic-single headselect w-full"
+            data-placeholder="{% trans 'Select mail server' %}"
+            required>
+            <option value="">{% trans "Select mail server" %}</option>
+            {% for server in mail_servers %}
+              <option value="{{ server.pk }}">{{ server }}</option>
+            {% endfor %}
+          </select>
+          {% if not mail_servers %}
+            <p class="text-xs text-amber-600 mt-1">{% trans "Add an outgoing mail server in Mail to load automations." %}</p>
+          {% endif %}
+        </div>
+
+        <div class="mb-2 p-2">
+          <label class="flex items-center text-sm font-semibold text-primary-600">
+            <input
+              type="checkbox"
+              id="master-select-all"
+              class="bg-[#E9EDF7] w-4 h-4 rounded-sm accent-[#e54f38] mr-2"
+              onchange="toggleAllAutomations(this)">
+            {% trans "Select All" %}
+          </label>
+        </div>
+
+        <div class="max-h-[300px] overflow-y-auto custom-scroll">
+          <div class="grid grid-cols-2 gap-2">
+            {% for automation in automations %}
+              <div class="border border-primary-300 rounded-lg p-2 hover:border-primary-600 transition-colors">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    class="w-3 h-3 border border-[#cfcfcf] rounded-sm accent-[#e54f38] automation-checkbox"
+                    type="checkbox"
+                    name="selected_automations"
+                    value="{{ automation.title }}"
+                    onchange="updateSelectAll()">
+                  <span class="flex-1 text-sm">{{ automation.title }}</span>
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end space-x-2">
+          <button type="submit" class="px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
+            {% trans "Create" %}
+          </button>
+        </div>
+      </form>
+    {% else %}
+      <p class="text-sm text-gray-500 text-center py-4">{% trans "No default automations found." %}</p>
+      {% if not mail_servers %}
+        <p class="text-sm text-amber-600 text-center">{% trans "Add an outgoing mail server to load automations." %}</p>
+      {% endif %}
+    {% endif %}
+</div>
+
+<script>
+function toggleAllAutomations(selectAllCheckbox) {
+  const checkboxes = document.querySelectorAll('.automation-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = selectAllCheckbox.checked;
+  });
+}
+
+function updateSelectAll() {
+  const checkboxes = document.querySelectorAll('.automation-checkbox');
+  const selectAllCheckbox = document.getElementById('master-select-all');
+  if (!selectAllCheckbox) return;
+  const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+  const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+  selectAllCheckbox.checked = allChecked;
+  selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+}
+</script>

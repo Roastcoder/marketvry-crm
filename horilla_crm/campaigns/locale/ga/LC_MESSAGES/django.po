@@ -1,0 +1,233 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : "
+"4);\n"
+
+msgid "Campaigns"
+msgstr ""
+
+msgid "Select Campaign"
+msgstr ""
+
+msgid "Select campaign"
+msgstr ""
+
+msgid "Please select campaign."
+msgstr ""
+
+msgid "This campaign already has a parent campaign assigned."
+msgstr ""
+
+msgid "An campaign cannot be its own parent."
+msgstr ""
+
+msgid "Please select a valid campaign."
+msgstr ""
+
+msgid "Planned"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Recieved"
+msgstr ""
+
+msgid "Responded"
+msgstr ""
+
+msgid "Lead"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Campaign"
+msgstr ""
+
+msgid "Member Status"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Campaign Member"
+msgstr ""
+
+msgid "Campaign Members"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Aborted"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "Social Media"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Webinar"
+msgstr ""
+
+msgid "Referral"
+msgstr ""
+
+msgid "Advertisement"
+msgstr ""
+
+msgid "Campaign Name"
+msgstr ""
+
+msgid "Campaign Owner"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Start Date"
+msgstr ""
+
+msgid "End Date"
+msgstr ""
+
+msgid "Expected Revenue"
+msgstr ""
+
+msgid "Budget Cost"
+msgstr ""
+
+msgid "Actual Cost"
+msgstr ""
+
+msgid "Expected Response (%)"
+msgstr ""
+
+msgid "Number Sent in Campaign"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Parent Campaign"
+msgstr ""
+
+msgid "Leads in Campaign"
+msgstr ""
+
+msgid "Converted Leads in Campaign"
+msgstr ""
+
+msgid "Contacts in Campaign"
+msgstr ""
+
+msgid "Opportunities in Campaign"
+msgstr ""
+
+msgid "Won Opportunities in Campaign"
+msgstr ""
+
+msgid "Value Opportunities in Campaign"
+msgstr ""
+
+msgid "Value Won Opportunities in Campaign"
+msgstr ""
+
+msgid "Responses in Campaign"
+msgstr ""
+
+msgid "Campaign Hierarchy"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Duplicate"
+msgstr ""
+
+msgid "Campaign Information"
+msgstr ""
+
+msgid "Financial Information"
+msgstr ""
+
+msgid "Additional Information"
+msgstr ""
+
+msgid "Change Owner"
+msgstr ""
+
+msgid "View Hierarchy"
+msgstr ""
+
+msgid "Add Child Campaign"
+msgstr ""
+
+msgid "You must be logged in to perform this action."
+msgstr ""
+
+msgid "No parent campaign specified in the request."
+msgstr ""
+
+msgid "A campaign cannot be its own parent."
+msgstr ""
+
+msgid "This campaign already has a parent campaign."
+msgstr ""
+
+msgid "Child campaign assigned successfully!"
+msgstr ""
+
+msgid "Invalid parent campaign ID format."
+msgstr ""
+
+msgid "You don't have permission to perform this action."
+msgstr ""
+
+msgid "This campaign doesn't have a parent campaign."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_campaign.campaign_name} from {parent_campaign."
+"campaign_name}'s child campaigns."
+msgstr ""
+
+msgid "An error occurred while removing the child campaign."
+msgstr ""
+
+msgid "Add to Campaign"
+msgstr ""
+
+msgid "Add Campaign Members"
+msgstr ""

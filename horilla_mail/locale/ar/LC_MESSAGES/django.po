@@ -1,0 +1,520 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:51+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid ""
+"Module for managing incoming and outgoing emails through mail servers and "
+"Outlook."
+msgstr ""
+"وحدة لإدارة رسائل البريد الإلكتروني الواردة والصادرة عبر خوادم البريد "
+"وOutlook."
+
+msgid "Mail System"
+msgstr "نظام البريد"
+
+msgid "To Email"
+msgstr "إلى البريد الإلكتروني"
+
+msgid "Enter email address to send test email"
+msgstr "أدخل عنوان البريد الإلكتروني لإرسال رسالة اختبارية"
+
+msgid "Enter the email address where you want to send the test email."
+msgstr "أدخل عنوان البريد الإلكتروني الذي تريد إرسال رسالة الاختبار إليه."
+
+msgid "Please enter a valid email address."
+msgstr "يرجى إدخال عنوان بريد إلكتروني صالح."
+
+msgid "Enter app password"
+msgstr "أدخل كلمة مرور التطبيق"
+
+msgid "Enter the app-specific password for your mail account."
+msgstr "أدخل كلمة مرور التطبيق المخصصة لحساب البريد الإلكتروني الخاص بك."
+
+msgid "Enter the app-specific password  for your mail account."
+msgstr "أدخل كلمة مرور التطبيق المخصصة لحساب البريد الإلكتروني الخاص بك."
+
+msgid "Enter client secret"
+msgstr "أدخل سر العميل"
+
+msgid ""
+"Enter the client secret generated from your Microsoft Azure app "
+"registration. This secret is used to authenticate your Outlook integration "
+"securely."
+msgstr ""
+"أدخل سر العميل الذي تم إنشاؤه من تسجيل تطبيق Microsoft Azure. يُستخدم هذا "
+"السر للمصادقة الآمنة على تكامل Outlook."
+
+msgid "Related Model"
+msgstr "النموذج المرتبط"
+
+msgid "Update Mail Template"
+msgstr "تحديث قالب البريد"
+
+msgid "Update Template"
+msgstr "تحديث القالب"
+
+msgid "Create Mail Template"
+msgstr "إنشاء قالب بريد"
+
+msgid "Save Template"
+msgstr "حفظ القالب"
+
+msgid "Mail template \"{}\" updated successfully."
+msgstr "تم تحديث قالب البريد \"{}\" بنجاح."
+
+msgid "Mail template \"{}\" created successfully."
+msgstr "تم إنشاء قالب البريد \"{}\" بنجاح."
+
+msgid "Token not refreshed, Login required"
+msgstr "لم يتم تحديث الرمز، تسجيل الدخول مطلوب"
+
+msgid "Token refreshed successfully"
+msgstr "تم تحديث الرمز بنجاح"
+
+#, python-brace-format
+msgid "Token refresh failed: {error}. Please re-authenticate."
+msgstr ""
+
+#, python-brace-format
+msgid "Token refresh failed: {error}"
+msgstr ""
+
+msgid "Incoming Mail Configurations"
+msgstr "إعدادات البريد الوارد"
+
+msgid "Mail"
+msgstr "البريد"
+
+msgid "Outgoing Mail Server"
+msgstr "خادم البريد الصادر"
+
+msgid "Incoming Mail Server"
+msgstr "خادم البريد الوارد"
+
+msgid "Mail Template"
+msgstr "قالب البريد"
+
+msgid "Outlook"
+msgstr "أوتلوك"
+
+msgid "Incoming"
+msgstr "وارد"
+
+msgid "Outgoing"
+msgstr "صادر"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Mail Channel"
+msgstr "قناة البريد"
+
+msgid ""
+"Specifies whether this configuration handles incoming,outgoing, or both "
+"types of emails."
+msgstr ""
+"يحدد ما إذا كان هذا الإعداد يتعامل مع البريد الوارد أو الصادر أو كليهما."
+
+msgid "Host"
+msgstr "المضيف"
+
+msgid "Port"
+msgstr "المنفذ"
+
+msgid "Default From Mail"
+msgstr "البريد الافتراضي للمرسل"
+
+msgid "Email Host Username"
+msgstr "اسم مستخدم خادم البريد"
+
+msgid "Display Name"
+msgstr "اسم العرض"
+
+msgid "Email Authentication Password"
+msgstr "كلمة مرور مصادقة البريد الإلكتروني"
+
+msgid "Use TLS"
+msgstr "استخدام TLS"
+
+msgid "Use SSL"
+msgstr "استخدام SSL"
+
+msgid "Fail Silently"
+msgstr "الفشل دون إشعار"
+
+msgid "Primary Mail Server"
+msgstr "خادم البريد الأساسي"
+
+msgid "By enabling this the display name will take from who triggered the mail"
+msgstr "عند التفعيل، سيتم تعيين اسم العرض من المستخدم الذي أطلق البريد"
+
+msgid "Email Send Timeout (seconds)"
+msgstr "مهلة إرسال البريد (بالثواني)"
+
+msgid "Client ID"
+msgstr "معرّف العميل"
+
+msgid "Client Secret"
+msgstr "سر العميل"
+
+msgid "Tenant ID"
+msgstr "معرّف المستأجر"
+
+msgid "Redirect URi"
+msgstr "عنوان إعادة التوجيه"
+
+msgid "OAuth authorization endpoint"
+msgstr "نقطة تفويض OAuth"
+
+msgid "OAuth token endpoint"
+msgstr "نقطة رمز OAuth"
+
+msgid "Microsoft Graph API endpoint"
+msgstr "نقطة واجهة Microsoft Graph API"
+
+msgid "This field is required"
+msgstr "هذا الحقل مطلوب"
+
+msgid "Mail Configuration"
+msgstr "إعدادات البريد"
+
+msgid "Mail Configurations"
+msgstr "إعدادات البريد"
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Scheduled"
+msgstr "مجدول"
+
+msgid "Sent"
+msgstr "تم الإرسال"
+
+msgid "Failed"
+msgstr "فشل"
+
+msgid "From"
+msgstr "من"
+
+msgid "Comma separated recipient email addresses"
+msgstr "عناوين البريد الإلكتروني للمستلمين مفصولة بفواصل"
+
+msgid "To"
+msgstr "إلى"
+
+msgid "Cc"
+msgstr "نسخة (Cc)"
+
+msgid "Bcc"
+msgstr "نسخة مخفية (Bcc)"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Body"
+msgstr "المحتوى"
+
+msgid "When the mail should be sent (for scheduled mails)."
+msgstr "توقيت إرسال البريد (للبريد المجدول)."
+
+msgid ""
+"Subject contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+"يحتوي الموضوع على محتوى خطير محتمل (تم اكتشاف XSS). يرجى إزالة أي "
+"سكريبتات أو كود ضار."
+
+msgid ""
+"Body contains potentially dangerous content (XSS detected). Please remove "
+"any scripts or malicious code."
+msgstr ""
+"يحتوي نص الرسالة على محتوى خطير محتمل (تم اكتشاف XSS). يرجى إزالة أي "
+"سكريبتات أو كود ضار."
+
+msgid "Mails"
+msgstr "الرسائل"
+
+msgid "Mail Attachment"
+msgstr "مرفق البريد"
+
+msgid "Mail Attachments"
+msgstr "مرفقات البريد"
+
+msgid "Template title"
+msgstr "عنوان القالب"
+
+msgid "Mail Templates"
+msgstr "قوالب البريد"
+
+msgid "Outgoing Mail Configurations"
+msgstr "إعدادات البريد الصادر"
+
+msgid "Mail sent successfully"
+msgstr "تم إرسال البريد بنجاح"
+
+msgid "Save Changes?"
+msgstr "حفظ التغييرات؟"
+
+msgid "Do you want to save your changes as a draft or discard them?"
+msgstr "هل تريد حفظ التغييرات كمسودة أم تجاهلها؟"
+
+msgid "Discard"
+msgstr "تجاهل"
+
+msgid "Save as Draft"
+msgstr "حفظ كمسودة"
+
+msgid "No emails found for"
+msgstr "لم يتم العثور على رسائل لـ"
+
+msgid "Start typing to search emails..."
+msgstr "ابدأ الكتابة للبحث عن الرسائل..."
+
+msgid "Insert Fields"
+msgstr "إدراج الحقول"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Select fields to insert into your email template."
+msgstr "حدد الحقول لإدراجها في قالب البريد."
+
+msgid "Instance"
+msgstr "المثيل"
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Request"
+msgstr "الطلب"
+
+msgid "Direct Fields"
+msgstr "الحقول المباشرة"
+
+msgid "User Fields"
+msgstr "حقول المستخدم"
+
+msgid "Company Fields"
+msgstr "حقول الشركة"
+
+msgid "Request Fields"
+msgstr "حقول الطلب"
+
+msgid "Related Fields"
+msgstr "الحقول المرتبطة"
+
+msgid "Reverse Related Fields"
+msgstr "الحقول المرتبطة العكسية"
+
+msgid "No fields available for this model"
+msgstr "لا توجد حقول متاحة لهذا النموذج"
+
+msgid "Insert Selected Fields"
+msgstr "إدراج الحقول المحددة"
+
+msgid "Test Email Configuration"
+msgstr "تكوين البريد الإلكتروني التجريبي"
+
+msgid "Loading..."
+msgstr "جاري التحميل..."
+
+msgid "Send Test Email"
+msgstr "إرسال بريد إلكتروني تجريبي"
+
+msgid "Select Mail Server Type"
+msgstr "حدد نوع خادم البريد"
+
+msgid "Outlook Mail Server"
+msgstr "خادم بريد Outlook"
+
+msgid "Configure using Microsoft Azure/Office 365 OAuth authentication"
+msgstr "التكوين باستخدام مصادقة Microsoft Azure/Office 365 OAuth"
+
+msgid "Select Outlook"
+msgstr "حدد Outlook"
+
+msgid "mail"
+msgstr "بريد"
+
+msgid "Other Mail Servers"
+msgstr "خوادم البريد الأخرى"
+
+msgid "Configure SMTP, Gmail, Yahoo, or any other mail server"
+msgstr "تكوين SMTP أو Gmail أو Yahoo أو أي خادم بريد آخر"
+
+msgid "Select Other"
+msgstr "حدد آخر"
+
+msgid "Refresh"
+msgstr "تحديث"
+
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Mail Configuration Required"
+msgstr "تكوين البريد مطلوب"
+
+msgid "Cannot send email"
+msgstr "لا يمكن إرسال البريد الإلكتروني"
+
+msgid "Mail can only be sent after outgoing mail is configured."
+msgstr "يمكن إرسال البريد فقط بعد تكوين البريد الصادر."
+
+msgid "Configure Outgoing Mail"
+msgstr "تكوين البريد الصادر"
+
+msgid "Please contact your administrator to configure outgoing mail settings."
+msgstr "يرجى الاتصال بالمسؤول لتكوين إعدادات البريد الصادر."
+
+msgid "Send Mail"
+msgstr "إرسال البريد"
+
+msgid "No mail server configured"
+msgstr "لم يتم تكوين خادم بريد"
+
+msgid "Related to"
+msgstr "مرتبط بـ"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Mail Preview"
+msgstr "معاينة البريد"
+
+msgid "Email Snapshot"
+msgstr "لقطة البريد الإلكتروني"
+
+msgid "From:"
+msgstr "من:"
+
+msgid "No sender configured"
+msgstr "لم يتم تكوين المرسل"
+
+msgid "No subject"
+msgstr "بدون موضوع"
+
+msgid "No message content"
+msgstr "لا يوجد محتوى للرسالة"
+
+msgid "This is how your email will look when sent"
+msgstr "هكذا سيبدو بريدك الإلكتروني عند الإرسال"
+
+msgid "Enter email subject (optional)"
+msgstr "أدخل موضوع البريد الإلكتروني (اختياري)"
+
+msgid "Select content type (optional)"
+msgstr "حدد نوع المحتوى (اختياري)"
+
+msgid "Save as mail template"
+msgstr "حفظ كقالب بريد"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "Select Mail Template"
+msgstr "حدد قالب البريد"
+
+msgid "Select Template"
+msgstr "حدد القالب"
+
+msgid "Email Template Preview"
+msgstr "معاينة قالب البريد الإلكتروني"
+
+msgid "No content to preview"
+msgstr "لا يوجد محتوى للمعاينة"
+
+msgid "Schedule Email"
+msgstr "جدولة البريد الإلكتروني"
+
+msgid "Schedule Date"
+msgstr "تاريخ الجدولة"
+
+msgid "Schedule"
+msgstr "جدولة"
+
+msgid "Cannot send email. Outgoing mail must be configured first."
+msgstr "لا يمكن إرسال البريد الإلكتروني. يجب تكوين البريد الصادر أولاً."
+
+msgid "To email is required"
+msgstr "البريد الإلكتروني للمستلم مطلوب"
+
+msgid "From mail configuration is required"
+msgstr "تكوين البريد المرسل مطلوب"
+
+msgid ""
+"Both model_name and object_id are required to send mail related to an object."
+msgstr ""
+"كلٌّ من model_name وobject_id مطلوبان لإرسال بريد إلكتروني مرتبط بكائن."
+
+msgid ""
+"Cannot send mail: model information is missing. Please try again from the "
+"opportunity page."
+msgstr ""
+"تعذّر إرسال البريد الإلكتروني: معلومات النموذج مفقودة. يرجى المحاولة مرة أخرى من صفحة الفرصة."
+
+msgid "Failed to send mail: "
+msgstr "فشل إرسال البريد: "
+
+msgid "Error sending mail: "
+msgstr "خطأ في إرسال البريد: "
+
+msgid "Draft saved successfully"
+msgstr "تم حفظ المسودة بنجاح"
+
+msgid "Error saving draft: "
+msgstr "خطأ في حفظ المسودة: "
+
+msgid "Draft discarded"
+msgstr "تم تجاهل المسودة"
+
+msgid "Error discarding draft: "
+msgstr "خطأ في تجاهل المسودة: "
+
+msgid "Schedule time is required"
+msgstr "وقت الجدولة مطلوب"
+
+msgid "Scheduled time must be in the future"
+msgstr "يجب أن يكون الوقت المجدول في المستقبل"
+
+msgid "Invalid date/time format"
+msgstr "تنسيق التاريخ/الوقت غير صالح"
+
+msgid "Scheduled mail not found or you don't have permission"
+msgstr "البريد المجدول غير موجود أو ليس لديك الصلاحية"
+
+msgid "Mail rescheduled successfully for "
+msgstr "تم إعادة جدولة البريد بنجاح لـ "
+
+msgid "Invalid mail configuration selected"
+msgstr "تم تحديد تكوين بريد غير صالح"
+
+msgid "Mail scheduled successfully for "
+msgstr "تم جدولة البريد بنجاح لـ "
+
+msgid "Error scheduling mail: "
+msgstr "خطأ في جدولة البريد: "

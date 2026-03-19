@@ -1,0 +1,43 @@
+{% comment %} {% load horilla_tags i18n %}
+
+<li data-company-id="{{ company_data.company_id }}">
+  <a href="javascript:void(0);">
+    <div class="member-view-box" style="background-color: #f0f4f8; border: 2px solid #3b82f6;">
+      <div class="member-header whitespace-nowrap" style="font-weight: bold; color: #1e40af;">
+        {{ company_data.company_name }}
+      </div>
+      <div class="member-footer">
+        <div class="name">{{ company_data.roles_count }} {% trans "roles" %}</div>
+      </div>
+    </div>
+  </a>
+  {% if company_data.roles %}
+    <ul class="level-1">
+      {% for role in company_data.roles %}
+        {% include "role/role_node.html" with role=role level=1 %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+</li>
+ {% endcomment %}
+ {% load horilla_tags i18n %}
+
+<li data-company-id="{{ company_data.company_id }}">
+  <a href="javascript:void(0);">
+    <div class="member-view-box bg-primary-400 border border-primary-500">
+      <div class="member-header whitespace-nowrap font-bold text-primary-600">
+        {{ company_data.company_name }}
+      </div>
+      <div class="member-footer">
+        <div class="name">{{ company_data.roles_count }} {% trans "roles" %}</div>
+      </div>
+    </div>
+  </a>
+  {% if company_data.roles %}
+    <ul class="level-1">
+      {% for role in company_data.roles %}
+        {% include "role/role_node.html" with role=role level=1 %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+</li>

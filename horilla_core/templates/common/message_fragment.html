@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if variant == "badge" %}
+<span class="bg-red-100 text-red-500 text-xs font-medium px-2 py-0.5 rounded-full">{{ message }}</span>
+{% elif variant == "success_badge" %}
+<span class="bg-green-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{ message }}</span>
+{% elif variant == "border" %}
+<div class="text-xs p-2 border text-red-500">{{ message }}</div>
+{% else %}
+<div class="text-red-500 text-sm">{{ message }}</div>
+{% endif %}

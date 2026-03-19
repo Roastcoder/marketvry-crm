@@ -1,0 +1,313 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Module for creating and customizing reports across all system modules."
+msgstr ""
+
+msgid "Reports"
+msgstr ""
+
+msgid "Analytics"
+msgstr ""
+
+msgid "Folder Name"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "Folder Owner"
+msgstr ""
+
+msgid "Report Folder"
+msgstr ""
+
+msgid "Report Folders"
+msgstr ""
+
+msgid "Column Chart"
+msgstr ""
+
+msgid "Line Chart"
+msgstr ""
+
+msgid "Pie Chart"
+msgstr ""
+
+msgid "Funnel"
+msgstr ""
+
+msgid "Bar Chart"
+msgstr ""
+
+msgid "Donut"
+msgstr ""
+
+msgid "Stacked Vertical Chart"
+msgstr ""
+
+msgid "Stacked Horizontal Chart"
+msgstr ""
+
+msgid "Scatter Chart"
+msgstr ""
+
+msgid "Report Owner"
+msgstr ""
+
+msgid "Report Name"
+msgstr ""
+
+msgid "Module"
+msgstr ""
+
+msgid "Chart Field"
+msgstr ""
+
+msgid "Secondary Field"
+msgstr ""
+
+msgid "Report"
+msgstr ""
+
+msgid " All Reports"
+msgstr ""
+
+msgid "Folders"
+msgstr ""
+
+msgid "All Folders"
+msgstr ""
+
+msgid "Favourites"
+msgstr ""
+
+msgid "All Reports"
+msgstr ""
+
+msgid "You are already selected this field"
+msgstr ""
+
+msgid "No matching columns found"
+msgstr ""
+
+msgid "No fields found matching your search"
+msgstr ""
+
+msgid "R"
+msgstr ""
+
+msgid "C"
+msgstr ""
+
+msgid "A"
+msgstr ""
+
+msgid "Down"
+msgstr ""
+
+msgid "Add to Dashboard"
+msgstr ""
+
+msgid "Record Count"
+msgstr ""
+
+msgid "Is"
+msgstr ""
+
+msgid "Contains"
+msgstr ""
+
+msgid "Greater than"
+msgstr ""
+
+msgid "Less than"
+msgstr ""
+
+msgid "Greater or equal"
+msgstr ""
+
+msgid "Less or equal"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "AND"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "Summary Report"
+msgstr ""
+
+msgid "Total Count"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Subtotal"
+msgstr ""
+
+msgid "Grand Total"
+msgstr ""
+
+msgid "Count"
+msgstr ""
+
+msgid "Overall Grand Total"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Configuration not supported"
+msgstr ""
+
+msgid "Columns"
+msgstr ""
+
+msgid "Grouping"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Selected Columns"
+msgstr ""
+
+msgid "Grouped Columns"
+msgstr ""
+
+msgid "Row Groups"
+msgstr ""
+
+msgid "Column Groups"
+msgstr ""
+
+msgid "Aggregate Columns"
+msgstr ""
+
+msgid "Sum"
+msgstr ""
+
+msgid "Avg"
+msgstr ""
+
+msgid "Max"
+msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Seacrch"
+msgstr ""
+
+msgid "Apply Filters"
+msgstr ""
+
+msgid "Report:"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "You have unsaved changes. Click"
+msgstr ""
+
+msgid "to keep your changes or"
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "to revert."
+msgstr ""
+
+msgid "Detail table"
+msgstr ""
+
+msgid "Pivot table"
+msgstr ""
+
+msgid "Report Chart"
+msgstr ""
+
+msgid "Change Chart"
+msgstr ""
+
+msgid "Change Field"
+msgstr ""
+
+msgid "Export as PDF"
+msgstr ""
+
+msgid "Export as PNG"
+msgstr ""
+
+msgid "Record Count:"
+msgstr ""
+
+msgid "Move"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Select Default Reports"
+msgstr ""
+
+msgid "Select All"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "No reports found."
+msgstr ""
+
+msgid "New Report"
+msgstr ""
+
+msgid "Load Default Reports"
+msgstr ""
+
+msgid "New Folder"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Type"
+msgstr ""

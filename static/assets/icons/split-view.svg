@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 21 21">
+  <defs>
+    <style>
+      .cls-1 { fill: #444; }
+    </style>
+  </defs>
+  <g>
+    <!-- Left side: shorter list rows -->
+    <rect class="cls-1" x="1" y="2" width="7" height="2.2" rx="0.5" ry="0.5"/>
+    <rect class="cls-1" x="1" y="6" width="7" height="2.2" rx="0.5" ry="0.5"/>
+    <rect class="cls-1" x="1" y="10" width="7" height="2.2" rx="0.5" ry="0.5"/>
+    <rect class="cls-1" x="1" y="14" width="7" height="2.2" rx="0.5" ry="0.5"/>
+    <rect class="cls-1" x="1" y="18" width="7" height="2.2" rx="0.5" ry="0.5"/>
+    <!-- Right side: larger detail panel -->
+    <rect class="cls-1" x="10" y="2" width="10" height="18.2" rx="1" ry="1"/>
+  </g>
+</svg>

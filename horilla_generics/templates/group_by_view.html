@@ -1,0 +1,150 @@
+{% load static %}
+{% load i18n %}
+{% load horilla_tags %}
+<style>
+    .htmx-indicator {
+        display: none;
+        pointer-events: none;
+    }
+    .htmx-request .htmx-indicator {
+        display: flex !important;
+        pointer-events: auto;
+    }
+    .htmx-request.htmx-indicator {
+        display: flex !important;
+        pointer-events: auto;
+    }
+
+</style>
+<div id="{{ view_id|safe }}" style="position: relative;">
+    <div id="loading-indicator" class="htmx-indicator tabloading" style="z-index: 30;">
+        <div class="flex justify-center items-center p-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+    </div>
+    {% include "messages.html" %}
+    <button id="reloadButton" hidden
+            hx-get="{{ request.path }}?{{ request.GET.urlencode }}"
+            hx-target="#{{ view_id|safe }}"
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-select="#{{ view_id|safe }}"
+            hx-indicator="#loading-indicator">click</button>
+
+    {% if filter_set_class %}
+        {% include "filterpanel.html" %}
+    {% endif %}
+    {% if enable_quick_filters %}
+        {% include "partials/quick_filters_bar.html" %}
+    {% endif %}
+
+    {% if error %}
+        <div class="p-4 mb-4 text-sm text-red-600 bg-red-50 rounded-lg text-center">
+            {{ error }}
+        </div>
+    {% elif grouped_items %}
+        <div class="space-y-3 bg-[#e9edf0ba] p-5 rounded h-[calc(_100vh_-_200px_)] overflow-hidden overflow-y-auto">
+            {% for group_key, group in grouped_items.items %}
+                <details class="group/details group-by-details bg-white rounded-lg border border-primary-400  overflow-hidden">
+                    <summary class="group-by-summary border-b border-primary-400 group-by-header-band w-full flex items-center gap-3 px-3 py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                        <span class="min-w-[25px] h-[25px] px-1 bg-primary-600 text-white text-xs rounded-full inline-flex items-center justify-center">{{ group.total_count }}</span>
+                        <span class="text-primary-600 text-sm flex-1">{{ group.label }}</span>
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-chevron-down text-primary-600 text-xs transition-transform"></i>
+                        </span>
+                    </summary>
+                    <div class="group-by-content p-5 h-full">
+                        {% if group.items %}
+                        <div class="custom-scroll relative overflow-hidden overflow-y-auto overflow-x-auto {% if table_height_as_class %} {{ table_height_as_class|default:'max-h-[50vh]' }} {% endif %} [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] bg-white rounded-lg max-h-fit z-0 block text-[.8rem]"
+                            id="table-container-{{ view_id|safe }}-{{ group_key|slugify }}">
+                            <table class="w-full {% if not table_class %} border-separate border-spacing-0 {% endif %}">
+                                <thead class="sticky top-0 {% if table_class %} bg-primary-300 text-primary-600 {% else %} bg-white text-primary-600 {% endif %} z-50">
+                                    <tr>
+                                        {% if bulk_select_option %}
+                                            <th class="text-sm sticky left-0 {% if table_class %} bg-primary-300 {% endif %} z-50 top-0 font-bold text-left p-3 border-[1px] border-[solid] border-primary-600" style="width: 50px;">
+                                                <div class="flex items-center justify-center">
+                                                    <input type="checkbox" title="{% trans 'Select Visible Items' %}"
+                                                           data-role="select-all"
+                                                           name="select_all_{{ view_id|safe }}_{{ group_key }}"
+                                                           class="w-4 h-4 {% if table_class %} bg-white {% else %} bg-[#E9EDF7] {% endif %} rounded-sm accent-[#e54f38]" />
+                                                </div>
+                                            </th>
+                                        {% endif %}
+                                        {% for cell in columns %}
+                                            <th {% if forloop.first %}
+                                                class="sticky top-0 {% if bulk_select_option %}left-[40px]{% else %}left-0{% endif %} {% if table_class %}text-sm bg-primary-300 {% else %} text-[.8rem] bg-white font-bold border-[.3px] border-primary-400 text-left p-2 rounded-tl-md  {% endif %} z-50 font-bold text-left p-3 whitespace-nowrap"
+                                            {% else %}
+                                                class="sticky top-0 font-bold text-left p-3 {% if not table_class %} text-[.8rem] font-bold border-[.3px] border-primary-400 text-left p-2 {% else %} text-sm  {% endif %} whitespace-nowrap"
+                                            {% endif %}
+                                            data-field="{{ cell.1 }}"
+                                            {% with header_attrs_for_field=header_attrs|lookup:cell.1 %}
+                                                {% for attr_name, attr_value in header_attrs_for_field.items %}
+                                                    {{ attr_name }}="{{ attr_value }}"
+                                                {% endfor %}
+                                                {% if not header_attrs_for_field.id %}
+                                                    id="col-{{ cell.1 }}-{{ group_key|slugify }}"
+                                                {% endif %}
+                                                {% if not header_attrs_for_field.style %}
+                                                    style="width:200px"
+                                                {% endif %}
+                                            {% endwith %}>
+                                                {% trans cell.0 %}
+                                            </th>
+                                        {% endfor %}
+                                        {% if visible_actions or action_method %}
+                                            {% if visible_actions %}
+                                                {% has_any_actions_for_queryset visible_actions group.items as show_actions_column %}
+                                                {% if use_dropdown %}
+                                                    {% has_any_actions_for_queryset dropdown_actions group.items as show_dropdown_actions %}
+                                                {% endif %}
+                                                {% if show_actions_column or show_dropdown_actions %}
+                                                    <th class="sticky top-0 right-0 font-bold text-left p-3 {% if table_class %} bg-primary-300 text-sm {% else %} text-[.8rem] bg-white font-bold border-[.3px] border-[#e9e9e9] text-left p-2 rounded-tr-md {% endif %} z-50 w-[180px]">
+                                                        {% trans 'Actions' %}
+                                                    </th>
+                                                {% endif %}
+                                            {% else %}
+                                                <th class="sticky top-0 right-0 font-bold text-left p-3 {% if table_class %} bg-primary-300 text-sm {% else %} text-[.8rem] bg-white font-bold border-[.3px] border-[#e9e9e9] text-left p-2 rounded-tr-md {% endif %} z-50 w-[180px]">
+                                                    {% trans 'Actions' %}
+                                                </th>
+                                            {% endif %}
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody id="data-container-{{ view_id }}-{{ group_key|slugify }}">
+                                    {% include "partials/list_view_rows.html" with queryset=group.items has_next=group.has_next next_page=group.next_page group_by_load_more_url=group.load_more_url data_container_id=group.data_container_id %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4 text-gray-500 text-sm bg-white rounded-lg [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] text-[.8rem] border-[.3px] border-[#e9e9e9] p-2">
+                            {% trans "No items in this group." %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="flex flex-col items-center justify-center py-12">
+            <img src="{% static 'assets/img/not-found.svg' %}" alt="404" class="w-60 m-auto mb-4 mt-5" />
+            <p class="text-sm text-center mb-3">
+                {% if no_record_add_button.message %}
+                    {{ no_record_add_button.message }}
+                {% else %}
+                    {% trans "Nothing to show yet. Please add your" %} {{ model_verbose_name }}.
+                {% endif %}
+            </p>
+            {% if no_record_add_button.url %}
+                <button
+                    hx-get="{{ no_record_add_button.url }}"
+                    hx-target="{{ no_record_add_button.target|default:'#modalBox' }}"
+                    hx-swap="{{ no_record_add_button.swap|default:'innerHTML' }}"
+                    onclick="{{ no_record_add_button.onclick|default:'openModal()' }}"
+                    class="{{ no_record_add_button.class|default:'text-sm px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-800 transition duration-300 text-[white] m-auto flex' }}"
+                    {% if no_record_add_button.attrs %}{{ no_record_add_button.attrs|safe }}{% endif %}>
+                    {{ no_record_add_button.title|default:_("Add New") }}
+                </button>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,179 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid ""
+"Module for automating mail and notifications based on model events and "
+"conditions."
+msgstr ""
+"Module pour automatiser les e-mails et les notifications basés sur les événements et conditions du modèle."
+
+msgid "Automations"
+msgstr "Automatisations"
+
+msgid "Mail & Notifications"
+msgstr "E-mail & Notifications"
+
+msgid "Equal (==)"
+msgstr "Égal (==)"
+
+msgid "Not Equal (!=)"
+msgstr "Différent (!=)"
+
+msgid "Less Than (<)"
+msgstr "Inférieur à (<)"
+
+msgid "Greater Than (>)"
+msgstr "Supérieur à (>)"
+
+msgid "Less Than or Equal To (<=)"
+msgstr "Inférieur ou égal à (<=)"
+
+msgid "Greater Than or Equal To (>=)"
+msgstr "Supérieur ou égal à (>=)"
+
+msgid "Contains"
+msgstr "Contient"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Method Title"
+msgstr "Titre de la méthode"
+
+msgid "Module"
+msgstr "Module"
+
+msgid "Mail to/Notify to"
+msgstr "Envoyer un e-mail à / Notifier"
+
+msgid ""
+"Specify recipients for email/notifications. Supports:\n"
+"- Direct email: user@example.com\n"
+"- Self: 'self' (person who triggered)\n"
+"- Instance fields: 'instance.owner.email', 'instance.created_by', 'instance."
+"owner'\n"
+"- Multiple: comma-separated (e.g., 'self, instance.owner.email, "
+"admin@example.com')\n"
+"\n"
+"For notifications: Use user fields directly (e.g., 'instance.owner') or "
+"email addresses.\n"
+"The system will find users by email if an email address is provided."
+msgstr ""
+"Spécifiez les destinataires pour les e-mails/notifications. Prend en charge :\n"
+"- E-mail direct : user@example.com\n"
+"- Soi-même : 'self' (la personne qui a déclenché l'action)\n"
+"- Champs d'instance : 'instance.owner.email', 'instance.created_by', 'instance.owner'\n"
+"- Plusieurs : séparés par des virgules (ex. : 'self, instance.owner.email, admin@example.com')\n"
+"\n"
+"Pour les notifications : utilisez directement les champs utilisateur (ex. : 'instance.owner') ou des adresses e-mail.\n"
+"Le système trouvera les utilisateurs par e-mail si une adresse e-mail est fournie."
+
+msgid "Also Send to"
+msgstr "Envoyer également à"
+
+msgid "Mail Detail Choice"
+msgstr "Choix des détails de l'e-mail"
+
+msgid "Trigger"
+msgstr "Déclencheur"
+
+msgid "Mail Template"
+msgstr "Modèle d'e-mail"
+
+msgid "Notification Template"
+msgstr "Modèle de notification"
+
+msgid "Outgoing Mail Server"
+msgstr "Serveur de messagerie sortant"
+
+msgid ""
+"Select the mail server to use for sending emails. If not selected, the "
+"primary mail server will be used."
+msgstr ""
+"Sélectionnez le serveur de messagerie à utiliser pour l'envoi des e-mails. Si aucun n'est sélectionné, le serveur de messagerie principal sera utilisé."
+
+msgid "Choose Delivery Channel"
+msgstr "Choisir le canal de livraison"
+
+msgid "Mail and Notification"
+msgstr "E-mail et notification"
+
+msgid "Mail and Notifications"
+msgstr "E-mail et notifications"
+
+msgid "Automation"
+msgstr "Automatisation"
+
+msgid "Field Name"
+msgstr "Nom du champ"
+
+msgid "Operator"
+msgstr "Opérateur"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "AND"
+msgstr "ET"
+
+msgid "OR"
+msgstr "OU"
+
+msgid "Logical Operator"
+msgstr "Opérateur logique"
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Automation Condition"
+msgstr "Condition d'automatisation"
+
+msgid "Automation Conditions"
+msgstr "Conditions d'automatisation"
+
+msgid "Load Automation"
+msgstr "Charger l'automatisation"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Mail Server"
+msgstr "Serveur de messagerie"
+
+msgid "Select mail server"
+msgstr "Sélectionner le serveur de messagerie"
+
+msgid "Add an outgoing mail server in Mail to load automations."
+msgstr "Ajoutez un serveur de messagerie sortant dans E-mail pour charger les automatisations."
+
+msgid "Select All"
+msgstr "Tout sélectionner"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "No default automations found."
+msgstr "Aucune automatisation par défaut trouvée."
+
+msgid "Add an outgoing mail server to load automations."
+msgstr "Ajoutez un serveur de messagerie sortant pour charger les automatisations."
+
+msgid "Condition"
+msgstr "Condition"

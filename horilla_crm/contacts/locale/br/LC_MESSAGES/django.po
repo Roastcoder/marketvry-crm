@@ -1,0 +1,214 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=5; plural=((n%10 == 1) && (n%100 != 11) && (n%100 !"
+"=71) && (n%100 !=91) ? 0 :(n%10 == 2) && (n%100 != 12) && (n%100 !=72) && "
+"(n%100 !=92) ? 1 :(n%10 ==3 || n%10==4 || n%10==9) && (n%100 < 10 || n% 100 "
+"> 19) && (n%100 < 70 || n%100 > 79) && (n%100 < 90 || n%100 > 99) ? 2 :(n != "
+"0 && n % 1000000 == 0) ? 3 : 4);\n"
+
+msgid "Contacts"
+msgstr ""
+
+msgid "Select Contact"
+msgstr ""
+
+msgid "Select the contact to assign as a child contact."
+msgstr ""
+
+msgid "Please select contact."
+msgstr ""
+
+msgid "This contact already has a parent contact assigned."
+msgstr ""
+
+msgid "An contact cannot be its own parent."
+msgstr ""
+
+msgid "Please select a valid contact."
+msgstr ""
+
+msgid "Web"
+msgstr ""
+
+msgid "Phone Inquiry"
+msgstr ""
+
+msgid "Partner Referral"
+msgstr ""
+
+msgid "Purchased List"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Contact Owner"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "First Name"
+msgstr ""
+
+msgid "Last Name"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Secondary Phone"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Zip"
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Parent Contact"
+msgstr ""
+
+msgid "Contact Source"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Birth Date"
+msgstr ""
+
+msgid "Assistant"
+msgstr ""
+
+msgid "Assistant Phone"
+msgstr ""
+
+msgid "Languages"
+msgstr ""
+
+msgid "Is Primary"
+msgstr ""
+
+msgid "Contact Score"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Role"
+msgstr ""
+
+msgid "Contact Account Relationship"
+msgstr ""
+
+msgid "Contact Account Relationships"
+msgstr ""
+
+msgid "contact Hierarchy"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Change Owner"
+msgstr ""
+
+msgid "Duplicate"
+msgstr ""
+
+msgid "Contact Information"
+msgstr ""
+
+msgid "Address Information"
+msgstr ""
+
+msgid "Additional Information"
+msgstr ""
+
+msgid "Related Campaigns"
+msgstr ""
+
+msgid "Related Opportunities"
+msgstr ""
+
+msgid "Related Accounts"
+msgstr ""
+
+msgid "Child Contacts"
+msgstr ""
+
+msgid "View Hierarchy"
+msgstr ""
+
+msgid "Add Account Contact Relationships"
+msgstr ""
+
+msgid "Add Child Contact"
+msgstr ""
+
+msgid "You must be logged in to perform this action."
+msgstr ""
+
+msgid "No parent contact specified in the request."
+msgstr ""
+
+msgid "A contact cannot be its own parent."
+msgstr ""
+
+msgid "This contact already has a parent contact."
+msgstr ""
+
+msgid "Child contact assigned successfully!"
+msgstr ""
+
+msgid "Invalid parent contact ID format."
+msgstr ""
+
+msgid "An unexpected error occurred while assigning the child contact."
+msgstr ""
+
+msgid "You don't have permission to perform this action."
+msgstr ""
+
+msgid "This contact doesn't have a parent contact."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_contact} from {parent_contact}'s child contacts."
+msgstr ""
+
+msgid "An error occurred while removing the child contact."
+msgstr ""

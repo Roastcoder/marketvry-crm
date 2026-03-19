@@ -1,0 +1,1000 @@
+{% extends "index.html" %}
+{% load static i18n horilla_tags%}
+{% block content %}
+<div class="flex modelcontent">
+    {% include "components/sub_sidebar.html" %}
+
+    <button id="markUnavailableBtn" style="display: none;"
+        hx-get="{% url 'horilla_calendar:mark_unavailability' %}"
+        hx-vals="{}"
+        hx-target="#modalBox"
+        hx-swap="innerHTML">
+        {% trans "Mark Unavailable" %}
+    </button>
+    <button id="newActivityBtn" style="display: none;"
+        hx-get="{% url 'horilla_activity:activity_create_form' %}"
+        hx-vals="{}"
+        hx-target="#modalBox"
+        hx-swap="innerHTML">
+        {% trans "New Activity" %}
+    </button>
+    <div id="mainContent" class="flex-[1_0] leftspace transition-all duration-300 ease-in-out pt-0">
+        <button id="reloadMainContent" style="display: none;" hx-get="{% url 'horilla_calendar:calendar_view' %}{% if request.GET.display_only %}?display_only={{ request.GET.display_only }}{% endif %}" hx-target="#mainContent" hx-select="#mainContent"  hx-swap="outerHTML">
+            Reload Content
+        </button>
+            {% include "messages.html" %}
+        <div class="bg-white px-5 border-b border-b-dark-50 fixed w-fill-available z-10">
+            <div class="flex flex-nowrap overflow-hidden overflow-x-auto items-center gap-2 justify-between">
+                <div class="flex flex-col min-w-0">
+                    <h3 class="text-md font-semibold">{% trans 'Calendar' %}</h3>
+                    <span class="text-sm text-dark-400 font-medium truncate block min-h-[1.25rem]" id="calendarTitle"></span>
+                </div>
+                <div class="flex items-center gap-10 h-[70px]">
+                    <div class="flex items-center gap-10">
+                    <div class="flex items-center gap-2">
+                        <button id="prevBtn"
+                            class="group text-xs p-2 w-8 h-8 flex justify-center items-center rounded-md transition duration-300 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button id="todayBtn"
+                            class="tab-btn text-xs px-3 py-2 rounded-md transition duration-300 h-8 w-16 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                            {% trans 'Today' %}
+                        </button>
+                        <button id="nextBtn"
+                            class="group text-xs p-2 w-8 h-8 flex justify-center items-center rounded-md transition duration-300 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="flex gap-1">
+                            <button id="dayView"
+                                class="tab-btn text-xs px-3 py-2 rounded-md transition duration-300 h-8 w-16 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                                {% trans 'Day' %}
+                            </button>
+                            <button id="weekView"
+                                class="tab-btn text-xs px-3 py-2 rounded-md transition duration-300 h-8 w-16 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                                {% trans 'Week' %}
+                            </button>
+                            <button id="monthView"
+                                class="tab-btn text-xs px-3 py-2 rounded-md transition duration-300 h-8 w-16 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                                {% trans 'Month' %}
+                            </button>
+                            <button id="yearView"
+                                class="tab-btn text-xs px-3 py-2 rounded-md transition duration-300 h-8 w-16 bg-primary-300 text-primary-600 hover:bg-primary-600 hover:text-white">
+                                {% trans 'Year' %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            window.calendarInitialized = false;
+            window.currentDisplayOnly = "{{ request.GET.display_only|default:'' }}";
+
+            window.hasActivityCreatePerm = {% if perms.horilla_activity.add_activity or perms.horilla_activity.add_own_activity %}true{% else %}false{% endif %};
+            window.hasActivityChangeOwnPerm = {% if perms.horilla_activity.change_activity or perms.horilla_activity.change_own_activity %}true{% else %}false{% endif %};
+            window.hasActivityDeletePerm = {% if perms.horilla_activity.delete_activity or perms.horilla_activity.delete_own_activity %}true{% else %}false{% endif %};
+            window.hasActivityViewOwnPerm = {% if perms.horilla_activity.view_activity or perms.horilla_activity.view_own_activity %}true{% else %}false{% endif %};
+
+            window.statusFieldPermission = "{{ status_field_permission }}";
+
+            window.hasUnavailabilityCreatePerm = {% if perms.horilla_calendar.add_useravailability or perms.horilla_calendar.add_own_useravailability %}true{% else %}false{% endif %};
+            window.hasUnavailabilityChangeOwnPerm = {% if perms.horilla_calendar.change_useravailability or perms.horilla_calendar.change_own_useravailability %}true{% else %}false{% endif %};
+            window.hasUnavailabilityDeletePerm = {% if perms.horilla_calendar.delete_userunavalability or perms.horilla_calendar.delete_own_userunavalability %}true{% else %}false{% endif %};
+
+
+            function getCalendarUrl(baseUrl) {
+                if (window.currentDisplayOnly) {
+                    return baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'display_only=' + encodeURIComponent(window.currentDisplayOnly);
+                }
+                return baseUrl;
+            }
+
+            function updateEventStatus(eventId, newStatus) {
+                fetch('{% url "horilla_calendar:mark_completed" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        event_id: eventId,
+                        status: newStatus
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        $('#reloadMainContent').click();
+                        if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+                    } else {
+                        alert('Error updating status: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Failed to update status: ' + error.message);
+                });
+            }
+
+            // HTMX helper functions for calendar events
+            function editEvent(eventId, editUrl) {
+                htmx.ajax('GET', editUrl, {
+                    target: '#modalBox',
+                    swap: 'innerHTML'
+                }).then(() => {
+                    if (typeof openModal === 'function') {
+                        openModal();
+                    }
+                    if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+                }).catch(error => {
+                    console.error('Error editing event:', error);
+                    alert('Failed to load edit form');
+                });
+            }
+
+            function deleteEvent(eventId, deleteUrl) {
+                if (!deleteUrl || deleteUrl === 'None' || deleteUrl === '#') {
+                    alert('Delete action is not available for this event.');
+                    return;
+                }
+
+                // Use HTMX for delete operations to match the expected flow
+                htmx.ajax('POST', deleteUrl, {
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    values: {
+                        'check_dependencies': 'true'
+                    },
+                    target: '#deleteModeBox',
+                    swap: 'innerHTML'
+                }).then(() => {
+                    if (typeof openDeleteModeModal === 'function') {
+                        openDeleteModeModal();
+                    }
+                    if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+                }).catch(error => {
+                    console.error('Error deleting event:', error);
+                    alert('Failed to delete event');
+                });
+            }
+
+            function showEventInfo(eventId, detailUrl) {
+                if (!detailUrl || detailUrl === 'None' || detailUrl === '#') {
+                    alert('Detail view is not available for this event.');
+                    return;
+                }
+
+                htmx.ajax('GET', detailUrl, {
+                    target: '#mainContent',
+                    swap: 'outerHTML',
+                    select: '#mainContent',
+                    pushUrl: true,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(() => {
+                    if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+                }).catch(error => {
+                    console.error('Error loading event details:', error);
+                    alert('Failed to load event details');
+                });
+            }
+
+            function createNewActivity(clickedDate) {
+                const hiddenBtn = document.getElementById('newActivityBtn');
+                const data = {
+                    start_date_time: clickedDate,
+                    view: 'calendar'
+                };
+                hiddenBtn.setAttribute('hx-vals', JSON.stringify(data));
+                hiddenBtn.click();
+                if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+            }
+
+            function markDateUnavailable(clickedDate) {
+                const hiddenBtn = document.getElementById('markUnavailableBtn');
+                const data = {
+                    start_date_time: clickedDate,
+                };
+                hiddenBtn.setAttribute('hx-vals', JSON.stringify(data));
+                hiddenBtn.click();
+                if (window.hideDetailPopup) window.hideDetailPopup(); else $("#calendarPopup").addClass("hidden");
+            }
+
+            document.addEventListener('htmx:afterRequest', function(event) {
+                const elId = event.detail.elt.id;
+                if (event.detail.xhr.status === 200 && (elId === 'markUnavailableBtn' || elId === 'newActivityBtn')) {
+                    if (typeof openModal === 'function') {
+                        openModal();
+                    }
+                }
+            });
+
+
+
+            // HTML escaping function to prevent XSS attacks
+            function escapeHtml(text) {
+                if (text == null || text === undefined) {
+                    return '';
+                }
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            // JavaScript string escaping for use in onclick handlers and similar contexts
+            function escapeJsString(text) {
+                if (text == null || text === undefined) {
+                    return '';
+                }
+                return String(text)
+                    .replace(/\\/g, '\\\\')  // Escape backslashes first
+                    .replace(/'/g, "\\'")     // Escape single quotes
+                    .replace(/"/g, '\\"')     // Escape double quotes
+                    .replace(/\n/g, '\\n')    // Escape newlines
+                    .replace(/\r/g, '\\r')    // Escape carriage returns
+                    .replace(/\t/g, '\\t');   // Escape tabs
+            }
+
+            function initCalendar() {
+
+                if (window.calendarInitialized) {
+                    return;
+                }
+                window.calendarInitialized = true;
+
+                const calendarEl = $("#calendar")[0];
+                if (!calendarEl) {
+                    window.calendarInitialized = false;
+                    return;
+                }
+                const titleEl = document.getElementById("calendarTitle");
+                // Restore saved view so initialView is always valid (undefined breaks title)
+                window.currentView = window.currentView || localStorage.getItem("calendarView") || "dayGridMonth";
+                const popup = $("#calendarPopup")[0];
+                const popupContent = $("#popupContent")[0];
+
+                const today = new Date();
+                const currentDate = today.toISOString().split('T')[0];
+
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    height: "100%",
+                    expandRows: true,
+                    slotMinTime: "00:00:00",
+                    slotMaxTime: "24:00:00",
+                    scrollTime: "08:00:00",
+                    slotDuration: "00:30:00",
+                    headerToolbar: false,
+                    initialView: window.currentView,
+                    initialDate: currentDate,
+                    navLinks: true,
+                    editable: true,
+                    eventDurationEditable: false,
+                    selectable: true,
+                    nowIndicator: true,
+                    dayMaxEvents: true,
+
+
+                    views: {
+                        timeGridDay: {
+                            dayHeaderFormat: {
+                                weekday: 'long',
+                                day: 'numeric'
+                            }
+                        },
+                        timeGridWeek: {
+                            dayHeaderFormat: {
+                                weekday: 'short',
+                                day: 'numeric'
+                            }
+                        },
+                        multiMonthYear: {
+                            type: "multiMonth",
+                            duration: { years: 1 },
+                            buttonText: "Year",
+                        },
+                    },
+
+                    slotLabelFormat: {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        omitZeroMinute: false,
+                        meridiem: 'short'
+                    },
+
+                    events: function(fetchInfo, successCallback, failureCallback) {
+                        const selectedTypes = Array.from(document.querySelectorAll('.calendar-checkbox:checked'))
+                            .map(checkbox => checkbox.dataset.calendarType);
+
+                        let url = '{% url "horilla_calendar:get_calendar_events" %}?calendar_types[]=' + selectedTypes.join('&calendar_types[]=');
+                        if (window.currentDisplayOnly) {
+                            url += '&display_only=' + encodeURIComponent(window.currentDisplayOnly);
+                        }
+
+                        fetch(url, {
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}',
+                                    'X-Requested-With': 'XMLHttpRequest' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                successCallback(data.events);
+                            } else {
+                                failureCallback(new Error(data.message));
+                            }
+                        })
+                        .catch(error => failureCallback(error));
+                    },
+                    datesSet: function () {
+                        if (titleEl && calendar.view && calendar.view.title) {
+                            titleEl.textContent = calendar.view.title;
+                        }
+                        window.currentView = calendar.view.type;
+                        localStorage.setItem('calendarView', window.currentView);
+                    },
+                    eventTimeFormat: {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        meridiem: "short",
+                    },
+                    eventClick: function (info) {
+                        info.jsEvent.preventDefault();
+                        const event = info.event;
+                        const rect = info.el.getBoundingClientRect();
+                        const containerRect = calendarEl.getBoundingClientRect();
+
+                        let content;
+                        let icons;
+
+                        if (event.extendedProps.calendarType === 'unavailability') {
+                            // Content for unavailability events
+                            const safeTitle = escapeHtml(event.title);
+                            const safeDescription = escapeHtml(event.extendedProps.description || 'No reason provided');
+                            const safeEventId = escapeHtml(event.id);
+                            const safeEventUrl = escapeHtml(event.url || '');
+                            const safeDeleteUrl = escapeHtml(event.extendedProps.deleteUrl || '');
+
+                            content = `
+                                <div class="flex flex-col gap-2 text-sm">
+                                    <h5 class="font-semibold mb-1 bg-primary-300 text-primary-600">${safeTitle}</h5>
+                                    <div class="grid grid-cols-[90px_10px_minmax(0,1fr)] gap-y-1">
+                                        <div class="font-bold">{% trans 'Reason' %}</div>
+                                        <div>:</div>
+                                        <div>${safeDescription}</div>
+                                        <div class="font-bold">{% trans 'Start Date' %}</div>
+                                        <div>:</div>
+                                        <div>${event.extendedProps.start_display || event.start?.toLocaleString()}</div>
+                                        <div class="font-bold">{% trans 'End Date' %}</div>
+                                        <div>:</div>
+                                        <div>${event.extendedProps.end_display || event.end?.toLocaleString() || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            `;
+                            // Icons for unavailability (only Edit and Delete)
+                            const safeEventIdJs = escapeJsString(event.id);
+                            const safeEventUrlJs = escapeJsString(event.url || '');
+                            const safeDeleteUrlJs = escapeJsString(event.extendedProps.deleteUrl || '');
+
+                            icons = `
+                                <div class="flex tablebtn mt-3">
+                                ${ window.hasUnavailabilityChangeOwnPerm ? `
+                                    <button type="button"
+                                        onclick="editEvent('${safeEventIdJs}', '${safeEventUrlJs}')"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Edit' %}"
+                                        aria-label="{% trans 'Edit' %}"
+                                        data-tooltip-placement="top"
+                                    >
+                                        <i class="fas fa-edit text-color-600" style="font-size:15px"></i>
+                                    </button>
+                                    ` : ''}
+                                    ${window.hasUnavailabilityDeletePerm ? `
+                                    <button type="button"
+                                        onclick="deleteEvent('${safeEventIdJs}', '${safeDeleteUrlJs}')"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Delete' %}"
+                                        aria-label="{% trans 'Delete' %}"
+                                        data-tooltip-placement="top"
+                                    >
+                                        <img src="{% static 'assets/icons/a4.svg' %}" alt="" width="15" height="15" />
+                                    </button>
+                                    ` : '' }
+                                </div>
+                            `;
+                        } else {
+                            // Content for other activity types
+                            const subject = event.extendedProps.subject || "No subject";
+                            const status = event.extendedProps.status;
+                            const statusDisplay = event.extendedProps.status_display || status || "";
+                            const activityTypeDisplay = event.extendedProps.activity_type_display || event.extendedProps.calendarType || "";
+                            const calendarType = event.extendedProps.calendarType || "";
+                            const isTask = calendarType === "task";
+                            const dueDateDisplay = event.extendedProps.due_date_display || (event.extendedProps.dueDate ? new Date(event.extendedProps.dueDate).toLocaleString() : "—");
+                            const startDisplay = event.extendedProps.start_display || (event.start ? event.start.toLocaleString() : "—");
+                            const endDisplay = event.extendedProps.end_display || (event.end ? event.end.toLocaleString() : "—");
+                            const assignedToList = event.extendedProps.assignedTo || [];
+                            const clientName = assignedToList.map(user => user.first_name).join(", ") || "Unassigned";
+
+                            // Escape all user inputs to prevent XSS
+                            const safeTitle = escapeHtml(event.title);
+                            const safeSubject = escapeHtml(subject);
+                            const safeClientName = escapeHtml(clientName);
+                            const safeStatus = escapeHtml(statusDisplay);
+                            const safeActivityType = escapeHtml(activityTypeDisplay);
+                            const safeEventId = escapeHtml(event.id);
+                            const safeEventUrl = escapeHtml(event.url || '');
+                            const safeDeleteUrl = escapeHtml(event.extendedProps.deleteUrl || '');
+                            const safeDetailUrl = escapeHtml(event.extendedProps.detailUrl || '');
+
+                            const dateRows = isTask
+                                ? `<div class="font-bold">{% trans 'Due Date' %}</div>
+                                        <div>:</div>
+                                        <div>${dueDateDisplay}</div>`
+                                : `<div class="font-bold">{% trans 'Start Date' %}</div>
+                                        <div>:</div>
+                                        <div>${startDisplay}</div>
+                                        <div class="font-bold">{% trans 'End Date' %}</div>
+                                        <div>:</div>
+                                        <div>${endDisplay}</div>`;
+
+                            content = `
+                                <div class="flex flex-col gap-2 text-sm">
+                                    <h5 class="font-semibold mb-1 bg-primary-300 text-primary-600">${safeTitle}</h5>
+                                    <div class="grid grid-cols-[90px_10px_minmax(0,1fr)] gap-y-1">
+                                        <div class="font-bold">{% trans 'Subject' %}</div>
+                                        <div>:</div>
+                                        <div>${safeSubject}</div>
+                                        ${dateRows}
+                                        <div class="font-bold">{% trans 'Assigned to' %}</div>
+                                        <div>:</div>
+                                        <div>${safeClientName}</div>
+                                        <div class="font-bold">{% trans 'Status' %}</div>
+                                        <div>:</div>
+                                        <div>${safeStatus}</div>
+                                    </div>
+                                    ${status != "completed" && window.statusFieldPermission === "readwrite" ? `
+                                    <button type="button"
+                                        onclick="updateEventStatus('${escapeJsString(event.id)}', 'completed')"
+                                        class="w-full mt-2 py-1.5 px-3 text-xs font-medium rounded-md bg-primary-100 text-primary-600 border border-primary-200 transition duration-300 flex items-center justify-center gap-1.5"
+                                    >
+                                        <i class="fas fa-check"></i>
+                                        <span>{% trans 'Mark as Complete' %}</span>
+                                    </button>
+                                    ` : ""}
+                                </div>
+                            `;
+                            // Icons for other activities (Edit, Delete, Info)
+                            const safeEventIdJs = escapeJsString(event.id);
+                            const safeEventUrlJs = escapeJsString(event.url || '');
+                            const safeDeleteUrlJs = escapeJsString(event.extendedProps.deleteUrl || '');
+                            const safeDetailUrlJs = escapeJsString(event.extendedProps.detailUrl || '');
+
+                            icons = `
+                                <div class="flex tablebtn mt-3">
+                                ${window.hasActivityChangeOwnPerm ? `
+                                    <button type="button"
+                                        onclick="editEvent('${safeEventIdJs}', '${safeEventUrlJs}')"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Edit' %}"
+                                        aria-label="{% trans 'Edit' %}"
+                                        data-tooltip-placement="top"
+                                    >
+                                        <i class="fas fa-edit text-color-600"></i>
+                                    </button>
+                                    ` : '' }
+                                    ${window.hasActivityDeletePerm ? `
+                                    <button type="button"
+                                        onclick="deleteEvent('${safeEventIdJs}', '${safeDeleteUrlJs}')"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Delete' %}"
+                                        aria-label="{% trans 'Delete' %}"
+                                        data-tooltip-placement="top"
+                                    >
+                                        <i class="fas fa-trash text-color-600"></i>
+                                    </button>
+                                    ` : '' }
+                                    ${window.hasActivityViewOwnPerm ? `
+                                    <button type="button"
+                                        onclick="showEventInfo('${safeEventIdJs}', '${safeDetailUrlJs}')"
+                                        class="w-10 h-7 bg-dark-25 flex-1 flex justify-center border-r border-r-[white] hover:bg-dark-50 transition duration-300 items-center"
+                                        title="{% trans 'Info' %}"
+                                        aria-label="{% trans 'Info' %}"
+                                        data-tooltip-placement="top"
+                                    >
+                                        <i class="fas fa-info-circle text-color-600"></i>
+                                    </button>
+                                    ` :  '' }
+                                </div>
+                            `;
+                        }
+
+                        content += icons;
+
+                        showPopup(
+                            content,
+                            rect.left - containerRect.left,
+                            rect.top - containerRect.top
+                        );
+                    },
+                    ...( (window.hasActivityCreatePerm || window.hasUnavailabilityCreatePerm) ? {
+                        dateClick: function (info) {
+
+                            const containerEl = document.getElementById('calendar-container') || calendarEl;
+                            const containerRect = containerEl.getBoundingClientRect();
+                            const x = info.jsEvent.clientX - containerRect.left;
+                            const y = info.jsEvent.clientY - containerRect.top;
+                            const clickedDate = info.dateStr;
+                            const safeClickedDate = escapeJsString(clickedDate);
+
+                            let content = '<div class="flex flex-col gap-2">';
+
+                            if (window.hasActivityCreatePerm) {
+                                content += `
+                                    <button
+                                        onclick="createNewActivity('${safeClickedDate}')"
+                                        class="text-blue-600 text-sm"
+                                    >
+                                        {% trans 'New Activity' %}
+                                    </button>
+                                `;
+                            }
+
+                            if (window.hasUnavailabilityCreatePerm) {
+                                content += `
+                                    <button
+                                        onclick="markDateUnavailable('${safeClickedDate}')"
+                                        class="text-red-600 text-sm"
+                                    >
+                                        {% trans 'Mark as Unavailable' %}
+                                    </button>
+                                `;
+                            }
+
+                            content += '</div>';
+
+                            showPopup(content, x, y);
+                        },
+                    } : {} ),
+                    eventDidMount: function (info) {
+                        const calendarType = info.event.extendedProps.calendarType;
+                        const checkbox = document.querySelector(`.calendar-checkbox[data-calendar-type="${calendarType}"]`);
+                        if (checkbox) {
+                            const color = checkbox.style.borderColor || info.event.extendedProps.backgroundColor
+                            info.el.style.backgroundColor = color;
+                            info.el.style.borderColor = color;
+                        }
+                    },
+                });
+
+                calendar.render();
+                // datesSet can run async; set title immediately so range always shows
+                if (titleEl && calendar.view && calendar.view.title) {
+                    titleEl.textContent = calendar.view.title;
+                }
+                syncMasterCheckbox();
+
+                // Toolbar buttons
+                $("#prevBtn").on("click", () => calendar.prev());
+                $("#nextBtn").on("click", () => calendar.next());
+                $("#todayBtn").on("click", () => calendar.today());
+
+                // Tab buttons
+                const tabButtons = $(".tab-btn");
+
+                function setActiveTab(activeId) {
+                    tabButtons.each(function() {
+                        const $btn = $(this);
+                        if ($btn.attr("id") === activeId) {
+                            $btn.addClass("bg-primary-600 text-white")
+                                .removeClass("bg-primary-300 text-primary-600");
+                        } else {
+                            $btn.addClass("bg-primary-300 text-primary-600")
+                                .removeClass("bg-primary-600 text-white");
+                        }
+                    });
+                }
+
+                $("#dayView").on("click", () => {
+                    calendar.changeView("timeGridDay");
+                    window.currentView = "timeGridDay";
+                    localStorage.setItem('calendarView', window.currentView);
+                    setActiveTab("dayView");
+                });
+
+                $("#weekView").on("click", () => {
+                    calendar.changeView("timeGridWeek");
+                    window.currentView = "timeGridWeek";
+                    localStorage.setItem('calendarView', window.currentView);
+                    setActiveTab("weekView");
+                });
+
+                $("#monthView").on("click", () => {
+                    calendar.changeView("dayGridMonth");
+                    window.currentView = "dayGridMonth";
+                    localStorage.setItem('calendarView', window.currentView);
+                    setActiveTab("monthView");
+                });
+
+                $("#yearView").on("click", () => {
+                    calendar.changeView("multiMonthYear");
+                    window.currentView = "multiMonthYear";
+                    localStorage.setItem('calendarView', window.currentView);
+                    setActiveTab("yearView");
+                });
+
+                setActiveTab(
+                    window.currentView === "timeGridDay" ? "dayView" :
+                    window.currentView === "timeGridWeek" ? "weekView" :
+                    window.currentView === "multiMonthYear" ? "yearView" : "monthView"
+                );
+
+
+                // Color picker functionality
+                $('.calendar-color-picker').on('change', function () {
+                    const calendarType = $(this).data('calendar-type');
+                    const color = this.value;
+                    const checkbox = $(`.calendar-checkbox[data-calendar-type="${calendarType}"]`)[0];
+
+                    // Update checkbox styles
+                    checkbox.style.borderColor = color;
+                    if (checkbox.checked) {
+                        checkbox.style.backgroundColor = color;
+                    }
+
+                    // Get currently selected calendar types
+                    const selectedTypes = Array.from(document.querySelectorAll('.calendar-checkbox:checked'))
+                        .map(checkbox => checkbox.dataset.calendarType);
+
+                    // Save color preference to backend
+                    $.ajax({
+                        url: '{% url "horilla_calendar:save_calendar_preferences" %}',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            calendar_type: calendarType,
+                            color: color,
+                            calendar_types: selectedTypes
+                        }),
+                        success: function (data) {
+                            if (data.status === 'success') {
+                                $('#reloadMainContent').click();
+                                calendar.refetchEvents();
+                                calendar.render();
+                            } else {
+                                console.error('Error saving color:', data.message);
+                            }
+                        },
+                        error: function (error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                });
+
+                // Update checkbox background and refresh events when checked/unchecked
+                $('.calendar-checkbox').on('change', function () {
+                    if (this.checked) {
+                        this.style.backgroundColor = this.style.borderColor;
+                    } else {
+                        this.style.backgroundColor = 'transparent';
+                    }
+                    syncMasterCheckbox();
+
+                    const selectedTypes = Array.from(document.querySelectorAll('.calendar-checkbox:checked'))
+                        .map(checkbox => checkbox.dataset.calendarType);
+
+                    fetch('{% url "horilla_calendar:save_calendar_preferences" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({ calendar_types: selectedTypes }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const url = '{% url "horilla_calendar:get_calendar_events" %}?' + selectedTypes.map(type => `calendar_types[]=${encodeURIComponent(type)}`).join('&');
+                            fetch(url, {
+                                headers: { 'X-CSRFToken': '{{ csrf_token }}',
+                                         'X-Requested-With': 'XMLHttpRequest' },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    calendar.getEventSources().forEach(source => source.remove());
+                                    calendar.addEventSource(data.events);
+
+                                    const calendarUrl = '{% url "horilla_calendar:calendar_view" %}';
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.delete('display_only');
+                                    if (window.history.replaceState) {
+                                        window.history.replaceState(null, '', url.toString());
+                                    }
+                                    window.currentDisplayOnly = '';
+                                    htmx.ajax('GET', calendarUrl, { target: '#mainContent', swap: 'outerHTML', select: '#mainContent' });
+                                } else {
+                                    console.error('Error fetching events:', data.message);
+                                }
+                            })
+                            .catch(error => console.error('Fetch error:', error));
+                        } else {
+                            console.error('Error saving preferences:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Fetch error:', error));
+                });
+
+                // Master checkbox logic for "My Calendars"
+                $('#masterCheckbox').on('change', function() {
+                    const isChecked = this.checked;
+                    const allCheckboxes = $('.calendar-checkbox');
+
+                    allCheckboxes.each(function() {
+                        this.checked = isChecked;
+                        if (isChecked) {
+                            this.style.backgroundColor = this.style.borderColor;
+                        } else {
+                            this.style.backgroundColor = 'transparent';
+                        }
+                    });
+
+                    const selectedTypes = isChecked ?
+                        allCheckboxes.map(function() { return this.dataset.calendarType; }).get() :
+                        [];
+
+                    // Always send the request, even with empty array
+                    $.ajax({
+                        url: '{% url "horilla_calendar:save_calendar_preferences" %}',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            calendar_types: selectedTypes
+                        }),
+                        success: function(data) {
+                            if (data.status === 'success') {
+                                calendar.getEventSources().forEach(source => source.remove());
+
+                                if (selectedTypes.length > 0) {
+                                    const url = '{% url "horilla_calendar:get_calendar_events" %}?' +
+                                        selectedTypes.map(type => `calendar_types[]=${encodeURIComponent(type)}`).join('&');
+
+                                    $.ajax({
+                                        url: url,
+                                        headers: { 'X-CSRFToken': '{{ csrf_token }}',
+                                                  'X-Requested-With': 'XMLHttpRequest' },
+
+                                        success: function(data) {
+                                            if (data.status === 'success') {
+                                                calendar.addEventSource(data.events);
+                                                // Reload without display_only; clear URL so checkboxes stay in sync
+                                                const calendarUrl = '{% url "horilla_calendar:calendar_view" %}';
+                                                const url = new URL(window.location.href);
+                                                url.searchParams.delete('display_only');
+                                                if (window.history.replaceState) {
+                                                    window.history.replaceState(null, '', url.toString());
+                                                }
+                                                window.currentDisplayOnly = '';
+                                                htmx.ajax('GET', calendarUrl, { target: '#mainContent', swap: 'outerHTML', select: '#mainContent' });
+                                            } else {
+                                                console.error('Error fetching events:', data.message);
+                                            }
+                                        },
+                                        error: function(error) {
+                                            console.error('Fetch error:', error);
+                                        }
+                                    });
+                                }
+                            } else {
+                                console.error('Error saving preferences:', data.message);
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                });
+
+                function syncMasterCheckbox() {
+                    const masterCheckbox = $('#masterCheckbox')[0];
+                    if (!masterCheckbox) {
+                        return;
+                      }
+                    const calendarCheckboxes = $('.calendar-checkbox');
+                    const checkedCount = calendarCheckboxes.filter(':checked').length;
+                    const totalCount = calendarCheckboxes.length;
+
+                    if (checkedCount === 0) {
+                        masterCheckbox.checked = false;
+                        masterCheckbox.indeterminate = false;
+                    } else if (checkedCount === totalCount) {
+                        masterCheckbox.checked = true;
+                        masterCheckbox.indeterminate = false;
+                    } else {
+                        masterCheckbox.checked = false;
+                        masterCheckbox.indeterminate = true;
+                    }
+                }
+
+                // Sync checkbox state with "Display This Only" after HTMX settle.
+                $(document).on('htmx:afterSettle', function() {
+                    const displayOnly = new URLSearchParams(window.location.search).get('display_only') || '';
+                    if (displayOnly) {
+                        $('.calendar-checkbox').each(function() {
+                            const type = this.dataset.calendarType;
+                            this.checked = (type === displayOnly);
+                            if (this.checked) {
+                                this.style.backgroundColor = this.style.borderColor;
+                            } else {
+                                this.style.backgroundColor = 'transparent';
+                            }
+                        });
+                        calendar.refetchEvents();
+                    }
+                    syncMasterCheckbox();
+                });
+
+                // Popup functions
+                function showPopup(content, x, y) {
+                    popupContent.innerHTML = content;
+                    popup.style.left = `${x}px`;
+                    popup.style.top = `${y}px`;
+                    $(popup).removeClass("hidden").addClass("fc-popover");
+                }
+                function hideDetailPopup() {
+                    $(popup).addClass("hidden").removeClass("fc-popover");
+                }
+
+                $("#closePopupBtn").on("click", function (e) {
+                    e.stopPropagation();
+                    hideDetailPopup();
+                });
+
+                // Use capture phase so we run before FullCalendar removes the list popover from DOM
+                document.addEventListener("click", function (e) {
+                    if ($(popup).hasClass("hidden")) return;
+                    if ($(popup).has(e.target).length) return;
+                    if ($(e.target).closest(".fc-event").length) return;
+                    if ($(e.target).closest(".fc-popover").length) return;
+                    hideDetailPopup();
+                }, true);
+
+                window.showPopup = showPopup;
+                window.hideDetailPopup = hideDetailPopup;
+            }
+
+
+            $(document).on("htmx:beforeRequest", function(event) {
+                if (event.detail.target.id === "mainContent") {
+                    window.calendarInitialized = false;
+                }
+            });
+
+            $(document).on("htmx:afterSettle", function(event) {
+                const urlParams = new URLSearchParams(window.location.search);
+                window.currentDisplayOnly = urlParams.get('display_only') || '';
+
+                if (!window.calendarInitialized) {
+                    initCalendar();
+                }
+                let activeLinkId = "#" + localStorage.getItem("activeSidebarLinkId");
+                if (activeLinkId) {
+                    $(activeLinkId).addClass("bg-primary-600 text-white").find("img").css("filter", "brightness(0) invert(1)");
+                }
+            });
+        </script>
+    </div>
+
+    <div class="p-5 pt-24">
+        <div class="block lg:grid grid-cols-12 grid-rows-1 gap-4">
+            <div class="col-span-6 lg:col-span-10">
+                <div class="h-full [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_5%)] bg-white rounded-lg z-0 p-4">
+                    <div id="calendar-container" class="relative">
+                        <div id="calendar"></div>
+                        <div id="calendarPopup"
+                            class="absolute bg-white border border-gray-300 shadow-lg rounded-md p-4 text-sm text-gray-800 hidden z-50">
+                            <button
+                                id="closePopupBtn"
+                                class="absolute top-1 right-2 text-gray-500 hover:text-black">
+                                ✕
+                            </button>
+                            <div id="popupContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-6 lg:col-span-2">
+                <div class="h-full shadow-[0px_0px_20px_0px_rgba(0,0,0,0.05)] bg-white rounded-lg z-0 p-4 w-[180px]">
+                    <div class="flex items-center gap-1">
+                        <div class="w-3">
+                            <input type="checkbox"
+                                class="w-5 h-5 border-2 rounded-sm focus:ring-0 master-checkbox"
+                                id="masterCheckbox">
+                        </div>
+                        <span class="flex-2 p-3 text-sm">{% trans 'My Calendars' %}</span>
+                    </div>
+                    <div>
+                        {% for calendar in calendars %}
+                            <div class="flex items-center justify-between gap-2 mb-3 relative">
+                                <div class="flex gap-1 text-sm items-center flex-1">
+                                    <div class="w-5">
+                                        <input
+                                            type="checkbox"
+                                            class="w-5 h-5 border-2 rounded-sm focus:ring-0 calendar-checkbox"
+                                            data-calendar-type="{{ calendar.id }}"
+                                            {% if calendar.selected %}
+                                                style="border-color: {{ user_preferences|lookup:calendar.id|default:calendar.default_color }}; background-color: {{ user_preferences|lookup:calendar.id|default:calendar.default_color }};"
+                                            {% else %}
+                                                style="border-color: {{ user_preferences|lookup:calendar.id|default:calendar.default_color }}; background-color: transparent;"
+                                            {% endif %}
+                                            {% if calendar.selected %}checked{% endif %}
+                                        >
+                                    </div>
+                                    <span class="flex-1">{% trans calendar.name %}</span>
+                                </div>
+                                <div class="relative dropdown-wrapper">
+                                    <button class="text-gray-600 hover:text-gray-800 transition-colors flex items-center justify-center w-6 h-6">
+                                        <img src="{% static 'assets/icons/down.svg' %}" alt="{% trans 'Dropdown' %}" width="13" />
+                                    </button>
+                                    <div class="dropdown-content w-48 absolute bg-white border-primary-300 rounded-lg [box-shadow:0px_0px_20px_0px_rgb(0_0_0_/_8%)] py-2 right-5 top-full z-60">
+                                        <ul class="text-sm">
+                                            <li>
+                                                <button
+                                                    class="px-4 py-1.5 hover:text-primary-600 transition duration-300 text-sm w-full text-left"
+                                                    hx-get="{% url 'horilla_calendar:calendar_view' %}?display_only={{ calendar.id }}"
+                                                    hx-target="#mainContent"
+                                                    hx-select="#mainContent"
+                                                    hx-swap="outerHTML"
+                                                >
+                                                    {% trans 'Display This Only' %}
+                                                </button>
+                                            </li>
+                                            <li class="px-4 py-1.5 flex items-center gap-2">
+                                                <span class="hover:text-primary-600 transition duration-300 text-sm">{% trans 'Color' %}</span>
+                                                <input
+                                                    type="color"
+                                                    class="w-20 h-6 border-none outline-none cursor-pointer calendar-color-picker"
+                                                    value="{{ user_preferences|lookup:calendar.id|default:calendar.default_color }}"
+                                                    data-calendar-type="{{ calendar.id }}"
+                                                >
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        if (!window.calendarInitialized) {
+            initCalendar();
+        }
+    });
+</script>
+
+{% endblock content %}

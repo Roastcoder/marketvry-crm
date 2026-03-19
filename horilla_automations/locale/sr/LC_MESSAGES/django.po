@@ -1,0 +1,169 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 07:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+msgid ""
+"Module for automating mail and notifications based on model events and "
+"conditions."
+msgstr ""
+
+msgid "Automations"
+msgstr ""
+
+msgid "Mail & Notifications"
+msgstr ""
+
+msgid "Equal (==)"
+msgstr ""
+
+msgid "Not Equal (!=)"
+msgstr ""
+
+msgid "Less Than (<)"
+msgstr ""
+
+msgid "Greater Than (>)"
+msgstr ""
+
+msgid "Less Than or Equal To (<=)"
+msgstr ""
+
+msgid "Greater Than or Equal To (>=)"
+msgstr ""
+
+msgid "Contains"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Method Title"
+msgstr ""
+
+msgid "Module"
+msgstr ""
+
+msgid "Mail to/Notify to"
+msgstr ""
+
+msgid ""
+"Specify recipients for email/notifications. Supports:\n"
+"- Direct email: user@example.com\n"
+"- Self: 'self' (person who triggered)\n"
+"- Instance fields: 'instance.owner.email', 'instance.created_by', 'instance."
+"owner'\n"
+"- Multiple: comma-separated (e.g., 'self, instance.owner.email, "
+"admin@example.com')\n"
+"\n"
+"For notifications: Use user fields directly (e.g., 'instance.owner') or "
+"email addresses.\n"
+"The system will find users by email if an email address is provided."
+msgstr ""
+
+msgid "Also Send to"
+msgstr ""
+
+msgid "Mail Detail Choice"
+msgstr ""
+
+msgid "Trigger"
+msgstr ""
+
+msgid "Mail Template"
+msgstr ""
+
+msgid "Notification Template"
+msgstr ""
+
+msgid "Outgoing Mail Server"
+msgstr ""
+
+msgid ""
+"Select the mail server to use for sending emails. If not selected, the "
+"primary mail server will be used."
+msgstr ""
+
+msgid "Choose Delivery Channel"
+msgstr ""
+
+msgid "Mail and Notification"
+msgstr ""
+
+msgid "Mail and Notifications"
+msgstr ""
+
+msgid "Automation"
+msgstr ""
+
+msgid "Field Name"
+msgstr ""
+
+msgid "Operator"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "AND"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "Logical Operator"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
+msgid "Automation Condition"
+msgstr ""
+
+msgid "Automation Conditions"
+msgstr ""
+
+msgid "Load Automation"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Mail Server"
+msgstr ""
+
+msgid "Select mail server"
+msgstr ""
+
+msgid "Add an outgoing mail server in Mail to load automations."
+msgstr ""
+
+msgid "Select All"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "No default automations found."
+msgstr ""
+
+msgid "Add an outgoing mail server to load automations."
+msgstr ""
+
+msgid "Condition"
+msgstr ""

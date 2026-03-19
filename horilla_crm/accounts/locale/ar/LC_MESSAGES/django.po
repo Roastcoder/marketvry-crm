@@ -1,0 +1,303 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Accounts"
+msgstr "الحسابات"
+
+msgid "Select Account"
+msgstr "اختر الحساب"
+
+msgid "Select the account to assign as a child account."
+msgstr "اختر الحساب ليتم تعيينه كحساب فرعي."
+
+msgid "Please select an account."
+msgstr "يرجى اختيار حساب."
+
+msgid "This account already has a parent account assigned."
+msgstr "هذا الحساب لديه بالفعل حساب رئيسي معين."
+
+msgid "An account cannot be its own parent."
+msgstr "لا يمكن للحساب أن يكون حسابه الرئيسي نفسه."
+
+msgid "Please select a valid account."
+msgstr "يرجى اختيار حساب صالح."
+
+msgid "People"
+msgstr "الأشخاص"
+
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+msgid "Referral"
+msgstr "إحالة"
+
+msgid "Event"
+msgstr "الحدث"
+
+msgid "Campaign"
+msgstr "الحملة"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Social Media"
+msgstr "وسائل التواصل الاجتماعي"
+
+msgid "Partner"
+msgstr "شريك"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Prospect"
+msgstr "عميل محتمل"
+
+msgid "Customer - Direct"
+msgstr "عميل - مباشر"
+
+msgid "Customer - Channel"
+msgstr "عميل - عبر القنوات"
+
+msgid "Channel Partner / Reseller"
+msgstr "شريك قناة / موزع"
+
+msgid "Installation Partner"
+msgstr "شريك التثبيت"
+
+msgid "Technology Partner"
+msgstr "شريك تقني"
+
+msgid "Finance"
+msgstr "التمويل"
+
+msgid "Healthcare"
+msgstr "الرعاية الصحية"
+
+msgid "Manufacturing"
+msgstr "التصنيع"
+
+msgid "Agriculture"
+msgstr "الزراعة"
+
+msgid "Construction"
+msgstr "البناء"
+
+msgid "Banking"
+msgstr "البنوك"
+
+msgid "Education"
+msgstr "التعليم"
+
+msgid "Insurance"
+msgstr "التأمين"
+
+msgid "Public"
+msgstr "عام"
+
+msgid "Private"
+msgstr "خاص"
+
+msgid "Subsidiary"
+msgstr "شركة تابعة"
+
+msgid "Account Name"
+msgstr "اسم الحساب"
+
+msgid "Account Number"
+msgstr "رقم الحساب"
+
+msgid "Account Owner"
+msgstr "مالك الحساب"
+
+msgid "Account Type"
+msgstr "نوع الحساب"
+
+msgid "Account Site"
+msgstr "موقع الحساب"
+
+msgid "Account Source"
+msgstr "مصدر الحساب"
+
+msgid "Annual Revenue"
+msgstr "الإيرادات السنوية"
+
+msgid "Billing City"
+msgstr "مدينة الفوترة"
+
+msgid "Billing State"
+msgstr "ولاية الفوترة"
+
+msgid "Billing District"
+msgstr "منطقة الفوترة"
+
+msgid "Billing Zip"
+msgstr "الرمز البريدي للفوترة"
+
+msgid "Shipping City"
+msgstr "مدينة الشحن"
+
+msgid "Shipping State"
+msgstr "ولاية الشحن"
+
+msgid "Shipping District"
+msgstr "منطقة الشحن"
+
+msgid "Shipping Zip"
+msgstr "الرمز البريدي للشحن"
+
+msgid "Is Customer Portal"
+msgstr "هل بوابة العملاء"
+
+msgid "Customer Priority"
+msgstr "أولوية العميل"
+
+msgid "Parent Account"
+msgstr "الحساب الرئيسي"
+
+msgid "Is Partner"
+msgstr "هل هو شريك"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Industry"
+msgstr "الصناعة"
+
+msgid "Number of Employees"
+msgstr "عدد الموظفين"
+
+msgid "Fax"
+msgstr "فاكس"
+
+msgid "Operating Hours"
+msgstr "ساعات العمل"
+
+msgid "Ownership"
+msgstr "الملكية"
+
+msgid "Rating"
+msgstr "التقييم"
+
+msgid "Account Score"
+msgstr "درجة الحساب"
+
+msgid "Account"
+msgstr "الحساب"
+
+msgid "Partner Role"
+msgstr "دور الشريك"
+
+msgid "Partner Account"
+msgstr "حساب الشريك"
+
+msgid "Partner Account Role"
+msgstr "دور حساب الشريك"
+
+msgid "Partner Account Roles"
+msgstr "أدوار حساب الشريك"
+
+
+msgid "Account Hierarchy"
+msgstr "موقع الحساب"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Change Owner"
+msgstr "تغيير المالك"
+
+msgid "Duplicate"
+msgstr "نسخ"
+
+msgid "Account Information"
+msgstr "معلومات الحساب"
+
+msgid "Address Information"
+msgstr "معلومات العنوان"
+
+msgid "Additional Information"
+msgstr "معلومات إضافية"
+
+msgid "New Contact"
+msgstr "جهة اتصال جديدة"
+
+msgid "Add Relationship"
+msgstr "إضافة علاقة"
+
+msgid "Related Contacts"
+msgstr "جهات اتصال ذات صلة"
+
+msgid "Child Accounts"
+msgstr "الحسابات الفرعية"
+
+msgid "View Hierarchy"
+msgstr "عرض التسلسل الهرمي"
+
+msgid "Opportunities"
+msgstr "الفرص"
+
+msgid "Add Contact Relationships"
+msgstr "إضافة علاقات جهة الاتصال"
+
+msgid "Add Child Account"
+msgstr "إضافة حساب فرعي"
+
+msgid "You must be logged in to perform this action."
+msgstr "يجب تسجيل الدخول لتنفيذ هذا الإجراء."
+
+msgid "No parent account specified in the request."
+msgstr "لم يتم تحديد حساب رئيسي في الطلب."
+
+msgid "This account already has a parent account."
+msgstr "هذا الحساب لديه حساب رئيسي بالفعل."
+
+msgid "Child account assigned successfully!"
+msgstr "تم تعيين الحساب الفرعي بنجاح!"
+
+msgid "Invalid parent account ID format."
+msgstr "تنسيق معرف الحساب الرئيسي غير صالح."
+
+msgid "An unexpected error occurred while assigning the child account."
+msgstr "حدث خطأ غير متوقع أثناء تعيين الحساب الفرعي."
+
+msgid "Account Partner"
+msgstr "شريك الحساب"
+
+msgid "You don't have permission to perform this action."
+msgstr "ليس لديك الإذن لتنفيذ هذا الإجراء."
+
+msgid "This contact doesn't have a parent account."
+msgstr "هذه الجهة الاتصال ليس لديها حساب رئيسي."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_account} from {parent_account}'s child accounts."
+msgstr ""
+"تم إزالة {child_account} بنجاح من الحسابات الفرعية لـ {parent_account}."
+
+msgid "An error occurred while removing the child account."
+msgstr "حدث خطأ أثناء إزالة الحساب الفرعي."

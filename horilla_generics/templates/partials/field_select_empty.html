@@ -1,0 +1,7 @@
+<select name="{{ field_name }}" id="{{ field_id }}" class="js-example-basic-single headselect"><option value="">---------</option>
+{% if field_choices %}
+    {% for value, label in field_choices %}
+    <option value="{{ value }}">{{ label }}</option>
+    {% endfor %}
+{% endif %}
+</select>

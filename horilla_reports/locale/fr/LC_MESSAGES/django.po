@@ -1,0 +1,315 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-19 10:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Module for creating and customizing reports across all system modules."
+msgstr ""
+"Module permettant de créer et de personnaliser des rapports sur l’ensemble "
+"des modules du système."
+
+msgid "Reports"
+msgstr "Rapports"
+
+msgid "Analytics"
+msgstr "Analyses"
+
+msgid "Folder Name"
+msgstr "Nom du dossier"
+
+msgid "Folder"
+msgstr "Dossier"
+
+msgid "Folder Owner"
+msgstr "Propriétaire du dossier"
+
+msgid "Report Folder"
+msgstr "Dossier de rapport"
+
+msgid "Report Folders"
+msgstr "Dossiers de rapports"
+
+msgid "Column Chart"
+msgstr "Graphique en colonnes"
+
+msgid "Line Chart"
+msgstr "Graphique linéaire"
+
+msgid "Pie Chart"
+msgstr "Graphique en secteurs"
+
+msgid "Funnel"
+msgstr "Graphique en entonnoir"
+
+msgid "Bar Chart"
+msgstr "Graphique en barres"
+
+msgid "Donut"
+msgstr "Graphique en anneau"
+
+msgid "Stacked Vertical Chart"
+msgstr "Graphique vertical empilé"
+
+msgid "Stacked Horizontal Chart"
+msgstr "Graphique horizontal empilé"
+
+msgid "Scatter Chart"
+msgstr "Nuage de points"
+
+msgid "Report Owner"
+msgstr "Propriétaire du rapport"
+
+msgid "Report Name"
+msgstr "Nom du rapport"
+
+msgid "Module"
+msgstr "Module"
+
+msgid "Chart Field"
+msgstr "Champ du graphique"
+
+msgid "Secondary Field"
+msgstr "Champ secondaire"
+
+msgid "Report"
+msgstr "Rapport"
+
+msgid " All Reports"
+msgstr " Tous les rapports"
+
+msgid "Folders"
+msgstr "Dossiers"
+
+msgid "All Folders"
+msgstr "Tous les dossiers"
+
+msgid "Favourites"
+msgstr "Favoris"
+
+msgid "All Reports"
+msgstr "Tous les rapports"
+
+msgid "You are already selected this field"
+msgstr "Ce champ est déjà sélectionné"
+
+msgid "No matching columns found"
+msgstr "Aucune colonne correspondante trouvée"
+
+msgid "No fields found matching your search"
+msgstr "Aucun champ ne correspond à votre recherche"
+
+msgid "R"
+msgstr "R"
+
+msgid "C"
+msgstr "C"
+
+msgid "A"
+msgstr "A"
+
+msgid "Down"
+msgstr ""
+
+msgid "Add to Dashboard"
+msgstr "Ajouter au tableau de bord"
+
+msgid "Record Count"
+msgstr "Nombre d’enregistrements"
+
+msgid "Is"
+msgstr "Est"
+
+msgid "Contains"
+msgstr "Contient"
+
+msgid "Greater than"
+msgstr "Supérieur à"
+
+msgid "Less than"
+msgstr "Inférieur à"
+
+msgid "Greater or equal"
+msgstr "Supérieur ou égal"
+
+msgid "Less or equal"
+msgstr "Inférieur ou égal"
+
+msgid "Close"
+msgstr ""
+
+msgid "AND"
+msgstr "ET"
+
+msgid "OR"
+msgstr "OU"
+
+msgid "Summary Report"
+msgstr "Rapport récapitulatif"
+
+msgid "Total Count"
+msgstr "Nombre total"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Subtotal"
+msgstr "Sous-total"
+
+msgid "Grand Total"
+msgstr "Total général"
+
+msgid "Count"
+msgstr "Nombre"
+
+msgid "Overall Grand Total"
+msgstr "Total général global"
+
+msgid "Error"
+msgstr "Erreur"
+
+msgid "Configuration not supported"
+msgstr "Configuration non prise en charge"
+
+msgid "Columns"
+msgstr "Colonnes"
+
+msgid "Grouping"
+msgstr "Regroupement"
+
+msgid "Filter"
+msgstr "Filtre"
+
+msgid "Search"
+msgstr ""
+
+msgid "Selected Columns"
+msgstr "Colonnes sélectionnées"
+
+msgid "Grouped Columns"
+msgstr "Colonnes groupées"
+
+msgid "Row Groups"
+msgstr "Groupes de lignes"
+
+msgid "Column Groups"
+msgstr "Groupes de colonnes"
+
+msgid "Aggregate Columns"
+msgstr "Colonnes agrégées"
+
+msgid "Sum"
+msgstr "Somme"
+
+msgid "Avg"
+msgstr "Moyenne"
+
+msgid "Max"
+msgstr "Maximum"
+
+msgid "Min"
+msgstr "Minimum"
+
+msgid "Seacrch"
+msgstr ""
+
+msgid "Apply Filters"
+msgstr "Appliquer les filtres"
+
+msgid "Report:"
+msgstr "Rapport :"
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Edit"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "You have unsaved changes. Click"
+msgstr "Vous avez des modifications non enregistrées. Cliquez sur"
+
+msgid "to keep your changes or"
+msgstr "pour conserver vos modifications ou"
+
+msgid "Discard"
+msgstr "Annuler"
+
+msgid "to revert."
+msgstr "pour revenir en arrière."
+
+msgid "Detail table"
+msgstr "Tableau détaillé"
+
+msgid "Pivot table"
+msgstr "Tableau croisé dynamique"
+
+msgid "Report Chart"
+msgstr "Graphique du rapport"
+
+msgid "Change Chart"
+msgstr "Changer le graphique"
+
+msgid "Change Field"
+msgstr "Changer le champ"
+
+msgid "Export as PDF"
+msgstr ""
+
+msgid "Export as PNG"
+msgstr ""
+
+msgid "Record Count:"
+msgstr "Nombre d’enregistrements :"
+
+msgid "Move"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Select Default Reports"
+msgstr "Sélectionner les rapports par défaut"
+
+msgid "Select All"
+msgstr "Tout sélectionner"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "No reports found."
+msgstr "Aucun rapport trouvé."
+
+msgid "New Report"
+msgstr "Nouveau rapport"
+
+msgid "Load Default Reports"
+msgstr "Charger les rapports par défaut"
+
+msgid "New Folder"
+msgstr "Nouveau dossier"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Type"
+msgstr "Type"

@@ -1,0 +1,213 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-21 08:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Contacts"
+msgstr "جهات الاتصال"
+
+msgid "Select Contact"
+msgstr "اختر جهة الاتصال"
+
+msgid "Select the contact to assign as a child contact."
+msgstr "اختر جهة الاتصال ليتم تعيينها كجهة اتصال فرعية."
+
+msgid "Please select contact."
+msgstr "يرجى اختيار جهة اتصال."
+
+msgid "This contact already has a parent contact assigned."
+msgstr "هذه جهة الاتصال لديها بالفعل جهة اتصال رئيسية معينة."
+
+msgid "An contact cannot be its own parent."
+msgstr "لا يمكن لجهة الاتصال أن تكون جهة اتصال رئيسية لنفسها."
+
+msgid "Please select a valid contact."
+msgstr "يرجى اختيار جهة اتصال صالحة."
+
+msgid "Web"
+msgstr "الويب"
+
+msgid "Phone Inquiry"
+msgstr "استفسار هاتفي"
+
+msgid "Partner Referral"
+msgstr "إحالة شريك"
+
+msgid "Purchased List"
+msgstr "قائمة المشتريات"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Contact Owner"
+msgstr "مالك جهة الاتصال"
+
+msgid "Title"
+msgstr "اللقب"
+
+msgid "First Name"
+msgstr "الاسم الأول"
+
+msgid "Last Name"
+msgstr "اسم العائلة"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Phone"
+msgstr "الهاتف"
+
+msgid "Secondary Phone"
+msgstr "هاتف ثانوي"
+
+msgid "City"
+msgstr "المدينة"
+
+msgid "State"
+msgstr "الولاية"
+
+msgid "Zip"
+msgstr "الرمز البريدي"
+
+msgid "Country"
+msgstr "الدولة"
+
+msgid "Parent Contact"
+msgstr "جهة الاتصال الرئيسية"
+
+msgid "Contact Source"
+msgstr "مصدر جهة الاتصال"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Birth Date"
+msgstr "تاريخ الميلاد"
+
+msgid "Assistant"
+msgstr "المساعد"
+
+msgid "Assistant Phone"
+msgstr "هاتف المساعد"
+
+msgid "Languages"
+msgstr "اللغات"
+
+msgid "Is Primary"
+msgstr "رئيسي"
+
+msgid "Contact Score"
+msgstr "درجة جهة الاتصال"
+
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+msgid "Account"
+msgstr "الحساب"
+
+msgid "Role"
+msgstr "الدور"
+
+msgid "Contact Account Relationship"
+msgstr "علاقة جهة الاتصال بالحساب"
+
+msgid "Contact Account Relationships"
+msgstr "علاقات جهة الاتصال بالحساب"
+
+
+msgid "contact Hierarchy"
+msgstr "مالك جهة الاتصال"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Edit"
+msgstr "تعديل"
+
+msgid "Change Owner"
+msgstr "تغيير المالك"
+
+msgid "Duplicate"
+msgstr "نسخ"
+
+msgid "Contact Information"
+msgstr "معلومات جهة الاتصال"
+
+msgid "Address Information"
+msgstr "معلومات العنوان"
+
+msgid "Additional Information"
+msgstr "معلومات إضافية"
+
+msgid "Related Campaigns"
+msgstr "الحملات المرتبطة"
+
+msgid "Related Opportunities"
+msgstr "الفرص المرتبطة"
+
+msgid "Related Accounts"
+msgstr "الحسابات المرتبطة"
+
+msgid "Child Contacts"
+msgstr "جهات الاتصال الفرعية"
+
+msgid "View Hierarchy"
+msgstr "عرض التسلسل الهرمي"
+
+msgid "Add Account Contact Relationships"
+msgstr "إضافة علاقات جهة الاتصال بالحساب"
+
+msgid "Add Child Contact"
+msgstr "إضافة جهة اتصال فرعية"
+
+msgid "You must be logged in to perform this action."
+msgstr "يجب تسجيل الدخول لتنفيذ هذا الإجراء."
+
+msgid "No parent contact specified in the request."
+msgstr "لم يتم تحديد جهة اتصال رئيسية في الطلب."
+
+msgid "A contact cannot be its own parent."
+msgstr "لا يمكن لجهة الاتصال أن تكون جهة اتصال رئيسية لنفسها."
+
+msgid "This contact already has a parent contact."
+msgstr "هذه جهة الاتصال لديها بالفعل جهة اتصال رئيسية."
+
+msgid "Child contact assigned successfully!"
+msgstr "تم تعيين جهة الاتصال الفرعية بنجاح!"
+
+msgid "Invalid parent contact ID format."
+msgstr "تنسيق معرف جهة الاتصال الرئيسية غير صالح."
+
+msgid "An unexpected error occurred while assigning the child contact."
+msgstr "حدث خطأ غير متوقع أثناء تعيين جهة الاتصال الفرعية."
+
+msgid "You don't have permission to perform this action."
+msgstr "ليس لديك الإذن لتنفيذ هذا الإجراء."
+
+msgid "This contact doesn't have a parent contact."
+msgstr "هذه جهة الاتصال ليس لديها جهة اتصال رئيسية."
+
+#, python-brace-format
+msgid ""
+"Successfully removed {child_contact} from {parent_contact}'s child contacts."
+msgstr ""
+"تم إزالة {child_contact} بنجاح من جهات الاتصال الفرعية لـ {parent_contact}."
+
+msgid "An error occurred while removing the child contact."
+msgstr "حدث خطأ أثناء إزالة جهة الاتصال الفرعية."
