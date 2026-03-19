@@ -10,7 +10,6 @@ DEFAULTS = {
     "LOGIN_WELCOME_LINE": _("Welcome to Marketvry"),
     "LOGIN_TAG_LINE": _("Please sign in to access your dashboard"),
     "SIGNUP_TAG_LINE": _("Please sign up to access Marketvry"),
-    "LOGO_PATH": "images/logo.png",
     "FAVICON_PATH": "favicon.ico",
     "PAGE_HEADER": _("Marketvry"),
 }
