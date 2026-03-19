@@ -8,15 +8,15 @@ services:
       - staticfiles:/app/staticfiles
       - media:/app/media
     environment:
-      - DEBUG=1
-      - SECRET_KEY=dev-secret-key-change-in-production
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-      - CSRF_TRUSTED_ORIGINS=http://localhost:8000
-      - DATABASE_URL=postgres://horilla_user:horilla_pass@db:5432/horilla_db
-      - DB_INIT_PASSWORD=dev-init-password-change-in-production
-      - REDIS_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_BROKER_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://:horilla_pass@redis:6379/0
+      - DEBUG=${DEBUG:-1}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-http://localhost:8000}
+      - DATABASE_URL=${DATABASE_URL:-postgres://horilla_user:horilla_pass@db:5432/horilla_db}
+      - DB_INIT_PASSWORD=${DB_INIT_PASSWORD:-dev-init-password-change-in-production}
+      - REDIS_URL=${REDIS_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://:horilla_pass@redis:6379/0}
     depends_on:
       db:
         condition: service_healthy
@@ -39,10 +39,10 @@ services:
       - .:/app
       - media:/app/media
     environment:
-      - DATABASE_URL=postgres://horilla_user:horilla_pass@db:5432/horilla_db
-      - REDIS_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_BROKER_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://:horilla_pass@redis:6379/0
+      - DATABASE_URL=${DATABASE_URL:-postgres://horilla_user:horilla_pass@db:5432/horilla_db}
+      - REDIS_URL=${REDIS_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://:horilla_pass@redis:6379/0}
     depends_on:
       db:
         condition: service_healthy
@@ -58,10 +58,10 @@ services:
     volumes:
       - .:/app
     environment:
-      - DATABASE_URL=postgres://horilla_user:horilla_pass@db:5432/horilla_db
-      - REDIS_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_BROKER_URL=redis://:horilla_pass@redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://:horilla_pass@redis:6379/0
+      - DATABASE_URL=${DATABASE_URL:-postgres://horilla_user:horilla_pass@db:5432/horilla_db}
+      - REDIS_URL=${REDIS_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://:horilla_pass@redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://:horilla_pass@redis:6379/0}
     depends_on:
       db:
         condition: service_healthy
